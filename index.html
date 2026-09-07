@@ -9,6 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script> <!-- NUEVO -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -1079,6 +1080,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage(); // NUEVO
 
 // ================================================================
 // 1. REFERENCIAS A COLECCIONES (globales)
@@ -1133,6 +1135,24 @@ function tieneAlgunRolApoyo() {
 
 function abrirModal(id) { document.getElementById(id).classList.add('show'); }
 function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ================================================================
+// 3b. FUNCIÓN PARA SUBIR A STORAGE (NUEVO)
+// ================================================================
+function subirArchivoStorage(file, path) {
+  return new Promise((resolve, reject) => {
+    const ref = storage.ref(path);
+    const uploadTask = ref.put(file);
+    uploadTask.on(
+      'state_changed',
+      null,
+      (error) => reject(error),
+      () => {
+        ref.getDownloadURL().then((url) => resolve(url));
+      }
+    );
+  });
+}
 
 // ================================================================
 // 4. FUNCIONES DE AUTENTICACIÓN
@@ -1561,20 +1581,20 @@ function crearPublicacion() {
     }
   };
 
-  if (imgFile) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      media = { type: 'image', data: e.target.result };
-      guardarPost(texto, link, categoria, media);
-    };
-    reader.readAsDataURL(imgFile);
-  } else if (vidFile) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      media = { type: 'video', data: e.target.result };
-      guardarPost(texto, link, categoria, media);
-    };
-    reader.readAsDataURL(vidFile);
+  // MODIFICADO: usar Storage
+  if (imgFile || vidFile) {
+    const file = imgFile || vidFile;
+    const tipo = imgFile ? 'image' : 'video';
+    const path = `posts/${currentUser.uid}/${Date.now()}_${file.name}`;
+    subirArchivoStorage(file, path)
+      .then((url) => {
+        media = { type: tipo, data: url };
+        guardarPost(texto, link, categoria, media);
+      })
+      .catch((err) => {
+        console.error('Error subiendo archivo:', err);
+        alert('Error al subir el archivo.');
+      });
   } else {
     guardarPost(texto, link, categoria, null);
   }
@@ -2121,20 +2141,21 @@ function publicarNecesidad() {
   const desc = document.getElementById('needDesc').value.trim();
   const telefono = document.getElementById('needTelefono').value.trim();
   if (!desc || !telefono) { alert('Descripción y teléfono son obligatorios.'); return; }
-  const fotos = [];
   const files = document.getElementById('needFotos').files;
   if (files.length > 0) {
+    const promesasSubida = [];
     for (let f of files) {
-      const reader = new FileReader();
-      const data = new Promise(resolve => {
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(f);
-      });
-      fotos.push(data);
+      const path = `necesidades/${currentUser.uid}/${Date.now()}_${f.name}`;
+      promesasSubida.push(subirArchivoStorage(f, path));
     }
-    Promise.all(fotos).then(fotosData => {
-      guardarNecesidad(categoria, desc, telefono, fotosData);
-    });
+    Promise.all(promesasSubida)
+      .then((urls) => {
+        guardarNecesidad(categoria, desc, telefono, urls);
+      })
+      .catch((err) => {
+        console.error('Error subiendo fotos:', err);
+        alert('Error al subir fotos.');
+      });
   } else {
     guardarNecesidad(categoria, desc, telefono, []);
   }
@@ -2161,18 +2182,22 @@ function subirAyuda(id, input) {
   if (!isAdmin) return;
   const file = input.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    NECESIDADES.doc(id).get().then(doc => {
-      if (!doc.exists) return;
-      const n = doc.data();
-      const ayudas = n.ayudas || [];
-      ayudas.push(e.target.result);
-      NECESIDADES.doc(id).update({ ayudas });
-      input.value = '';
-    }).catch(console.error);
-  };
-  reader.readAsDataURL(file);
+  const path = `ayudas/${id}/${Date.now()}_${file.name}`;
+  subirArchivoStorage(file, path)
+    .then((url) => {
+      NECESIDADES.doc(id).get().then(doc => {
+        if (!doc.exists) return;
+        const n = doc.data();
+        const ayudas = n.ayudas || [];
+        ayudas.push(url);
+        NECESIDADES.doc(id).update({ ayudas });
+        input.value = '';
+      }).catch(console.error);
+    })
+    .catch((err) => {
+      console.error('Error subiendo ayuda:', err);
+      alert('Error al subir la foto de ayuda.');
+    });
 }
 
 // ================================================================
