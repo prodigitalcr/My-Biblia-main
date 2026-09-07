@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    /* ===== ESTILOS (mismos que antes, por brevedad no los repito) ===== */
+    /* ===== ESTILOS (los mismos, no los repito por brevedad) ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --teal: #1D9E75;
@@ -51,6 +51,7 @@
       padding: 0 12px;
       background: var(--bg-body);
     }
+    /* ===== HEADER ===== */
     .header {
       display: flex;
       align-items: center;
@@ -1300,7 +1301,7 @@ function actualizarUIUsuario() {
 }
 
 // ================================================================
-// 5. SEMBRAR DATOS DE EJEMPLO
+// 5. SEMBRAR DATOS DE EJEMPLO (CON AUTENTICACIÓN ANÓNIMA)
 // ================================================================
 async function sembrarDatosEjemplo() {
   try {
@@ -1310,15 +1311,15 @@ async function sembrarDatosEjemplo() {
       try {
         const cred = await auth.signInAnonymously();
         user = cred.user;
-        console.log('Autenticación anónima exitosa.');
+        console.log('Autenticación anónima exitosa para sembrar datos.');
       } catch (e) {
-        console.warn('No se pudo autenticar anónimamente, se intentará sin autenticación (puede fallar por reglas).');
+        console.warn('No se pudo autenticar anónimamente, se intentará sin autenticación.');
       }
     }
     // Verificar si ya hay datos
     const snap = await POSTS.limit(1).get();
     if (!snap.empty) {
-      console.log('Ya existen datos. No se sobrescriben.');
+      console.log('Ya existen datos en la base de datos. No se sobrescribirán.');
       return;
     }
 
@@ -1553,7 +1554,7 @@ async function sembrarDatosEjemplo() {
 }
 
 // ================================================================
-// 6. FUNCIONES DE RENDER (solo las más importantes)
+// 6. FUNCIONES DE RENDER (SOLO LAS MÁS IMPORTANTES)
 // ================================================================
 
 // --- MURO ---
