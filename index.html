@@ -10,9 +10,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <!-- MAPBOX GL -->
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css" rel="stylesheet" />
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
+  <!-- Leaflet para mapas en modales (no requiere clave) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Maps API se cargará dinámicamente con la clave -->
   <style>
     /* ===== ESTILOS ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -362,7 +363,7 @@
       margin: 6px 0;
       position: relative;
     }
-    .map-wrapper .mapboxgl-map { height: 100%; width: 100%; border-radius: 10px; }
+    .map-wrapper .gmap { height: 100%; width: 100%; border-radius: 10px; }
     .map-search { display: flex; gap: 6px; margin-bottom: 6px; }
     .map-search input { flex: 1; padding: 6px 12px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-size: 13px; }
     .map-search button { padding: 6px 14px; border-radius: 30px; border: none; background: var(--teal); color: white; cursor: pointer; }
@@ -407,8 +408,8 @@
     .admin-list-item .actions { display: flex; gap: 4px; flex-wrap: wrap; }
     .admin-ia-config { background: var(--bg-body); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-top: 6px; }
     .admin-ia-config label { font-weight: 500; font-size: 13px; margin-top: 6px; display: block; }
-    .admin-ia-config input, .admin-ia-config textarea { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: white; color: var(--text-primary); font-size: 13px; margin-top: 2px; }
-    body.dark .admin-ia-config input, body.dark .admin-ia-config textarea { background: #1a1a2e; }
+    .admin-ia-config input, .admin-ia-config textarea, .admin-ia-config select { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: white; color: var(--text-primary); font-size: 13px; margin-top: 2px; }
+    body.dark .admin-ia-config input, body.dark .admin-ia-config textarea, body.dark .admin-ia-config select { background: #1a1a2e; }
     .notificaciones-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 8px; font-size: 11px; cursor: pointer; margin-left: 4px; }
     /* ===== RESPONSIVE ===== */
     @media (max-width: 600px) {
@@ -587,7 +588,7 @@
       </div>
       <div class="ia-chat" id="iaChat"></div>
       <div style="margin-top:4px; font-size:11px; color:var(--text-secondary);">
-        <span id="iaStatus">⚠️ API no configurada. El admin debe ingresar clave OpenRouter.</span>
+        <span id="iaStatus">⚠️ API no configurada. El SuperAdmin debe ingresar clave y modelo.</span>
       </div>
     </div>
   </div>
@@ -650,26 +651,30 @@
     <div id="oracionesContainer"></div>
   </div>
 
-  <!-- MAPA (3D con Mapbox) -->
+  <!-- MAPA con Google Maps -->
   <div class="panel" id="panel-mapa">
     <div class="card">
       <h3><i class="fas fa-church"></i> Grupos de conexión con ubicación</h3>
       <div id="gruposMapaList"></div>
     </div>
     <div class="card">
-      <h3><i class="fas fa-globe-americas"></i> Misioneros e Iglesias locales</h3>
+      <h3><i class="fas fa-globe-americas"></i> Misioneros, Iglesias y Servicios</h3>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
         <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
         <button class="btn-primary" id="btnRegistrarIglesia" style="display:none; background:var(--orange);"><i class="fas fa-place-of-worship"></i> Registrar Iglesia</button>
       </div>
-      <div class="map-wrapper" id="mapa3d"></div>
+      <div class="map-wrapper" id="mapa3d">
+        <div id="googleMap" class="gmap"></div>
+      </div>
       <div style="margin-top:6px; display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
         <span><span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%;"></span> Misioneros</span>
         <span><span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%;"></span> Iglesias</span>
         <span><span style="display:inline-block; width:12px; height:12px; background:#3498db; border-radius:50%;"></span> Grupos</span>
+        <span><span style="display:inline-block; width:12px; height:12px; background:#f39c12; border-radius:50%;"></span> Servicios</span>
       </div>
       <div id="misionerosMapaList" style="margin-top:10px;"></div>
       <div id="iglesiasMapaList" style="margin-top:6px;"></div>
+      <div id="serviciosMapaList" style="margin-top:6px;"></div>
     </div>
   </div>
 
@@ -854,9 +859,23 @@
       <div class="admin-ia-config">
         <label>API Key</label>
         <input type="text" id="openrouterKey" placeholder="sk-or-...">
-        <label>URL del modelo</label>
+        <label>URL del modelo (base)</label>
         <input type="text" id="openrouterModel" placeholder="https://openrouter.ai/api/v1/chat/completions" value="https://openrouter.ai/api/v1/chat/completions">
-        <button class="btn-primary" id="btnGuardarConfigIA" style="margin-top:6px;">Guardar clave y URL</button>
+        <label>Modelo a usar</label>
+        <select id="openrouterModelSelect">
+          <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+          <option value="openai/gpt-4">GPT-4</option>
+          <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
+          <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
+          <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+          <option value="google/gemini-pro">Gemini Pro</option>
+          <option value="google/gemini-1.5-pro">Gemini 1.5 Pro</option>
+          <option value="meta-llama/llama-3-70b-instruct">Llama 3 70B</option>
+          <option value="mistralai/mistral-large">Mistral Large</option>
+          <option value="custom">Otro (especificar abajo)</option>
+        </select>
+        <input type="text" id="openrouterCustomModel" placeholder="Modelo personalizado (ej: openai/gpt-4)" style="display:none;">
+        <button class="btn-primary" id="btnGuardarConfigIA" style="margin-top:6px;">Guardar clave, URL y modelo</button>
         <hr style="border-color:var(--border-color); margin:12px 0;">
         <label>Entrenar agente (contexto histórico / teológico)</label>
         <textarea id="iaContexto" placeholder="Instrucciones adicionales para el asistente..." rows="3"></textarea>
@@ -866,17 +885,17 @@
     </div>
     <div class="config-msg" id="msgIAConfig"><p>⚠️ Solo el SuperAdmin puede configurar la IA.</p></div>
 
-    <!-- CONFIGURACIÓN MAPBOX (solo SuperAdmin) -->
-    <div class="card config-solo-admin" id="cardMapboxConfig">
-      <h3><i class="fas fa-map"></i> Configuración de Mapbox (para mapa 3D)</h3>
+    <!-- CONFIGURACIÓN Google Maps (solo SuperAdmin) -->
+    <div class="card config-solo-admin" id="cardGoogleMapsConfig">
+      <h3><i class="fas fa-map"></i> Configuración de Google Maps</h3>
       <div class="admin-ia-config">
-        <label>Token de Mapbox</label>
-        <input type="text" id="mapboxToken" placeholder="pk.eyJ1...">
-        <button class="btn-primary" id="btnGuardarMapboxToken" style="margin-top:6px;">Guardar Token</button>
-        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén un token gratis en <a href="https://account.mapbox.com/" target="_blank">Mapbox</a>.</p>
+        <label>API Key de Google Maps</label>
+        <input type="text" id="googleMapsKey" placeholder="AIzaSy...">
+        <button class="btn-primary" id="btnGuardarGoogleMapsKey" style="margin-top:6px;">Guardar clave</button>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén una clave en <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> (habilita Maps JavaScript API).</p>
       </div>
     </div>
-    <div class="config-msg" id="msgMapboxConfig"><p>⚠️ Solo el SuperAdmin puede configurar el token de Mapbox.</p></div>
+    <div class="config-msg" id="msgGoogleMapsConfig"><p>⚠️ Solo el SuperAdmin puede configurar la clave de Google Maps.</p></div>
   </div>
 
   <!-- ===== MODALES ===== -->
@@ -1252,7 +1271,7 @@ const SEGUIDORES = db.collection('seguidores');
 const NOTIFICACIONES = (uid) => db.collection('notificaciones').doc(uid).collection('items');
 const CONFIG_IA = db.collection('config_ia').doc('config');
 const APP_CONFIG = db.collection('appConfig').doc('config');
-const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
+const CONFIG_GOOGLE_MAPS = db.collection('config_googlemaps').doc('config');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -1260,14 +1279,15 @@ const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 let currentUser = null;
 let isAdmin = false;
 let isSuperAdmin = false;
-let isRegularAdmin = false; // solo admin@iglesia.com (se mantiene para otras funciones)
+let isRegularAdmin = false;
 let carruselInterval = null;
 let editModeActivo = false;
 let chatGrupoActual = null;
 let mapInstances = {};
 let listeners = {};
-let mapboxMap = null;
-let mapboxMarkers = [];
+let googleMap = null;
+let googleMarkers = [];
+let googleMapsKey = '';
 
 const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
@@ -1292,9 +1312,6 @@ function tieneAlgunRolApoyo() {
 function abrirModal(id) { document.getElementById(id).classList.add('show'); }
 function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
 
-// ================================================================
-// 3b. FUNCIÓN PARA SUBIR A STORAGE
-// ================================================================
 function subirArchivoStorage(file, path) {
   return new Promise((resolve, reject) => {
     const ref = storage.ref(path);
@@ -1311,7 +1328,7 @@ function subirArchivoStorage(file, path) {
 }
 
 // ================================================================
-// 4. FUNCIONES DE AUTENTICACIÓN
+// 4. AUTENTICACIÓN Y USUARIO
 // ================================================================
 window.loginUser = async function(email, password) {
   try {
@@ -1402,14 +1419,14 @@ async function cargarUsuarioActual(user) {
         ministerio: ''
       };
     }
-    // Definir roles
     isSuperAdmin = (user.email === 'salyluz@comunidad.com');
     isRegularAdmin = (user.email === 'admin@iglesia.com');
     isAdmin = isSuperAdmin || isRegularAdmin;
     actualizarUIUsuario();
     cargarContadorNotificaciones();
     cargarLogoConfig();
-    cargarMapboxToken();
+    cargarGoogleMapsKey();
+    cargarConfigIA();
   } catch (error) {
     console.error('Error cargando perfil:', error);
   }
@@ -1438,11 +1455,12 @@ window.logoutUser = async function() {
     renderChatEquipo();
     renderMisionerosMapa();
     renderIglesiasMapa();
+    renderServiciosMapa();
     actualizarBotonesPorRol();
     actualizarTabs();
-    if (mapboxMap) {
-      mapboxMarkers.forEach(m => m.remove());
-      mapboxMarkers = [];
+    if (googleMap) {
+      googleMarkers.forEach(m => m.setMap(null));
+      googleMarkers = [];
     }
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
@@ -1489,14 +1507,13 @@ function actualizarUIUsuario() {
     btnEditarVersos.style.display = 'none';
   }
 
-  // Ocultar configuraciones sensibles si no es SuperAdmin
-  const isConfigAllowed = isSuperAdmin; // <--- CAMBIO CLAVE
-  const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardMapboxConfig'];
+  const isConfigAllowed = isSuperAdmin;
+  const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardGoogleMapsConfig'];
   configCards.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isConfigAllowed ? 'block' : 'none';
   });
-  const msgIds = ['msgLogoConfig', 'msgIAConfig', 'msgMapboxConfig'];
+  const msgIds = ['msgLogoConfig', 'msgIAConfig', 'msgGoogleMapsConfig'];
   msgIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isConfigAllowed ? 'none' : 'block';
@@ -1532,7 +1549,7 @@ function switchPanel(name) {
     case 'reportes': renderReportes(); break;
     case 'chatadmin': renderChatAdmin(); break;
     case 'chatequipo': renderChatEquipo(); break;
-    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); initMapbox(); break;
+    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initGoogleMap(); break;
     case 'biblia': cargarHistorial(); break;
     case 'inicio': renderCarrusel(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
@@ -2173,93 +2190,88 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA 3D CON MAPBOX
+// 11. MAPA CON GOOGLE MAPS
 // ================================================================
-let mapboxToken = '';
-
-function cargarMapboxToken() {
-  CONFIG_MAPBOX.get().then(doc => {
-    if (doc.exists && doc.data().token) {
-      mapboxToken = doc.data().token;
+function cargarGoogleMapsKey() {
+  CONFIG_GOOGLE_MAPS.get().then(doc => {
+    if (doc.exists && doc.data().apiKey) {
+      googleMapsKey = doc.data().apiKey;
+      // Cargar la API de Google Maps dinámicamente si no está cargada
+      if (typeof google === 'undefined' || !google.maps) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&callback=initGoogleMap&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      } else {
+        initGoogleMap();
+      }
     } else {
-      mapboxToken = '';
-    }
-    if (document.getElementById('panel-mapa').classList.contains('active')) {
-      initMapbox();
+      document.getElementById('mapa3d').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">⚠️ El SuperAdmin debe configurar la clave de Google Maps en el panel de Admin.</p>';
     }
   }).catch(console.error);
 }
 
-function guardarMapboxToken() {
-  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar Mapbox.'); return; }
-  const token = document.getElementById('mapboxToken').value.trim();
-  if (!token) { alert('Ingresa un token de Mapbox.'); return; }
-  CONFIG_MAPBOX.set({ token: token }).then(() => {
-    alert('Token guardado.');
-    mapboxToken = token;
-    initMapbox();
+function guardarGoogleMapsKey() {
+  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar Google Maps.'); return; }
+  const key = document.getElementById('googleMapsKey').value.trim();
+  if (!key) { alert('Ingresa una clave de Google Maps.'); return; }
+  CONFIG_GOOGLE_MAPS.set({ apiKey: key }).then(() => {
+    alert('Clave guardada.');
+    googleMapsKey = key;
+    // Recargar la API
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initGoogleMap&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
   }).catch(console.error);
 }
 
-function initMapbox() {
-  if (!mapboxToken) {
-    document.getElementById('mapa3d').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">⚠️ El administrador debe configurar un token de Mapbox en el panel de Admin.</p>';
+function initGoogleMap() {
+  if (typeof google === 'undefined' || !google.maps) {
+    // Si la API no está cargada, esperar
     return;
   }
-  const container = document.getElementById('mapa3d');
-  if (mapboxMap) {
-    mapboxMap.remove();
-    mapboxMap = null;
-    mapboxMarkers.forEach(m => m.remove());
-    mapboxMarkers = [];
+  const container = document.getElementById('googleMap');
+  if (!container) return;
+  if (googleMap) {
+    // Limpiar mapa anterior
+    googleMap = null;
+    googleMarkers.forEach(m => m.setMap(null));
+    googleMarkers = [];
   }
-  mapboxgl.accessToken = mapboxToken;
-  mapboxMap = new mapboxgl.Map({
-    container: container,
-    style: 'mapbox://styles/mapbox/streets-v12',
-    center: [-84.0, 10.0], // Costa Rica
-    zoom: 6,
-    pitch: 45,
-    bearing: 0,
-    antialias: true
-  });
-  mapboxMap.addControl(new mapboxgl.NavigationControl());
-  mapboxMap.addControl(new mapboxgl.GeolocateControl({
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true
-  }));
-
-  mapboxMap.on('load', function() {
-    cargarMarcadoresMapbox();
-  });
+  const mapOptions = {
+    center: { lat: 10.0, lng: -84.0 },
+    zoom: 7,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  googleMap = new google.maps.Map(container, mapOptions);
+  // Agregar controles de geolocalización (puedes usar la API de Places si deseas)
+  // Cargar marcadores
+  cargarMarcadoresGoogleMaps();
 }
 
-function cargarMarcadoresMapbox() {
-  if (!mapboxMap) return;
-  // Eliminar marcadores antiguos
-  mapboxMarkers.forEach(m => m.remove());
-  mapboxMarkers = [];
+function cargarMarcadoresGoogleMaps() {
+  if (!googleMap) return;
+  googleMarkers.forEach(m => m.setMap(null));
+  googleMarkers = [];
 
   // Cargar misioneros
   MISIONEROS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
       if (m.lat && m.lng) {
-        const el = document.createElement('div');
-        el.className = 'marcador-misionero';
-        el.style.width = '24px';
-        el.style.height = '24px';
-        el.style.background = '#e74c3c';
-        el.style.borderRadius = '50%';
-        el.style.border = '2px solid white';
-        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<div class="map-popup"><strong>${m.nombre}</strong><br>${m.ciudad || ''}<br>📞 ${m.whatsapp || ''}</div>`);
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([parseFloat(m.lng), parseFloat(m.lat)])
-          .setPopup(popup)
-          .addTo(mapboxMap);
-        mapboxMarkers.push(marker);
+        const marker = new google.maps.Marker({
+          position: { lat: parseFloat(m.lat), lng: parseFloat(m.lng) },
+          map: googleMap,
+          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<div class="map-popup"><strong>${m.nombre}</strong><br>${m.ciudad || ''}<br>📞 ${m.whatsapp || ''}</div>`
+        });
+        marker.addListener('click', () => info.open(googleMap, marker));
+        googleMarkers.push(marker);
       }
     });
   });
@@ -2269,21 +2281,16 @@ function cargarMarcadoresMapbox() {
     snapshot.forEach(doc => {
       const i = doc.data();
       if (i.lat && i.lng) {
-        const el = document.createElement('div');
-        el.className = 'marcador-iglesia';
-        el.style.width = '24px';
-        el.style.height = '24px';
-        el.style.background = '#2ecc71';
-        el.style.borderRadius = '50%';
-        el.style.border = '2px solid white';
-        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<div class="map-popup"><strong>${i.nombre}</strong><br>${i.direccion || ''}<br>📞 ${i.telefono || ''}<br>⏰ ${i.horarios || ''}</div>`);
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([parseFloat(i.lng), parseFloat(i.lat)])
-          .setPopup(popup)
-          .addTo(mapboxMap);
-        mapboxMarkers.push(marker);
+        const marker = new google.maps.Marker({
+          position: { lat: parseFloat(i.lat), lng: parseFloat(i.lng) },
+          map: googleMap,
+          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<div class="map-popup"><strong>${i.nombre}</strong><br>${i.direccion || ''}<br>📞 ${i.telefono || ''}<br>⏰ ${i.horarios || ''}</div>`
+        });
+        marker.addListener('click', () => info.open(googleMap, marker));
+        googleMarkers.push(marker);
       }
     });
   });
@@ -2293,21 +2300,35 @@ function cargarMarcadoresMapbox() {
     snapshot.forEach(doc => {
       const g = doc.data();
       if (g.lat && g.lng) {
-        const el = document.createElement('div');
-        el.className = 'marcador-grupo';
-        el.style.width = '24px';
-        el.style.height = '24px';
-        el.style.background = '#3498db';
-        el.style.borderRadius = '50%';
-        el.style.border = '2px solid white';
-        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`<div class="map-popup"><strong>${g.nombre}</strong><br>Facilitador: ${g.facilitador}<br>${g.ubicacion || ''}</div>`);
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([parseFloat(g.lng), parseFloat(g.lat)])
-          .setPopup(popup)
-          .addTo(mapboxMap);
-        mapboxMarkers.push(marker);
+        const marker = new google.maps.Marker({
+          position: { lat: parseFloat(g.lat), lng: parseFloat(g.lng) },
+          map: googleMap,
+          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<div class="map-popup"><strong>${g.nombre}</strong><br>Facilitador: ${g.facilitador}<br>${g.ubicacion || ''}</div>`
+        });
+        marker.addListener('click', () => info.open(googleMap, marker));
+        googleMarkers.push(marker);
+      }
+    });
+  });
+
+  // Cargar servicios con ubicación
+  getServiciosRef().get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const s = doc.data();
+      if (s.lat && s.lng) {
+        const marker = new google.maps.Marker({
+          position: { lat: parseFloat(s.lat), lng: parseFloat(s.lng) },
+          map: googleMap,
+          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' }
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<div class="map-popup"><strong>${s.nombre}</strong><br>${s.direccion || ''}<br>📞 ${s.telefono || ''}<br>⏰ ${s.fecha} ${s.horario}</div>`
+        });
+        marker.addListener('click', () => info.open(googleMap, marker));
+        googleMarkers.push(marker);
       }
     });
   });
@@ -2370,7 +2391,7 @@ function renderMisionerosMapa() {
       </div>`;
     });
     container.innerHTML = html;
-    if (mapboxMap) cargarMarcadoresMapbox();
+    if (googleMap) cargarMarcadoresGoogleMaps();
   });
 }
 
@@ -2404,7 +2425,30 @@ function renderIglesiasMapa() {
       </div>`;
     });
     container.innerHTML = html;
-    if (mapboxMap) cargarMarcadoresMapbox();
+    if (googleMap) cargarMarcadoresGoogleMaps();
+  });
+}
+
+function renderServiciosMapa() {
+  if (listeners.serviciosMapa) listeners.serviciosMapa();
+  const container = document.getElementById('serviciosMapaList');
+  container.innerHTML = '<p style="color:var(--text-secondary);">Cargando servicios...</p>';
+  listeners.serviciosMapa = getServiciosRef().orderBy('fechaRegistro', 'desc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary);">No hay servicios con ubicación.</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const s = doc.data();
+      if (!s.lat || !s.lng) return;
+      let ubicacionDisplay = `<a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+      html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
+        <strong>${s.nombre}</strong> (${s.direccion || ''}) - ${ubicacionDisplay}
+      </div>`;
+    });
+    container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay servicios con ubicación.</p>';
+    if (googleMap) cargarMarcadoresGoogleMaps();
   });
 }
 
@@ -2937,7 +2981,6 @@ function renderReportes() {
   if (listeners.reportes) listeners.reportes();
   const container = document.getElementById('reportesContainer');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando reportes...</p>';
-  // Mostrar todos los reportes (públicos)
   listeners.reportes = getReportesRef().orderBy('fecha', 'desc').onSnapshot(snapshot => {
     if (snapshot.empty) {
       container.innerHTML = '<p style="color:var(--text-secondary);">No hay reportes aún. ¡Crea el primero!</p>';
@@ -3183,7 +3226,6 @@ function renderAdminPanel() {
     document.getElementById('statReportes').textContent = stats.reportes;
   });
 
-  // Usuarios con opción de editar (excepto superadmin)
   USERS.get().then(snapshot => {
     const list = document.getElementById('adminUserList');
     if (snapshot.empty) {
@@ -3675,7 +3717,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 21. ASISTENTE IA
+// 21. ASISTENTE IA (OpenRouter con selector de modelo)
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -3687,18 +3729,19 @@ function preguntarIA() {
   CONFIG_IA.get().then(function(doc) {
     const config = doc.exists ? doc.data() : null;
     const key = config ? config.apiKey : '';
-    const model = config ? config.model : 'https://openrouter.ai/api/v1/chat/completions';
+    const baseUrl = config ? config.model : 'https://openrouter.ai/api/v1/chat/completions';
+    const model = config ? config.selectedModel : 'openai/gpt-3.5-turbo';
     const contexto = config ? config.contexto : '';
 
     if (!key) {
-      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ⚠️ La clave API de OpenRouter no está configurada. El administrador debe ingresarla.</div>';
+      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ⚠️ La clave API de OpenRouter no está configurada. El SuperAdmin debe ingresarla.</div>';
       chat.scrollTop = chat.scrollHeight;
       return;
     }
 
     const prompt = 'Eres un asistente para ayudar a entender el contexto histórico y teológico de pasajes bíblicos. ' + (contexto ? 'Instrucciones adicionales: ' + contexto : '') + ' Responde a esta pregunta de manera clara y concisa: ' + pregunta;
 
-    fetch(model, {
+    fetch(baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -3707,7 +3750,7 @@ function preguntarIA() {
         'X-Title': 'Sal y Luz'
       },
       body: JSON.stringify({
-        model: 'openai/gpt-3.5-turbo',
+        model: model,
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 500
       })
@@ -3726,18 +3769,23 @@ function preguntarIA() {
 }
 
 // ================================================================
-// 22. CONFIGURACIÓN IA
+// 22. CONFIGURACIÓN IA (con selector de modelo)
 // ================================================================
 function guardarConfigIA() {
   if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar la IA.'); return; }
   const key = document.getElementById('openrouterKey').value.trim();
   const model = document.getElementById('openrouterModel').value.trim() || 'https://openrouter.ai/api/v1/chat/completions';
+  let selectedModel = document.getElementById('openrouterModelSelect').value;
+  if (selectedModel === 'custom') {
+    selectedModel = document.getElementById('openrouterCustomModel').value.trim() || 'openai/gpt-3.5-turbo';
+  }
   CONFIG_IA.set({
     apiKey: key || '',
     model: model,
+    selectedModel: selectedModel,
     actualizado: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    document.getElementById('iaStatus').textContent = '✅ Configurada.';
+    document.getElementById('iaStatus').textContent = '✅ Configurada. Modelo: ' + selectedModel;
     alert('Configuración guardada.');
   }).catch(err => { console.error(err); alert('Error: ' + err.message); });
 }
@@ -3755,10 +3803,32 @@ function cargarConfigIA() {
       document.getElementById('openrouterKey').value = data.apiKey || '';
       document.getElementById('iaContexto').value = data.contexto || '';
       document.getElementById('openrouterModel').value = data.model || 'https://openrouter.ai/api/v1/chat/completions';
-      if (data.apiKey) document.getElementById('iaStatus').textContent = '✅ API configurada.';
+      const sel = document.getElementById('openrouterModelSelect');
+      if (data.selectedModel) {
+        // Intentar seleccionar el modelo guardado
+        const optionExists = Array.from(sel.options).some(opt => opt.value === data.selectedModel);
+        if (optionExists) {
+          sel.value = data.selectedModel;
+        } else {
+          sel.value = 'custom';
+          document.getElementById('openrouterCustomModel').value = data.selectedModel;
+          document.getElementById('openrouterCustomModel').style.display = 'block';
+        }
+      }
+      if (data.apiKey) document.getElementById('iaStatus').textContent = '✅ API configurada. Modelo: ' + (data.selectedModel || '');
     }
   }).catch(console.error);
 }
+
+// Mostrar/ocultar campo de modelo personalizado
+document.getElementById('openrouterModelSelect').addEventListener('change', function() {
+  const customInput = document.getElementById('openrouterCustomModel');
+  if (this.value === 'custom') {
+    customInput.style.display = 'block';
+  } else {
+    customInput.style.display = 'none';
+  }
+});
 
 // ================================================================
 // 23. MAPA INTERACTIVO (Leaflet para modales)
@@ -4198,9 +4268,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnGuardarConfigIA').addEventListener('click', guardarConfigIA);
   document.getElementById('btnGuardarContextoIA').addEventListener('click', guardarContextoIA);
 
-  // ---- ADMIN MAPBOX ----
-  document.getElementById('btnGuardarMapboxToken').addEventListener('click', guardarMapboxToken);
-  document.getElementById('mapboxToken').value = mapboxToken;
+  // ---- ADMIN GOOGLE MAPS ----
+  document.getElementById('btnGuardarGoogleMapsKey').addEventListener('click', guardarGoogleMapsKey);
+  document.getElementById('googleMapsKey').value = googleMapsKey;
 
   // ---- EDICIÓN DE VERSÍCULOS ----
   document.getElementById('btnEditarVersos').addEventListener('click', function() {
@@ -4239,14 +4309,15 @@ document.addEventListener('DOMContentLoaded', function() {
   renderChatEquipo();
   renderMisionerosMapa();
   renderIglesiasMapa();
+  renderServiciosMapa();
   renderCarrusel();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
   cargarLogoConfig();
-  cargarMapboxToken();
+  cargarGoogleMapsKey();
 
-  console.log('✅ SAL Y LUZ completamente funcional y corregido.');
+  console.log('✅ SAL Y LUZ completamente funcional con Google Maps y selector de IA.');
 });
 
 // ================================================================
@@ -4351,12 +4422,9 @@ async function sembrarDatosEjemplo() {
   }
 }
 
-// ================================================================
-// 30. INICIALIZACIÓN FINAL
-// ================================================================
 sembrarDatosEjemplo();
 
-// Exponer funciones globales necesarias para los onclick
+// Exponer funciones globales
 window.switchPanel = switchPanel;
 window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
@@ -4389,6 +4457,7 @@ window.publicarOracion = publicarOracion;
 window.orarOracion = orarOracion;
 window.renderMisionerosMapa = renderMisionerosMapa;
 window.renderIglesiasMapa = renderIglesiasMapa;
+window.renderServiciosMapa = renderServiciosMapa;
 window.abrirModalMisionero = abrirModalMisionero;
 window.registrarMisionero = registrarMisionero;
 window.eliminarMisionero = eliminarMisionero;
@@ -4435,6 +4504,7 @@ window.buscarTexto = buscarTexto;
 window.preguntarIA = preguntarIA;
 window.guardarConfigIA = guardarConfigIA;
 window.guardarContextoIA = guardarContextoIA;
+window.guardarGoogleMapsKey = guardarGoogleMapsKey;
 window.initMap = initMap;
 window.buscarEnMapa = buscarEnMapa;
 window.guardarEdicionPerfil = guardarEdicionPerfil;
@@ -4444,9 +4514,8 @@ window.guardarEditarUsuario = guardarEditarUsuario;
 window.subirLogo = subirLogo;
 window.eliminarLogo = eliminarLogo;
 window.cargarLogoConfig = cargarLogoConfig;
-window.cargarMapboxToken = cargarMapboxToken;
-window.guardarMapboxToken = guardarMapboxToken;
-window.initMapbox = initMapbox;
+window.cargarGoogleMapsKey = cargarGoogleMapsKey;
+window.initGoogleMap = initGoogleMap;
 </script>
 </body>
 </html>
