@@ -292,29 +292,58 @@
     .feature-card i { font-size: 2.2rem; color: var(--teal); margin-bottom: 8px; display: block; }
     .feature-card h5 { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
     .feature-card small { color: var(--text-secondary); font-size: 0.8rem; }
-    .event-section { margin: 20px 0; }
-    .event-item {
+    /* Eventos modernos */
+    .event-section {
+      margin: 20px 0;
+    }
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .event-card {
+      background: var(--bg-body);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: var(--teal);
+    }
+    .event-card .date-badge {
+      display: inline-block;
+      background: var(--teal);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .event-card h5 {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+    }
+    .event-card p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 4px 0;
+    }
+    .event-card .place {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border-color);
+      gap: 4px;
     }
-    .event-item:last-child { border-bottom: none; }
-    .event-date {
-      min-width: 60px;
-      text-align: center;
-      background: var(--teal-light);
-      border-radius: 12px;
-      padding: 6px 10px;
-      color: var(--teal-dark);
-      font-weight: 600;
-    }
-    .event-date .day { font-size: 1.4rem; line-height: 1; }
-    .event-date .month { font-size: 0.7rem; text-transform: uppercase; }
-    .event-info { flex: 1; }
-    .event-info h6 { margin: 0; font-weight: 600; }
-    .event-info p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+    .event-card .place i { color: var(--teal); }
     .verse-day {
       background: var(--teal-light);
       border-radius: var(--radius);
@@ -351,7 +380,10 @@
       object-fit: cover;
       background: var(--bg-body);
       box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
+    .perfil-avatar-grande:hover { transform: scale(1.05); }
     .perfil-nombre {
       margin-top: 50px;
       font-size: 1.6rem;
@@ -378,6 +410,7 @@
       width: 100%;
       height: 250px;
       object-fit: cover;
+      cursor: pointer;
     }
     .perfil-carrusel .foto-slide.active { display: block; }
     .perfil-carrusel .carousel-control {
@@ -413,12 +446,59 @@
     }
     .perfil-carrusel .indicators span.active { background: white; }
 
+    /* Visor de imágenes a pantalla completa */
+    .image-viewer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: pointer;
+    }
+    .image-viewer.show { display: flex; }
+    .image-viewer img {
+      max-width: 95%;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+      cursor: default;
+    }
+    .image-viewer .close-viewer {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .image-viewer .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 16px 20px;
+      font-size: 30px;
+      cursor: pointer;
+      border-radius: 50%;
+      z-index: 10;
+      transition: 0.2s;
+    }
+    .image-viewer .nav-btn:hover { background: rgba(255,255,255,0.4); }
+    .image-viewer .nav-btn.prev { left: 20px; }
+    .image-viewer .nav-btn.next { right: 20px; }
+
     /* Resto de estilos existentes (se mantienen) */
     .carousel-container { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #1a1a2e; box-shadow: var(--shadow); }
     .carousel-slide { display: none; width: 100%; height: 260px; object-fit: cover; }
     .carousel-slide.active { display: block; }
-    .carousel-slide img, .carousel-slide video { width: 100%; height: 100%; object-fit: cover; }
-    .carousel-slide iframe { width: 100%; height: 100%; border: 0; }
+    .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
     .carousel-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; text-align: left; }
     .carousel-caption h5 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
     .carousel-caption p { font-size: 13px; opacity: 0.9; margin: 0; }
@@ -449,8 +529,9 @@
       flex-shrink: 0;
       background-size: cover;
       background-position: center;
+      cursor: pointer;
     }
-    .post-author { font-weight: 600; font-size: 15px; }
+    .post-author { font-weight: 600; font-size: 15px; cursor: pointer; }
     .post-time { font-size: 12px; color: var(--text-secondary); }
     .post-categoria {
       display: inline-block;
@@ -605,12 +686,15 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
     }
     .galeria-item img, .galeria-item video {
       width: 100%;
       height: 150px;
       object-fit: cover;
+      transition: transform 0.2s;
     }
+    .galeria-item:hover img { transform: scale(1.05); }
     .galeria-item .delete-btn {
       position: absolute;
       top: 4px;
@@ -649,6 +733,8 @@
       .perfil-avatar-grande { width: 70px; height: 70px; bottom: -30px; left: 10px; }
       .perfil-nombre { font-size: 1.2rem; margin-top: 40px; }
       .perfil-portada { height: 80px; }
+      .event-grid { grid-template-columns: 1fr; }
+      .image-viewer .nav-btn { padding: 10px 14px; font-size: 20px; }
     }
     .text-secondary { color: var(--text-secondary); }
     .fw-500 { font-weight: 500; }
@@ -770,19 +856,15 @@
         <small>Misioneros e iglesias</small>
       </div>
     </div>
+    <!-- Eventos dinámicos -->
     <div class="card event-section">
-      <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos</h3>
-      <div class="event-item">
-        <div class="event-date"><span class="day">15</span><br><span class="month">May</span></div>
-        <div class="event-info"><h6>Reunión de Jóvenes</h6><p>7:00 PM · Iglesia Central</p></div>
-      </div>
-      <div class="event-item">
-        <div class="event-date"><span class="day">22</span><br><span class="month">May</span></div>
-        <div class="event-info"><h6>Retiro de Oración</h6><p>8:00 AM · Parque La Luz</p></div>
-      </div>
-      <div class="event-item">
-        <div class="event-date"><span class="day">29</span><br><span class="month">May</span></div>
-        <div class="event-info"><h6>Servicio Comunitario</h6><p>10:00 AM · Comedor Popular</p></div>
+      <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos 
+        <span style="font-size:0.8rem; font-weight:400; margin-left:10px;">
+          <button class="btn-primary" id="btnGestionarEventos" style="display:none; font-size:11px; padding:2px 12px;"><i class="fas fa-plus"></i> Gestionar</button>
+        </span>
+      </h3>
+      <div id="eventosContainer" class="event-grid">
+        <p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando eventos...</p>
       </div>
     </div>
     <div class="verse-day" id="verseDay">
@@ -1021,6 +1103,7 @@
         <div class="admin-stat"><div class="num" id="statMisioneros">0</div><div class="label">Misioneros</div></div>
         <div class="admin-stat"><div class="num" id="statConsejos">0</div><div class="label">Consejos</div></div>
         <div class="admin-stat"><div class="num" id="statReportes">0</div><div class="label">Reportes</div></div>
+        <div class="admin-stat"><div class="num" id="statEventos">0</div><div class="label">Eventos</div></div>
       </div>
     </div>
 
@@ -1050,6 +1133,7 @@
     <div class="card"><h3><i class="fas fa-hand-holding-heart"></i> Necesidades</h3><div id="adminNeedList"></div></div>
     <div class="card"><h3><i class="fas fa-utensils"></i> Servicios alimentarios</h3><div id="adminServicioList"></div></div>
     <div class="card"><h3><i class="fas fa-clipboard-list"></i> Reportes de todos</h3><div id="adminReportesList"></div></div>
+    <div class="card"><h3><i class="fas fa-calendar-alt"></i> Gestionar Eventos</h3><button class="btn-primary" id="btnAgregarEvento"><i class="fas fa-plus"></i> Nuevo Evento</button><div id="adminEventosList" style="margin-top:10px;"></div></div>
 
     <!-- IA -->
     <div class="card config-solo-admin" id="cardIAConfig">
@@ -1249,20 +1333,15 @@
     </div>
   </div>
 
-  <!-- CARRUSEL -->
+  <!-- CARRUSEL (solo imágenes) -->
   <div class="modal-overlay" id="carruselModal">
     <div class="modal-box">
       <h3><i class="fas fa-images"></i> Gestionar Carrusel</h3>
       <div id="carruselList"></div>
       <hr style="border-color:var(--border-color);">
-      <h4 style="font-size:15px; margin-top:8px;">Agregar nuevo elemento</h4>
-      <label>Tipo</label>
-      <select id="carruselTipo" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-body); color:var(--text-primary);">
-        <option value="image">Imagen</option>
-        <option value="video">Video (URL)</option>
-      </select>
-      <label>URL (imagen o video)</label>
-      <input type="url" id="carruselUrl" placeholder="https://ejemplo.com/archivo.jpg">
+      <h4 style="font-size:15px; margin-top:8px;">Agregar nueva imagen</h4>
+      <label>Selecciona imagen (JPG, PNG, etc.)</label>
+      <input type="file" id="carruselFileInput" accept="image/*" style="margin:4px 0;">
       <label>Título (opcional)</label>
       <input type="text" id="carruselTitulo" placeholder="Título">
       <label>Descripción (opcional)</label>
@@ -1270,6 +1349,28 @@
       <div class="modal-actions">
         <button class="btn-cancel" id="carruselCancel">Cerrar</button>
         <button class="btn-confirm" id="carruselAgregar">Agregar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENTOS -->
+  <div class="modal-overlay" id="eventoModal">
+    <div class="modal-box">
+      <h3><i class="fas fa-calendar-plus"></i> <span id="eventoModalTitle">Nuevo Evento</span></h3>
+      <input type="hidden" id="editEventoId">
+      <label>Título *</label>
+      <input type="text" id="eventoTitulo" placeholder="Ej: Retiro de Jóvenes">
+      <label>Fecha *</label>
+      <input type="date" id="eventoFecha">
+      <label>Hora</label>
+      <input type="time" id="eventoHora">
+      <label>Lugar</label>
+      <input type="text" id="eventoLugar" placeholder="Ej: Iglesia Central">
+      <label>Descripción</label>
+      <textarea id="eventoDesc" placeholder="Detalles del evento..." rows="2"></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="eventoCancel">Cancelar</button>
+        <button class="btn-confirm" id="eventoGuardar">Guardar</button>
       </div>
     </div>
   </div>
@@ -1461,6 +1562,14 @@
     <div class="modal-box" id="perfilModalContent"></div>
   </div>
 
+  <!-- VISOR DE IMÁGENES A PANTALLA COMPLETA -->
+  <div class="image-viewer" id="imageViewer" onclick="cerrarVisor()">
+    <span class="close-viewer" onclick="cerrarVisor()">&times;</span>
+    <button class="nav-btn prev" onclick="event.stopPropagation(); navegarVisor(-1)">❮</button>
+    <img id="viewerImage" src="" alt="Visor">
+    <button class="nav-btn next" onclick="event.stopPropagation(); navegarVisor(1)">❯</button>
+  </div>
+
 </div><!-- /app -->
 
 <footer class="footer">
@@ -1507,6 +1616,7 @@ const NOTIFICACIONES = (uid) => db.collection('notificaciones').doc(uid).collect
 const CONFIG_IA = db.collection('config_ia').doc('config');
 const APP_CONFIG = db.collection('appConfig').doc('config');
 const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
+const EVENTOS = db.collection('eventos');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -1527,6 +1637,10 @@ const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
   theme: 'iglesia_theme'
 };
+
+// Variables para visor de imágenes
+let viewerImages = [];
+let viewerIndex = 0;
 
 // ================================================================
 // 3. FUNCIONES DE UTILIDAD
@@ -1722,6 +1836,7 @@ async function cargarUsuarioActual(user) {
     cargarLogoConfig();
     cargarMapboxToken();
     cargarConfigIA();
+    renderEventos();
   } catch (error) {
     console.error('Error cargando perfil:', error);
   }
@@ -1751,6 +1866,7 @@ window.logoutUser = async function() {
     renderMisionerosMapa();
     renderIglesiasMapa();
     renderServiciosMapa();
+    renderEventos();
     actualizarBotonesPorRol();
     actualizarTabs();
     if (mapboxMap) {
@@ -1796,14 +1912,17 @@ function actualizarUIUsuario() {
   const adminTab = document.getElementById('adminTab');
   const gestionarCarruselBtn = document.getElementById('gestionarCarruselBtn');
   const btnEditarVersos = document.getElementById('btnEditarVersos');
+  const btnGestionarEventos = document.getElementById('btnGestionarEventos');
   if (isAdmin) {
     adminTab.style.display = 'inline-block';
     gestionarCarruselBtn.style.display = 'inline-block';
     btnEditarVersos.style.display = 'inline-block';
+    btnGestionarEventos.style.display = 'inline-block';
   } else {
     adminTab.style.display = 'none';
     gestionarCarruselBtn.style.display = 'none';
     btnEditarVersos.style.display = 'none';
+    btnGestionarEventos.style.display = 'none';
   }
 
   const isConfigAllowed = isSuperAdmin;
@@ -1850,13 +1969,13 @@ function switchPanel(name) {
     case 'chatequipo': renderChatEquipo(); break;
     case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initMapboxMap(); break;
     case 'biblia': cargarHistorial(); break;
-    case 'inicio': renderCarrusel(); break;
+    case 'inicio': renderCarrusel(); renderEventos(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
   }
 }
 
 // ================================================================
-// 6. CARRUSEL
+// 6. CARRUSEL (solo imágenes)
 // ================================================================
 function renderCarrusel() {
   if (listeners.carrusel) listeners.carrusel();
@@ -1866,30 +1985,21 @@ function renderCarrusel() {
     const container = document.getElementById('carouselSlides');
     const indicators = document.getElementById('carouselIndicators');
     if (slides.length === 0) {
-      container.innerHTML = '<div class="carousel-slide active" style="display:flex; align-items:center; justify-content:center; background:var(--teal-light); color:var(--text-secondary); height:260px;"><p style="text-align:center;">Sin contenido en el carrusel.<br>El administrador puede agregar imágenes o videos.</p></div>';
+      container.innerHTML = '<div class="carousel-slide active" style="display:flex; align-items:center; justify-content:center; background:var(--teal-light); color:var(--text-secondary); height:260px;"><p style="text-align:center;">Sin contenido en el carrusel.<br>El administrador puede agregar imágenes.</p></div>';
       indicators.innerHTML = '';
       return;
     }
     let html = '', indHtml = '';
     slides.forEach((item, index) => {
       const active = index === 0 ? 'active' : '';
-      let content = '';
-      if (item.type === 'image') {
-        content = '<img src="' + item.url + '" alt="' + (item.title || 'Imagen') + '">';
-      } else if (item.type === 'video') {
-        if (item.url.includes('youtube.com/embed') || item.url.includes('vimeo.com')) {
-          content = '<iframe src="' + item.url + '" allowfullscreen></iframe>';
-        } else {
-          content = '<video controls><source src="' + item.url + '" type="video/mp4"></video>';
-        }
-      }
-      html += '<div class="carousel-slide ' + active + '">' +
-        content +
-        '<div class="carousel-caption">' +
-        (item.title ? '<h5>' + item.title + '</h5>' : '') +
-        (item.description ? '<p>' + item.description + '</p>' : '') +
-        '</div></div>';
-      indHtml += '<span class="' + active + '" data-index="' + index + '"></span>';
+      html += `<div class="carousel-slide ${active}">
+        <img src="${item.url}" alt="${item.title || 'Imagen'}">
+        <div class="carousel-caption">
+          ${item.title ? `<h5>${item.title}</h5>` : ''}
+          ${item.description ? `<p>${item.description}</p>` : ''}
+        </div>
+      </div>`;
+      indHtml += `<span class="${active}" data-index="${index}"></span>`;
     });
     container.innerHTML = html;
     indicators.innerHTML = indHtml;
@@ -1931,10 +2041,10 @@ function renderListaCarrusel() {
     let html = '';
     snapshot.forEach(doc => {
       const item = doc.data();
-      html += '<div class="carrusel-item-admin">' +
-        '<span><strong>' + (item.title || 'Sin título') + '</strong> (' + item.type + ')</span>' +
-        '<button class="btn-danger" onclick="eliminarElementoCarrusel(\'' + doc.id + '\')">Eliminar</button>' +
-        '</div>';
+      html += `<div class="carrusel-item-admin">
+        <span><strong>${item.title || 'Sin título'}</strong></span>
+        <button class="btn-danger" onclick="eliminarElementoCarrusel('${doc.id}')">Eliminar</button>
+      </div>`;
     });
     container.innerHTML = html;
   });
@@ -1942,25 +2052,27 @@ function renderListaCarrusel() {
 
 function agregarElementoCarrusel() {
   if (!isAdmin) return;
-  const tipo = document.getElementById('carruselTipo').value;
-  const url = document.getElementById('carruselUrl').value.trim();
+  const file = document.getElementById('carruselFileInput').files[0];
   const titulo = document.getElementById('carruselTitulo').value.trim();
   const desc = document.getElementById('carruselDesc').value.trim();
-  if (!url) { alert('La URL es obligatoria.'); return; }
-  CARRUSEL.add({
-    type: tipo,
-    url: url,
-    title: titulo,
-    description: desc,
-    order: Date.now(),
-    uidAdmin: currentUser.uid,
-    fecha: firebase.firestore.FieldValue.serverTimestamp()
+  if (!file) { alert('Selecciona una imagen.'); return; }
+  const path = `carrusel/${Date.now()}_${file.name}`;
+  subirArchivoStorage(file, path).then(url => {
+    return CARRUSEL.add({
+      type: 'image',
+      url: url,
+      title: titulo,
+      description: desc,
+      order: Date.now(),
+      uidAdmin: currentUser.uid,
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
   }).then(() => {
-    document.getElementById('carruselUrl').value = '';
+    document.getElementById('carruselFileInput').value = '';
     document.getElementById('carruselTitulo').value = '';
     document.getElementById('carruselDesc').value = '';
     renderListaCarrusel();
-  });
+  }).catch(err => { alert('Error: ' + err.message); });
 }
 
 function eliminarElementoCarrusel(id) {
@@ -2026,7 +2138,7 @@ function renderPosts(snapshot, container) {
       categoriaHtml +
       '<div class="post-content">' + post.texto + '</div>';
     if (post.media) {
-      if (post.media.type === 'image') html += '<img src="' + post.media.data + '" class="post-media" alt="imagen">';
+      if (post.media.type === 'image') html += '<img src="' + post.media.data + '" class="post-media" alt="imagen" onclick="abrirVisor([\'' + post.media.data + '\'], 0)">';
       else if (post.media.type === 'video') html += '<video controls class="post-media" src="' + post.media.data + '"></video>';
     }
     if (post.link) html += '<div style="margin:4px 0;"><a href="' + post.link + '" target="_blank" style="color:var(--teal);">' + post.link + '</a></div>';
@@ -2210,9 +2322,9 @@ function renderGrupos() {
       const esMiembro = g.miembros && g.miembros.includes(currentUser ? currentUser.uid : null);
       let ubicacionLink = '';
       if (g.lat && g.lng) {
-        ubicacionLink = `<br><small><i class="fas fa-map-pin"></i> <a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a></small>`;
+        ubicacionLink = `<br><small><i class="fas fa-map-pin"></i> <a href="#" onclick="verEnMapa(${g.lat},${g.lng},'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a></small>`;
       } else if (g.ubicacion) {
-        ubicacionLink = `<br><small><i class="fas fa-map-pin"></i> ${g.ubicacion} <a href="https://www.google.com/maps?q=${encodeURIComponent(g.ubicacion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a></small>`;
+        ubicacionLink = `<br><small><i class="fas fa-map-pin"></i> ${g.ubicacion} <a href="#" onclick="verEnMapa(null,null,'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a></small>`;
       }
       html += '<div class="grupo-item">' +
         '<div class="grupo-info">' +
@@ -2517,6 +2629,18 @@ function guardarMapboxToken() {
   }).catch(console.error);
 }
 
+function verEnMapa(lat, lng, nombre) {
+  switchPanel('mapa');
+  if (mapboxMap && lat && lng) {
+    mapboxMap.flyTo({ center: [lng, lat], zoom: 14 });
+    // Mostrar popup con el nombre
+    new mapboxgl.Popup({ closeOnClick: true })
+      .setLngLat([lng, lat])
+      .setHTML(`<strong>${nombre}</strong>`)
+      .addTo(mapboxMap);
+  }
+}
+
 function initMapboxMap() {
   if (!mapboxToken || typeof mapboxgl === 'undefined') return;
   const container = document.getElementById('mapboxMap');
@@ -2623,9 +2747,9 @@ function renderGruposMapa() {
     conUbicacion.forEach(g => {
       let link = '';
       if (g.lat && g.lng) {
-        link = `<a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        link = `<a href="#" onclick="verEnMapa(${g.lat},${g.lng},'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       } else if (g.ubicacion) {
-        link = `<a href="https://www.google.com/maps?q=${encodeURIComponent(g.ubicacion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        link = `<a href="#" onclick="verEnMapa(null,null,'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
       html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
         <strong>${g.nombre}</strong> - ${link}
@@ -2649,9 +2773,9 @@ function renderMisionerosMapa() {
       const m = { id: doc.id, ...doc.data() };
       let ubicacionDisplay = '';
       if (m.lat && m.lng) {
-        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${m.lat},${m.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${m.lat},${m.lng},'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       } else if (m.ubicacion) {
-        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${encodeURIComponent(m.ubicacion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
       const puedeEliminar = (currentUser && currentUser.uid === m.uidCreador) || isAdmin;
       html += `<div class="misionero-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
@@ -2682,9 +2806,9 @@ function renderIglesiasMapa() {
       const i = { id: doc.id, ...doc.data() };
       let ubicacionDisplay = '';
       if (i.lat && i.lng) {
-        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${i.lat},${i.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${i.lat},${i.lng},'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       } else if (i.direccion) {
-        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${encodeURIComponent(i.direccion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
       const puedeEliminar = (currentUser && currentUser.uid === i.uidCreador) || isAdmin;
       html += `<div class="iglesia-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
@@ -2715,9 +2839,8 @@ function renderServiciosMapa() {
     snapshot.forEach(doc => {
       const s = doc.data();
       if (!s.lat || !s.lng) return;
-      let ubicacionDisplay = `<a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
       html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
-        <strong>${s.nombre}</strong> (${s.direccion || ''}) - ${ubicacionDisplay}
+        <strong>${s.nombre}</strong> - <a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>
       </div>`;
     });
     container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay servicios con ubicación.</p>';
@@ -2845,14 +2968,14 @@ function renderNecesidades() {
         '<p style="font-size:14px;">' + n.desc + '</p>' +
         '<p style="font-size:12px;"><i class="fas fa-phone"></i> ' + n.telefono + '</p>';
       if (n.fotos && n.fotos.length) {
-        html += '<div class="need-fotos">' + n.fotos.map(f => '<img src="' + f + '" alt="foto">').join('') + '</div>';
+        html += '<div class="need-fotos">' + n.fotos.map(f => '<img src="' + f + '" alt="foto" onclick="abrirVisor([\'' + f + '\'], 0)">').join('') + '</div>';
       }
       if (isAdmin) {
         html += '<div style="margin-top:4px;">' +
           '<label style="font-size:11px;">Subir foto de ayuda recibida:</label>' +
           '<input type="file" accept="image/*" onchange="subirAyuda(\'' + n.id + '\', this)">';
         if (n.ayudas && n.ayudas.length) {
-          html += '<div class="need-fotos">' + n.ayudas.map(f => '<img src="' + f + '" alt="ayuda">').join('') + '</div>';
+          html += '<div class="need-fotos">' + n.ayudas.map(f => '<img src="' + f + '" alt="ayuda" onclick="abrirVisor([\'' + f + '\'], 0)">').join('') + '</div>';
         }
         html += '</div>';
       }
@@ -2998,9 +3121,9 @@ function renderServicios() {
 
       let ubicacionLink = '';
       if (s.lat && s.lng) {
-        ubicacionLink = `<a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionLink = `<a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       } else if (s.direccion) {
-        ubicacionLink = `<a href="https://www.google.com/maps?q=${encodeURIComponent(s.direccion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionLink = `<a href="#" onclick="verEnMapa(null,null,'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
 
       const claseFinalizado = finalizado ? 'finalizado' : '';
@@ -3467,7 +3590,7 @@ function renderAdminPanel() {
   const stats = {
     users: 0, posts: 0, oraciones: 0, necesidades: 0,
     grupos: 0, discipulados: 0, misioneros: 0,
-    consejos: 0, servicios: 0, reportes: 0
+    consejos: 0, servicios: 0, reportes: 0, eventos: 0
   };
 
   Promise.all([
@@ -3480,7 +3603,8 @@ function renderAdminPanel() {
     MISIONEROS.get().then(snap => stats.misioneros = snap.size),
     CONSEJOS.get().then(snap => stats.consejos = snap.size),
     getServiciosRef().get().then(snap => stats.servicios = snap.size),
-    getReportesRef().get().then(snap => stats.reportes = snap.size)
+    getReportesRef().get().then(snap => stats.reportes = snap.size),
+    EVENTOS.get().then(snap => stats.eventos = snap.size)
   ]).then(() => {
     document.getElementById('statUsers').textContent = stats.users;
     document.getElementById('statPosts').textContent = stats.posts;
@@ -3492,6 +3616,7 @@ function renderAdminPanel() {
     document.getElementById('statConsejos').textContent = stats.consejos;
     document.getElementById('statServicios').textContent = stats.servicios;
     document.getElementById('statReportes').textContent = stats.reportes;
+    document.getElementById('statEventos').textContent = stats.eventos;
   });
 
   USERS.get().then(snapshot => {
@@ -3602,6 +3727,31 @@ function renderAdminPanel() {
     });
     list.innerHTML = html;
   });
+
+  // Eventos en admin
+  renderAdminEventos();
+}
+
+function renderAdminEventos() {
+  EVENTOS.orderBy('fecha', 'desc').get().then(snapshot => {
+    const list = document.getElementById('adminEventosList');
+    if (snapshot.empty) {
+      list.innerHTML = '<p style="color:var(--text-secondary);">No hay eventos.</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const e = doc.data();
+      html += `<div class="admin-list-item">
+        <span class="info"><strong>${e.titulo}</strong> - ${e.fecha} ${e.hora || ''} - ${e.lugar || ''}</span>
+        <div class="actions">
+          <button class="btn-primary" onclick="editarEvento('${doc.id}')" style="font-size:10px;">Editar</button>
+          <button class="btn-danger" onclick="eliminarEvento('${doc.id}')" style="font-size:10px;">Eliminar</button>
+        </div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  });
 }
 
 function eliminarUsuario(uid) {
@@ -3687,16 +3837,15 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
 
   // Fotos de perfil
   const fotos = user.fotosPerfil || [];
-
   let fotosHtml = '';
   if (fotos.length > 0) {
     fotosHtml = `
       <div class="perfil-carrusel" id="perfilCarrusel">
-        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil">`).join('')}
-        <button class="carousel-control prev" onclick="cambiarFotoPerfil(-1)">❮</button>
-        <button class="carousel-control next" onclick="cambiarFotoPerfil(1)">❯</button>
+        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${JSON.stringify(fotos)}, ${i})">`).join('')}
+        <button class="carousel-control prev" onclick="event.stopPropagation(); cambiarFotoPerfil(-1)">❮</button>
+        <button class="carousel-control next" onclick="event.stopPropagation(); cambiarFotoPerfil(1)">❯</button>
         <div class="indicators">
-          ${fotos.map((_, i) => `<span class="${i===0?'active':''}" onclick="irFotoPerfil(${i})"></span>`).join('')}
+          ${fotos.map((_, i) => `<span class="${i===0?'active':''}" onclick="event.stopPropagation(); irFotoPerfil(${i})"></span>`).join('')}
         </div>
       </div>
     `;
@@ -3705,7 +3854,7 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   let html = `
     <div style="position:relative;margin-bottom:16px;">
       <div class="perfil-portada" style="background: linear-gradient(135deg, var(--teal), var(--teal-dark));"></div>
-      <img src="${user.fotoPerfil || ''}" class="perfil-avatar-grande" onerror="this.style.display='none'">
+      <img src="${user.fotoPerfil || ''}" class="perfil-avatar-grande" onclick="abrirVisor(['${user.fotoPerfil || ''}'], 0)" onerror="this.style.display='none'">
     </div>
     <h3 class="perfil-nombre">${user.displayName}</h3>
     ${user.iglesia ? `<p style="color:var(--text-secondary);"><i class="fas fa-church"></i> ${user.iglesia}</p>` : ''}
@@ -3771,7 +3920,127 @@ function irFotoPerfil(index) {
 }
 
 // ================================================================
-// GALERÍA DE FOTOS Y VIDEOS (adicional)
+// 19. VISOR DE IMÁGENES (pantalla completa)
+// ================================================================
+function abrirVisor(imagenes, indice) {
+  if (!imagenes || imagenes.length === 0) return;
+  if (typeof imagenes === 'string') imagenes = [imagenes];
+  viewerImages = imagenes;
+  viewerIndex = indice || 0;
+  mostrarVisor();
+}
+
+function mostrarVisor() {
+  const viewer = document.getElementById('imageViewer');
+  const img = document.getElementById('viewerImage');
+  if (!viewerImages || viewerImages.length === 0) return;
+  img.src = viewerImages[viewerIndex];
+  viewer.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarVisor() {
+  document.getElementById('imageViewer').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function navegarVisor(dir) {
+  if (!viewerImages || viewerImages.length === 0) return;
+  viewerIndex = (viewerIndex + dir + viewerImages.length) % viewerImages.length;
+  document.getElementById('viewerImage').src = viewerImages[viewerIndex];
+}
+
+// ================================================================
+// 20. EVENTOS (CRUD para SuperAdmin)
+// ================================================================
+function renderEventos() {
+  if (listeners.eventos) listeners.eventos();
+  const container = document.getElementById('eventosContainer');
+  container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando eventos...</p>';
+  listeners.eventos = EVENTOS.orderBy('fecha', 'asc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">No hay próximos eventos.</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const e = doc.data();
+      const fechaObj = new Date(e.fecha + 'T' + (e.hora || '00:00'));
+      const dias = Math.ceil((fechaObj - new Date()) / (1000*60*60*24));
+      const badge = dias < 0 ? 'Ya pasado' : (dias === 0 ? 'Hoy' : `En ${dias} días`);
+      html += `<div class="event-card">
+        <div class="date-badge">${badge}</div>
+        <h5>${e.titulo}</h5>
+        <p><i class="fas fa-calendar-alt"></i> ${e.fecha} ${e.hora ? '· ' + e.hora : ''}</p>
+        ${e.lugar ? `<p class="place"><i class="fas fa-map-pin"></i> ${e.lugar}</p>` : ''}
+        ${e.desc ? `<p>${e.desc}</p>` : ''}
+      </div>`;
+    });
+    container.innerHTML = html;
+  });
+}
+
+function abrirModalEvento(editId = null) {
+  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede gestionar eventos.'); return; }
+  document.getElementById('editEventoId').value = editId || '';
+  document.getElementById('eventoModalTitle').textContent = editId ? 'Editar Evento' : 'Nuevo Evento';
+  if (editId) {
+    EVENTOS.doc(editId).get().then(doc => {
+      if (!doc.exists) return;
+      const data = doc.data();
+      document.getElementById('eventoTitulo').value = data.titulo || '';
+      document.getElementById('eventoFecha').value = data.fecha || '';
+      document.getElementById('eventoHora').value = data.hora || '';
+      document.getElementById('eventoLugar').value = data.lugar || '';
+      document.getElementById('eventoDesc').value = data.desc || '';
+    });
+  } else {
+    document.getElementById('eventoTitulo').value = '';
+    document.getElementById('eventoFecha').value = '';
+    document.getElementById('eventoHora').value = '';
+    document.getElementById('eventoLugar').value = '';
+    document.getElementById('eventoDesc').value = '';
+  }
+  abrirModal('eventoModal');
+}
+
+function guardarEvento() {
+  const id = document.getElementById('editEventoId').value;
+  const titulo = document.getElementById('eventoTitulo').value.trim();
+  const fecha = document.getElementById('eventoFecha').value;
+  const hora = document.getElementById('eventoHora').value;
+  const lugar = document.getElementById('eventoLugar').value.trim();
+  const desc = document.getElementById('eventoDesc').value.trim();
+  if (!titulo || !fecha) { alert('Título y fecha son obligatorios.'); return; }
+  const data = { titulo, fecha, hora, lugar, desc, actualizado: firebase.firestore.FieldValue.serverTimestamp() };
+  if (id) {
+    EVENTOS.doc(id).update(data).then(() => {
+      cerrarModal('eventoModal');
+      renderEventos();
+      if (isAdmin) renderAdminEventos();
+    }).catch(console.error);
+  } else {
+    EVENTOS.add({ ...data, creado: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
+      cerrarModal('eventoModal');
+      renderEventos();
+      if (isAdmin) renderAdminEventos();
+    }).catch(console.error);
+  }
+}
+
+function editarEvento(id) { abrirModalEvento(id); }
+
+function eliminarEvento(id) {
+  if (!isSuperAdmin) return;
+  if (!confirm('¿Eliminar este evento?')) return;
+  EVENTOS.doc(id).delete().then(() => {
+    renderEventos();
+    if (isAdmin) renderAdminEventos();
+  }).catch(console.error);
+}
+
+// ================================================================
+// 21. GALERÍA DE FOTOS Y VIDEOS (adicional)
 // ================================================================
 async function verGaleria(uid) {
   if (!uid) return;
@@ -3788,15 +4057,15 @@ async function verGaleria(uid) {
     let html = `<h3><i class="fas fa-images"></i> Galería de ${uid === currentUser?.uid ? 'tu perfil' : 'usuario'}</h3>`;
     html += `<div class="galeria-grid">`;
     fotos.forEach(f => {
-      html += `<div class="galeria-item">
+      html += `<div class="galeria-item" onclick="abrirVisor(['${f.url}'], 0)">
         <img src="${f.url}" alt="foto">
-        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="eliminarMedia('${uid}', 'fotos', '${f.id}')">✕</button>` : ''}
+        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="event.stopPropagation(); eliminarMedia('${uid}', 'fotos', '${f.id}')">✕</button>` : ''}
       </div>`;
     });
     videos.forEach(v => {
       html += `<div class="galeria-item">
-        <video src="${v.url}" controls></video>
-        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="eliminarMedia('${uid}', 'videos', '${v.id}')">✕</button>` : ''}
+        <video src="${v.url}" controls onclick="event.stopPropagation();"></video>
+        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="event.stopPropagation(); eliminarMedia('${uid}', 'videos', '${v.id}')">✕</button>` : ''}
       </div>`;
     });
     html += `</div>`;
@@ -4037,7 +4306,7 @@ function abrirEditarPerfil() {
 window.guardarEdicionPerfil = guardarPerfilExtendido;
 
 // ================================================================
-// 19. NOTIFICACIONES
+// NOTIFICACIONES
 // ================================================================
 function cargarContadorNotificaciones() {
   if (!currentUser) return;
@@ -4074,7 +4343,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// 20. BIBLIA
+// BIBLIA
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -4306,7 +4575,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 21. IA (mejorada para contexto histórico y teológico)
+// IA (mejorada para contexto histórico y teológico)
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -4329,8 +4598,8 @@ function preguntarIA() {
     }
 
     const prompt = `Eres un asistente especializado en historia y teología bíblica. Debes proporcionar respuestas que incluyan:
-1. El contexto histórico del pasaje o tema.
-2. La relevancia teológica y su aplicación para los cristianos.
+1. El contexto histórico del pasaje o tema (época, autor, destinatarios, circunstancias).
+2. La relevancia teológica y su aplicación para los cristianos de hoy.
 3. Citas de otros pasajes bíblicos que respalden tu respuesta.
 4. Mantén un tono claro, respetuoso y edificante.
 
@@ -4349,7 +4618,7 @@ Pregunta del usuario: ${pregunta}`;
       body: JSON.stringify({
         model: model,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 600
+        max_tokens: 700
       })
     })
     .then(function(res) { return res.json(); })
@@ -4423,7 +4692,7 @@ document.getElementById('openrouterModelSelect').addEventListener('change', func
 });
 
 // ================================================================
-// 22. MAPA (Leaflet para modales)
+// MAPA (Leaflet para modales)
 // ================================================================
 function initMap(mapId, searchId, latId, lngId) {
   if (mapInstances[mapId]) {
@@ -4431,7 +4700,11 @@ function initMap(mapId, searchId, latId, lngId) {
     delete mapInstances[mapId];
   }
   var container = document.getElementById(mapId);
-  if (!container) return;
+  if (!container) {
+    // Esperar a que el modal se muestre
+    setTimeout(() => initMap(mapId, searchId, latId, lngId), 300);
+    return;
+  }
   container.style.height = '200px';
   container.style.width = '100%';
   var map = L.map(mapId).setView([0, 0], 2);
@@ -4461,6 +4734,9 @@ function initMap(mapId, searchId, latId, lngId) {
   mapInstances[mapId + '_lat'] = latId;
   mapInstances[mapId + '_lng'] = lngId;
   mapInstances[mapId + '_search'] = searchId;
+  
+  // Forzar el redimensionamiento después de un tiempo
+  setTimeout(() => map.invalidateSize(), 500);
 }
 
 function buscarEnMapa(mapId) {
@@ -4493,7 +4769,7 @@ function buscarEnMapa(mapId) {
 }
 
 // ================================================================
-// 23. LOGO
+// LOGO
 // ================================================================
 function cargarLogoConfig() {
   APP_CONFIG.get().then(doc => {
@@ -4554,7 +4830,7 @@ function eliminarLogo() {
 }
 
 // ================================================================
-// 24. MODO NOCTURNO
+// MODO NOCTURNO
 // ================================================================
 document.getElementById('themeToggle').addEventListener('click', function() {
   document.body.classList.toggle('dark');
@@ -4569,7 +4845,7 @@ if (localStorage.getItem(STORAGE_KEYS.theme) === 'dark') {
 }
 
 // ================================================================
-// 25. VERSÍCULO DEL DÍA (inicio)
+// VERSÍCULO DEL DÍA (inicio)
 // ================================================================
 const versiculosDia = [
   { texto: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna.", ref: "Juan 3:16" },
@@ -4593,7 +4869,7 @@ function actualizarVersiculoDia() {
 }
 
 // ================================================================
-// 26. EVENTOS Y CARGA INICIAL
+// EVENTOS Y CARGA INICIAL
 // ================================================================
 document.addEventListener('DOMContentLoaded', function() {
   // Login
@@ -4748,6 +5024,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnGuardarMapboxToken').addEventListener('click', guardarMapboxToken);
   document.getElementById('mapboxToken').value = mapboxToken;
 
+  // Eventos
+  document.getElementById('btnGestionarEventos').addEventListener('click', function() { if (isSuperAdmin) { abrirModalEvento(); } });
+  document.getElementById('btnAgregarEvento').addEventListener('click', function() { abrirModalEvento(); });
+  document.getElementById('eventoCancel').addEventListener('click', function() { cerrarModal('eventoModal'); });
+  document.getElementById('eventoGuardar').addEventListener('click', guardarEvento);
+
   // Editar versículos
   document.getElementById('btnEditarVersos').addEventListener('click', function() {
     if (!isAdmin) return;
@@ -4789,13 +5071,14 @@ document.addEventListener('DOMContentLoaded', function() {
   renderIglesiasMapa();
   renderServiciosMapa();
   renderCarrusel();
+  renderEventos();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
   cargarLogoConfig();
   cargarMapboxToken();
 
-  console.log('✅ SAL Y LUZ con Mapbox, perfil moderno, 5 fotos e IA mejorada.');
+  console.log('✅ SAL Y LUZ con todas las mejoras: mapa de servicios corregido, visor de imágenes, eventos, carrusel con Storage y más.');
 });
 
 // ================================================================
@@ -5065,6 +5348,15 @@ window.subirMedia = subirMedia;
 window.eliminarMedia = eliminarMedia;
 window.cambiarFotoPerfil = cambiarFotoPerfil;
 window.irFotoPerfil = irFotoPerfil;
+window.abrirVisor = abrirVisor;
+window.cerrarVisor = cerrarVisor;
+window.navegarVisor = navegarVisor;
+window.verEnMapa = verEnMapa;
+window.abrirModalEvento = abrirModalEvento;
+window.guardarEvento = guardarEvento;
+window.editarEvento = editarEvento;
+window.eliminarEvento = eliminarEvento;
+window.renderEventos = renderEventos;
 </script>
 </body>
 </html>
