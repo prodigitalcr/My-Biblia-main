@@ -458,6 +458,20 @@
       font-weight: 600;
       color: var(--teal);
     }
+    /* ===== OCULTAR CONFIGURACIONES PARA SUPERADMIN ===== */
+    .config-solo-admin {
+      display: block;
+    }
+    .superadmin-no-config .config-solo-admin {
+      display: none !important;
+    }
+    .superadmin-no-config .config-msg {
+      display: block !important;
+      color: var(--text-secondary);
+      font-style: italic;
+      padding: 8px 0;
+    }
+    .config-msg { display: none; }
   </style>
 </head>
 <body>
@@ -788,8 +802,9 @@
         <div class="admin-stat"><div class="num" id="statReportes">0</div><div class="label">Reportes</div></div>
       </div>
     </div>
-    <!-- SECCIÓN PARA CONFIGURAR LOGO -->
-    <div class="card">
+
+    <!-- SECCIÓN LOGO (solo admin regular) -->
+    <div class="card config-solo-admin" id="cardLogoConfig">
       <h3><i class="fas fa-image"></i> Personalizar Logo</h3>
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <div style="flex:1; min-width:150px;">
@@ -806,6 +821,8 @@
         </div>
       </div>
     </div>
+    <div class="config-msg" id="msgLogoConfig"><p>⚠️ Solo el administrador regular puede modificar el logo.</p></div>
+
     <div class="card">
       <h3><i class="fas fa-users"></i> Usuarios registrados</h3>
       <div id="adminUserList"></div>
@@ -830,7 +847,9 @@
       <h3><i class="fas fa-clipboard-list"></i> Reportes de todos</h3>
       <div id="adminReportesList"></div>
     </div>
-    <div class="card">
+
+    <!-- CONFIGURACIÓN IA (solo admin regular) -->
+    <div class="card config-solo-admin" id="cardIAConfig">
       <h3><i class="fas fa-robot"></i> Configuración de IA (OpenRouter)</h3>
       <div class="admin-ia-config">
         <label>API Key</label>
@@ -845,7 +864,10 @@
         <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">La clave y el contexto se almacenan en Firestore (privado).</p>
       </div>
     </div>
-    <div class="card">
+    <div class="config-msg" id="msgIAConfig"><p>⚠️ Solo el administrador regular puede configurar la IA.</p></div>
+
+    <!-- CONFIGURACIÓN MAPBOX (solo admin regular) -->
+    <div class="card config-solo-admin" id="cardMapboxConfig">
       <h3><i class="fas fa-map"></i> Configuración de Mapbox (para mapa 3D)</h3>
       <div class="admin-ia-config">
         <label>Token de Mapbox</label>
@@ -854,6 +876,7 @@
         <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén un token gratis en <a href="https://account.mapbox.com/" target="_blank">Mapbox</a>.</p>
       </div>
     </div>
+    <div class="config-msg" id="msgMapboxConfig"><p>⚠️ Solo el administrador regular puede configurar el token de Mapbox.</p></div>
   </div>
 
   <!-- ===== MODALES ===== -->
@@ -1237,6 +1260,7 @@ const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 let currentUser = null;
 let isAdmin = false;
 let isSuperAdmin = false;
+let isRegularAdmin = false; // solo admin@iglesia.com
 let carruselInterval = null;
 let editModeActivo = false;
 let chatGrupoActual = null;
@@ -1331,6 +1355,7 @@ async function cargarUsuarioActual(user) {
     currentUser = null;
     isAdmin = false;
     isSuperAdmin = false;
+    isRegularAdmin = false;
     actualizarUIUsuario();
     return;
   }
@@ -1377,9 +1402,10 @@ async function cargarUsuarioActual(user) {
         ministerio: ''
       };
     }
-    // Definir superadmin y admin
+    // Definir roles
     isSuperAdmin = (user.email === 'salyluz@comunidad.com');
-    isAdmin = (user.email === 'salyluz@comunidad.com' || user.email === 'admin@iglesia.com');
+    isRegularAdmin = (user.email === 'admin@iglesia.com');
+    isAdmin = isSuperAdmin || isRegularAdmin;
     actualizarUIUsuario();
     cargarContadorNotificaciones();
     cargarLogoConfig();
@@ -1395,6 +1421,7 @@ window.logoutUser = async function() {
     currentUser = null;
     isAdmin = false;
     isSuperAdmin = false;
+    isRegularAdmin = false;
     actualizarUIUsuario();
     Object.keys(listeners).forEach(key => {
       if (typeof listeners[key] === 'function') listeners[key]();
@@ -1461,6 +1488,20 @@ function actualizarUIUsuario() {
     gestionarCarruselBtn.style.display = 'none';
     btnEditarVersos.style.display = 'none';
   }
+
+  // Ocultar configuraciones sensibles si no es regularAdmin
+  const isConfigAllowed = isRegularAdmin;
+  const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardMapboxConfig'];
+  configCards.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isConfigAllowed ? 'block' : 'none';
+  });
+  const msgIds = ['msgLogoConfig', 'msgIAConfig', 'msgMapboxConfig'];
+  msgIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isConfigAllowed ? 'none' : 'block';
+  });
+
   actualizarBotonesPorRol();
   actualizarTabs();
 }
@@ -2150,7 +2191,7 @@ function cargarMapboxToken() {
 }
 
 function guardarMapboxToken() {
-  if (!isAdmin) return;
+  if (!isRegularAdmin) { alert('Solo el administrador regular puede configurar Mapbox.'); return; }
   const token = document.getElementById('mapboxToken').value.trim();
   if (!token) { alert('Ingresa un token de Mapbox.'); return; }
   CONFIG_MAPBOX.set({ token: token }).then(() => {
@@ -3688,7 +3729,7 @@ function preguntarIA() {
 // 22. CONFIGURACIÓN IA
 // ================================================================
 function guardarConfigIA() {
-  if (!isAdmin) return;
+  if (!isRegularAdmin) { alert('Solo el administrador regular puede configurar la IA.'); return; }
   const key = document.getElementById('openrouterKey').value.trim();
   const model = document.getElementById('openrouterModel').value.trim() || 'https://openrouter.ai/api/v1/chat/completions';
   CONFIG_IA.set({
@@ -3702,7 +3743,7 @@ function guardarConfigIA() {
 }
 
 function guardarContextoIA() {
-  if (!isAdmin) return;
+  if (!isRegularAdmin) { alert('Solo el administrador regular puede configurar la IA.'); return; }
   const ctx = document.getElementById('iaContexto').value.trim();
   CONFIG_IA.update({ contexto: ctx }).then(() => alert('Contexto guardado.')).catch(console.error);
 }
@@ -3933,7 +3974,7 @@ function cargarLogoConfig() {
 }
 
 function subirLogo() {
-  if (!isAdmin) return;
+  if (!isRegularAdmin) { alert('Solo el administrador regular puede modificar el logo.'); return; }
   const fileInput = document.getElementById('logoFileInput');
   const file = fileInput.files[0];
   if (!file) { alert('Selecciona una imagen.'); return; }
@@ -3954,7 +3995,7 @@ function subirLogo() {
 }
 
 function eliminarLogo() {
-  if (!isAdmin) return;
+  if (!isRegularAdmin) { alert('Solo el administrador regular puede eliminar el logo.'); return; }
   if (!confirm('¿Eliminar el logo personalizado?')) return;
   APP_CONFIG.get().then(doc => {
     if (doc.exists && doc.data().logoUrl) {
