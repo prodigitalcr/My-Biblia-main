@@ -6,15 +6,19 @@
   <title>SAL Y LUZ · Comunidad Cristiana</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- Mapbox GL JS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js"></script>
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <!-- Leaflet para mapas en modales -->
+  <!-- Leaflet para mapas en modales (se mantiene) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Google Maps API se cargará dinámicamente -->
   <style>
+    /* Estilos generales (se mantienen igual que antes) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --teal: #1D9E75;
@@ -212,6 +216,204 @@
     body.dark .card { background: #1a1a2e; }
     .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
     .card h3 i { color: var(--teal); }
+    /* Estilos del inicio */
+    .hero-section {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      margin-bottom: 20px;
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-section h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .hero-section p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 1.5rem; }
+    .hero-verse {
+      background: rgba(255,255,255,0.15);
+      padding: 12px 20px;
+      border-radius: 40px;
+      display: inline-block;
+      font-style: italic;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-actions .btn-primary {
+      background: white;
+      color: var(--teal-dark);
+      padding: 10px 24px;
+      font-size: 1rem;
+      border-radius: 40px;
+    }
+    .hero-actions .btn-primary:hover { background: var(--orange-light); color: var(--orange-dark); }
+    .hero-actions .btn-outline-light {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      padding: 10px 24px;
+      font-size: 1rem;
+      border-radius: 40px;
+    }
+    .hero-actions .btn-outline-light:hover { background: white; color: var(--teal-dark); }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px 12px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    body.dark .feature-card { background: #1a1a2e; }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      border-color: var(--teal);
+    }
+    .feature-card i { font-size: 2.2rem; color: var(--teal); margin-bottom: 8px; display: block; }
+    .feature-card h5 { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+    .feature-card small { color: var(--text-secondary); font-size: 0.8rem; }
+    .event-section { margin: 20px 0; }
+    .event-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .event-item:last-child { border-bottom: none; }
+    .event-date {
+      min-width: 60px;
+      text-align: center;
+      background: var(--teal-light);
+      border-radius: 12px;
+      padding: 6px 10px;
+      color: var(--teal-dark);
+      font-weight: 600;
+    }
+    .event-date .day { font-size: 1.4rem; line-height: 1; }
+    .event-date .month { font-size: 0.7rem; text-transform: uppercase; }
+    .event-info { flex: 1; }
+    .event-info h6 { margin: 0; font-weight: 600; }
+    .event-info p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+    .verse-day {
+      background: var(--teal-light);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+      border-left: 4px solid var(--teal);
+    }
+    .verse-day blockquote {
+      font-size: 1.2rem;
+      font-style: italic;
+      margin: 0;
+      color: var(--text-primary);
+    }
+    .verse-day footer { margin-top: 8px; font-weight: 600; color: var(--teal-dark); }
+
+    /* Perfil moderno */
+    .perfil-portada {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: var(--teal-dark);
+      height: 120px;
+    }
+    .perfil-avatar-grande {
+      position: absolute;
+      bottom: -40px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      background: var(--bg-body);
+      box-shadow: var(--shadow);
+    }
+    .perfil-nombre {
+      margin-top: 50px;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .perfil-detalle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin: 10px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .perfil-detalle i { width: 20px; color: var(--teal); }
+    .perfil-carrusel {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 10px 0;
+      background: #1a1a2e;
+    }
+    .perfil-carrusel .foto-slide {
+      display: none;
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+    .perfil-carrusel .foto-slide.active { display: block; }
+    .perfil-carrusel .carousel-control {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 20px;
+      border-radius: 30px;
+      z-index: 10;
+    }
+    .perfil-carrusel .carousel-control.prev { left: 8px; }
+    .perfil-carrusel .carousel-control.next { right: 8px; }
+    .perfil-carrusel .indicators {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .perfil-carrusel .indicators span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+    }
+    .perfil-carrusel .indicators span.active { background: white; }
+
+    /* Resto de estilos existentes (se mantienen) */
     .carousel-container { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #1a1a2e; box-shadow: var(--shadow); }
     .carousel-slide { display: none; width: 100%; height: 260px; object-fit: cover; }
     .carousel-slide.active { display: block; }
@@ -346,7 +548,7 @@
       margin: 6px 0;
       position: relative;
     }
-    .map-wrapper .gmap { height: 100%; width: 100%; border-radius: 10px; }
+    .map-wrapper .mapboxgl-map { height: 100%; width: 100%; border-radius: 10px; }
     .map-search { display: flex; gap: 6px; margin-bottom: 6px; }
     .map-search input { flex: 1; padding: 6px 12px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-size: 13px; }
     .map-search button { padding: 6px 14px; border-radius: 30px; border: none; background: var(--teal); color: white; cursor: pointer; }
@@ -364,7 +566,7 @@
     .chat-input button:hover { background: var(--teal-dark); }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 999; }
     .modal-overlay.show { display: flex; }
-    .modal-box { background: white; border-radius: var(--radius); padding: 20px 24px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
+    .modal-box { background: white; border-radius: var(--radius); padding: 20px 24px; max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
     body.dark .modal-box { background: #1a1a2e; }
     .modal-box h3 { font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 18px; }
     .modal-box h5 { font-size: 16px; font-weight: 600; margin: 10px 0 6px; }
@@ -441,6 +643,12 @@
       .grupo-actions { justify-content: flex-start; margin-top: 4px; }
       .modal-box { padding: 16px; }
       .map-wrapper { height: 300px; }
+      .hero-section h1 { font-size: 1.6rem; }
+      .hero-section p { font-size: 0.95rem; }
+      .feature-grid { grid-template-columns: repeat(2,1fr); }
+      .perfil-avatar-grande { width: 70px; height: 70px; bottom: -30px; left: 10px; }
+      .perfil-nombre { font-size: 1.2rem; margin-top: 40px; }
+      .perfil-portada { height: 80px; }
     }
     .text-secondary { color: var(--text-secondary); }
     .fw-500 { font-weight: 500; }
@@ -520,20 +728,66 @@
         <button class="btn-primary" id="gestionarCarruselBtn" style="background:var(--orange); font-size:11px; padding:2px 12px;"><i class="fas fa-cog"></i> Gestionar</button>
       </div>
     </div>
-    <div class="card" style="text-align:center; padding:20px 16px;">
-      <h2 style="font-size:22px; margin-bottom:6px;">Bienvenido a <span style="color:var(--teal);">SAL Y LUZ</span></h2>
-      <p style="color:var(--text-secondary); max-width:400px; margin:0 auto 12px;">Una comunidad cristiana para crecer en fe, servir y compartir. Conéctate, ora y transforma vidas.</p>
-      <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+    <div class="hero-section">
+      <div class="hero-verse" id="heroVerse">"Porque de tal manera amó Dios al mundo..."</div>
+      <h1>Bienvenido a <span style="color:var(--orange);">SAL Y LUZ</span></h1>
+      <p>Una comunidad cristiana para crecer en fe, servir y compartir. Conéctate, ora y transforma vidas.</p>
+      <div class="hero-actions">
         <button class="btn-primary" id="btnIrBiblia"><i class="fas fa-bible"></i> Leer Biblia</button>
-        <button class="btn-primary" id="btnIrMuro" style="background:var(--orange);"><i class="fas fa-newspaper"></i> Ver Muro</button>
-        <button class="btn-primary" id="btnIrOracion" style="background:var(--teal-dark);"><i class="fas fa-pray"></i> Oración</button>
+        <button class="btn-outline-light" id="btnIrMuro"><i class="fas fa-newspaper"></i> Ver Muro</button>
+        <button class="btn-outline-light" id="btnIrOracion"><i class="fas fa-pray"></i> Oración</button>
       </div>
     </div>
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap:8px;">
-      <div class="card" style="text-align:center; cursor:pointer;" id="cardGrupos"><i class="fas fa-users" style="font-size:24px; color:var(--teal);"></i><br><strong>Grupos</strong><br><small class="text-secondary">Conexión</small></div>
-      <div class="card" style="text-align:center; cursor:pointer;" id="cardDiscipulado"><i class="fas fa-user-friends" style="font-size:24px; color:var(--orange);"></i><br><strong>Discipulado</strong><br><small class="text-secondary">Mentoría</small></div>
-      <div class="card" style="text-align:center; cursor:pointer;" id="cardOracion"><i class="fas fa-pray" style="font-size:24px; color:#6a1b9a;"></i><br><strong>Oración</strong><br><small class="text-secondary">Peticiones</small></div>
-      <div class="card" style="text-align:center; cursor:pointer;" id="cardNecesidades"><i class="fas fa-hand-holding-heart" style="font-size:24px; color:#e74c3c;"></i><br><strong>Ayuda</strong><br><small class="text-secondary">Necesidades</small></div>
+    <div class="feature-grid">
+      <div class="feature-card" onclick="switchPanel('grupos')">
+        <i class="fas fa-users"></i>
+        <h5>Grupos</h5>
+        <small>Conexión y compañerismo</small>
+      </div>
+      <div class="feature-card" onclick="switchPanel('discipulado')">
+        <i class="fas fa-user-friends"></i>
+        <h5>Discipulado</h5>
+        <small>Crecimiento espiritual</small>
+      </div>
+      <div class="feature-card" onclick="switchPanel('oracion')">
+        <i class="fas fa-pray"></i>
+        <h5>Oración</h5>
+        <small>Peticiones y alabanza</small>
+      </div>
+      <div class="feature-card" onclick="switchPanel('necesidades')">
+        <i class="fas fa-hand-holding-heart"></i>
+        <h5>Ayuda</h5>
+        <small>Apoyo comunitario</small>
+      </div>
+      <div class="feature-card" onclick="switchPanel('servicio')">
+        <i class="fas fa-utensils"></i>
+        <h5>Servicio</h5>
+        <small>Ayuda alimentaria</small>
+      </div>
+      <div class="feature-card" onclick="switchPanel('mapa')">
+        <i class="fas fa-map-marked-alt"></i>
+        <h5>Mapa</h5>
+        <small>Misioneros e iglesias</small>
+      </div>
+    </div>
+    <div class="card event-section">
+      <h3><i class="fas fa-calendar-alt"></i> Próximos Eventos</h3>
+      <div class="event-item">
+        <div class="event-date"><span class="day">15</span><br><span class="month">May</span></div>
+        <div class="event-info"><h6>Reunión de Jóvenes</h6><p>7:00 PM · Iglesia Central</p></div>
+      </div>
+      <div class="event-item">
+        <div class="event-date"><span class="day">22</span><br><span class="month">May</span></div>
+        <div class="event-info"><h6>Retiro de Oración</h6><p>8:00 AM · Parque La Luz</p></div>
+      </div>
+      <div class="event-item">
+        <div class="event-date"><span class="day">29</span><br><span class="month">May</span></div>
+        <div class="event-info"><h6>Servicio Comunitario</h6><p>10:00 AM · Comedor Popular</p></div>
+      </div>
+    </div>
+    <div class="verse-day" id="verseDay">
+      <blockquote id="verseText">"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna."</blockquote>
+      <footer>Juan 3:16</footer>
     </div>
   </div>
 
@@ -626,7 +880,7 @@
     <div id="oracionesContainer"></div>
   </div>
 
-  <!-- MAPA -->
+  <!-- MAPA (con Mapbox) -->
   <div class="panel" id="panel-mapa">
     <div class="card"><h3><i class="fas fa-church"></i> Grupos de conexión con ubicación</h3><div id="gruposMapaList"></div></div>
     <div class="card">
@@ -635,7 +889,7 @@
         <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
         <button class="btn-primary" id="btnRegistrarIglesia" style="display:none; background:var(--orange);"><i class="fas fa-place-of-worship"></i> Registrar Iglesia</button>
       </div>
-      <div class="map-wrapper" id="mapa3d"><div id="googleMap" class="gmap"></div></div>
+      <div class="map-wrapper" id="mapa3d"><div id="mapboxMap" class="mapboxgl-map" style="height:100%;width:100%;"></div></div>
       <div style="margin-top:6px; display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
         <span><span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%;"></span> Misioneros</span>
         <span><span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%;"></span> Iglesias</span>
@@ -805,17 +1059,14 @@
         <input type="text" id="openrouterKey" placeholder="sk-or-...">
         <label>URL del modelo (base)</label>
         <input type="text" id="openrouterModel" placeholder="https://openrouter.ai/api/v1/chat/completions" value="https://openrouter.ai/api/v1/chat/completions">
-        <label>Modelo a usar</label>
+        <label>Modelo a usar (solo modelos recomendados para contexto histórico/teológico)</label>
         <select id="openrouterModelSelect">
           <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
           <option value="openai/gpt-4">GPT-4</option>
           <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
-          <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
           <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
           <option value="google/gemini-pro">Gemini Pro</option>
-          <option value="google/gemini-1.5-pro">Gemini 1.5 Pro</option>
           <option value="meta-llama/llama-3-70b-instruct">Llama 3 70B</option>
-          <option value="mistralai/mistral-large">Mistral Large</option>
           <option value="custom">Otro (especificar abajo)</option>
         </select>
         <input type="text" id="openrouterCustomModel" placeholder="Modelo personalizado (ej: openai/gpt-4)" style="display:none;">
@@ -829,17 +1080,17 @@
     </div>
     <div class="config-msg" id="msgIAConfig"><p>⚠️ Solo el SuperAdmin puede configurar la IA.</p></div>
 
-    <!-- Google Maps -->
-    <div class="card config-solo-admin" id="cardGoogleMapsConfig">
-      <h3><i class="fas fa-map"></i> Configuración de Google Maps</h3>
+    <!-- Mapbox -->
+    <div class="card config-solo-admin" id="cardMapboxConfig">
+      <h3><i class="fas fa-map"></i> Configuración de Mapbox</h3>
       <div class="admin-ia-config">
-        <label>API Key de Google Maps</label>
-        <input type="text" id="googleMapsKey" placeholder="AIzaSy...">
-        <button class="btn-primary" id="btnGuardarGoogleMapsKey" style="margin-top:6px;">Guardar clave</button>
-        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén una clave en <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> (habilita Maps JavaScript API).</p>
+        <label>Access Token de Mapbox</label>
+        <input type="text" id="mapboxToken" placeholder="pk.eyJ1...">
+        <button class="btn-primary" id="btnGuardarMapboxToken" style="margin-top:6px;">Guardar token</button>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén un token en <a href="https://account.mapbox.com/access-tokens/" target="_blank">Mapbox</a>.</p>
       </div>
     </div>
-    <div class="config-msg" id="msgGoogleMapsConfig"><p>⚠️ Solo el SuperAdmin puede configurar la clave de Google Maps.</p></div>
+    <div class="config-msg" id="msgMapboxConfig"><p>⚠️ Solo el SuperAdmin puede configurar el token de Mapbox.</p></div>
   </div>
 
   <!-- ===== MODALES ===== -->
@@ -884,7 +1135,7 @@
     </div>
   </div>
 
-  <!-- EDITAR PERFIL -->
+  <!-- EDITAR PERFIL (sin video) -->
   <div class="modal-overlay" id="editarPerfilModal">
     <div class="modal-box">
       <h3><i class="fas fa-user-edit"></i> Editar Perfil</h3>
@@ -896,6 +1147,14 @@
       <input type="number" id="editEdad" placeholder="Edad">
       <label>Foto de perfil (URL)</label>
       <input type="url" id="editFotoPerfil" placeholder="https://ejemplo.com/foto.jpg">
+      
+      <!-- Subir fotos (hasta 5) -->
+      <hr style="border-color:var(--border-color); margin:12px 0;">
+      <h5 style="font-size:15px; margin-bottom:8px;">Fotos de perfil (máximo 5)</h5>
+      <label>Selecciona hasta 5 imágenes JPG</label>
+      <input type="file" id="editFotosPerfil" accept="image/jpeg" multiple style="margin:4px 0;">
+      <p style="font-size:11px; color:var(--text-secondary);">Las fotos se mostrarán en un carrusel en tu perfil público.</p>
+
       <label>Biografía / Testimonio</label>
       <textarea id="editBiografia" placeholder="Cuéntanos algo sobre ti..." rows="3"></textarea>
       <label>Iglesia / Ministerio</label>
@@ -925,6 +1184,11 @@
       <input type="text" id="editEstudios" placeholder="Ej: Universitario, Técnico, Bachiller...">
       <label>Talentos / Habilidades</label>
       <input type="text" id="editTalentos" placeholder="Ej: Música, Predicación, Enseñanza...">
+      <label>Carácter</label>
+      <input type="text" id="editCaracter" placeholder="Ej: Servicial, Líder, Compasivo...">
+      <label>Experiencia</label>
+      <input type="text" id="editExperiencia" placeholder="Ej: 5 años en ministerio juvenil...">
+
       <hr style="border-color:var(--border-color); margin:12px 0;">
       <h5 style="font-size:15px; margin-bottom:8px;">Privacidad de la información</h5>
       <p style="font-size:13px; color:var(--text-secondary);">Marca lo que quieras mostrar públicamente en tu perfil.</p>
@@ -939,6 +1203,8 @@
         <label><input type="checkbox" data-campo="telefono" checked> Teléfono</label>
         <label><input type="checkbox" data-campo="edad" checked> Edad</label>
         <label><input type="checkbox" data-campo="iglesia" checked> Iglesia</label>
+        <label><input type="checkbox" data-campo="caracter" checked> Carácter</label>
+        <label><input type="checkbox" data-campo="experiencia" checked> Experiencia</label>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" id="editarPerfilCancel">Cancelar</button>
@@ -1240,7 +1506,7 @@ const SEGUIDORES = db.collection('seguidores');
 const NOTIFICACIONES = (uid) => db.collection('notificaciones').doc(uid).collection('items');
 const CONFIG_IA = db.collection('config_ia').doc('config');
 const APP_CONFIG = db.collection('appConfig').doc('config');
-const CONFIG_GOOGLE_MAPS = db.collection('config_googlemaps').doc('config');
+const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -1254,9 +1520,9 @@ let editModeActivo = false;
 let chatGrupoActual = null;
 let mapInstances = {};
 let listeners = {};
-let googleMap = null;
-let googleMarkers = [];
-let googleMapsKey = '';
+let mapboxMap = null;
+let mapboxMarkers = [];
+let mapboxToken = '';
 const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
   theme: 'iglesia_theme'
@@ -1325,6 +1591,9 @@ window.registerUser = async function(email, password, nombre, telefono, edad, ap
       fechaNacimiento: '',
       estudios: '',
       talentos: '',
+      caracter: '',
+      experiencia: '',
+      fotosPerfil: [],
       privacidad: {
         biografia: true,
         situacionLaboral: true,
@@ -1335,7 +1604,9 @@ window.registerUser = async function(email, password, nombre, telefono, edad, ap
         talentos: true,
         telefono: true,
         edad: true,
-        iglesia: true
+        iglesia: true,
+        caracter: true,
+        experiencia: true
       },
       fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -1378,6 +1649,9 @@ async function cargarUsuarioActual(user) {
         fechaNacimiento: data.fechaNacimiento || '',
         estudios: data.estudios || '',
         talentos: data.talentos || '',
+        caracter: data.caracter || '',
+        experiencia: data.experiencia || '',
+        fotosPerfil: data.fotosPerfil || [],
         privacidad: data.privacidad || {}
       };
     } else {
@@ -1398,6 +1672,9 @@ async function cargarUsuarioActual(user) {
         fechaNacimiento: '',
         estudios: '',
         talentos: '',
+        caracter: '',
+        experiencia: '',
+        fotosPerfil: [],
         privacidad: {
           biografia: true,
           situacionLaboral: true,
@@ -1408,7 +1685,9 @@ async function cargarUsuarioActual(user) {
           talentos: true,
           telefono: true,
           edad: true,
-          iglesia: true
+          iglesia: true,
+          caracter: true,
+          experiencia: true
         },
         fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -1429,6 +1708,9 @@ async function cargarUsuarioActual(user) {
         fechaNacimiento: '',
         estudios: '',
         talentos: '',
+        caracter: '',
+        experiencia: '',
+        fotosPerfil: [],
         privacidad: {}
       };
     }
@@ -1438,7 +1720,7 @@ async function cargarUsuarioActual(user) {
     actualizarUIUsuario();
     cargarContadorNotificaciones();
     cargarLogoConfig();
-    cargarGoogleMapsKey();
+    cargarMapboxToken();
     cargarConfigIA();
   } catch (error) {
     console.error('Error cargando perfil:', error);
@@ -1471,9 +1753,9 @@ window.logoutUser = async function() {
     renderServiciosMapa();
     actualizarBotonesPorRol();
     actualizarTabs();
-    if (googleMap) {
-      googleMarkers.forEach(m => m.setMap(null));
-      googleMarkers = [];
+    if (mapboxMap) {
+      mapboxMarkers.forEach(m => m.remove());
+      mapboxMarkers = [];
     }
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
@@ -1525,12 +1807,12 @@ function actualizarUIUsuario() {
   }
 
   const isConfigAllowed = isSuperAdmin;
-  const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardGoogleMapsConfig'];
+  const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardMapboxConfig'];
   configCards.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isConfigAllowed ? 'block' : 'none';
   });
-  const msgIds = ['msgLogoConfig', 'msgIAConfig', 'msgGoogleMapsConfig'];
+  const msgIds = ['msgLogoConfig', 'msgIAConfig', 'msgMapboxConfig'];
   msgIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isConfigAllowed ? 'none' : 'block';
@@ -1566,7 +1848,7 @@ function switchPanel(name) {
     case 'reportes': renderReportes(); break;
     case 'chatadmin': renderChatAdmin(); break;
     case 'chatequipo': renderChatEquipo(); break;
-    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initGoogleMap(); break;
+    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initMapboxMap(); break;
     case 'biblia': cargarHistorial(); break;
     case 'inicio': renderCarrusel(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
@@ -2205,133 +2487,121 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA CON GOOGLE MAPS
+// 11. MAPA CON MAPBOX
 // ================================================================
-function cargarGoogleMapsKey() {
-  CONFIG_GOOGLE_MAPS.get().then(doc => {
-    if (doc.exists && doc.data().apiKey) {
-      googleMapsKey = doc.data().apiKey;
-      if (typeof google === 'undefined' || !google.maps) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&callback=initGoogleMap&libraries=places`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      } else {
-        initGoogleMap();
+function cargarMapboxToken() {
+  CONFIG_MAPBOX.get().then(doc => {
+    if (doc.exists && doc.data().token) {
+      mapboxToken = doc.data().token;
+      if (typeof mapboxgl !== 'undefined') {
+        mapboxgl.accessToken = mapboxToken;
+        if (document.getElementById('panel-mapa').classList.contains('active')) {
+          initMapboxMap();
+        }
       }
     } else {
-      document.getElementById('mapa3d').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">⚠️ El SuperAdmin debe configurar la clave de Google Maps en el panel de Admin.</p>';
+      document.getElementById('mapa3d').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">⚠️ El SuperAdmin debe configurar el token de Mapbox en el panel de Admin.</p>';
     }
   }).catch(console.error);
 }
 
-function guardarGoogleMapsKey() {
-  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar Google Maps.'); return; }
-  const key = document.getElementById('googleMapsKey').value.trim();
-  if (!key) { alert('Ingresa una clave de Google Maps.'); return; }
-  CONFIG_GOOGLE_MAPS.set({ apiKey: key }).then(() => {
-    alert('Clave guardada.');
-    googleMapsKey = key;
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initGoogleMap&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
+function guardarMapboxToken() {
+  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar Mapbox.'); return; }
+  const token = document.getElementById('mapboxToken').value.trim();
+  if (!token) { alert('Ingresa un token de Mapbox.'); return; }
+  CONFIG_MAPBOX.set({ token: token }).then(() => {
+    alert('Token guardado.');
+    mapboxToken = token;
+    mapboxgl.accessToken = token;
+    initMapboxMap();
   }).catch(console.error);
 }
 
-function initGoogleMap() {
-  if (typeof google === 'undefined' || !google.maps) return;
-  const container = document.getElementById('googleMap');
+function initMapboxMap() {
+  if (!mapboxToken || typeof mapboxgl === 'undefined') return;
+  const container = document.getElementById('mapboxMap');
   if (!container) return;
-  if (googleMap) {
-    googleMap = null;
-    googleMarkers.forEach(m => m.setMap(null));
-    googleMarkers = [];
+  if (mapboxMap) {
+    mapboxMap.remove();
+    mapboxMap = null;
+    mapboxMarkers.forEach(m => m.remove());
+    mapboxMarkers = [];
   }
-  const mapOptions = {
-    center: { lat: 10.0, lng: -84.0 },
-    zoom: 7,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  };
-  googleMap = new google.maps.Map(container, mapOptions);
-  cargarMarcadoresGoogleMaps();
+  mapboxMap = new mapboxgl.Map({
+    container: 'mapboxMap',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-84.0, 10.0],
+    zoom: 7
+  });
+  mapboxMap.addControl(new mapboxgl.NavigationControl());
+  cargarMarcadoresMapbox();
 }
 
-function cargarMarcadoresGoogleMaps() {
-  if (!googleMap) return;
-  googleMarkers.forEach(m => m.setMap(null));
-  googleMarkers = [];
+function cargarMarcadoresMapbox() {
+  if (!mapboxMap) return;
+  mapboxMarkers.forEach(m => m.remove());
+  mapboxMarkers = [];
 
+  // Misioneros (rojo)
   MISIONEROS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
       if (m.lat && m.lng) {
-        const marker = new google.maps.Marker({
-          position: { lat: parseFloat(m.lat), lng: parseFloat(m.lng) },
-          map: googleMap,
-          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }
-        });
-        const info = new google.maps.InfoWindow({
-          content: `<div class="map-popup"><strong>${m.nombre}</strong><br>${m.ciudad || ''}<br>📞 ${m.whatsapp || ''}</div>`
-        });
-        marker.addListener('click', () => info.open(googleMap, marker));
-        googleMarkers.push(marker);
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${m.nombre}</strong><br>${m.ciudad || ''}<br>📞 ${m.whatsapp || ''}</div>`);
+        const marker = new mapboxgl.Marker({ color: '#e74c3c' })
+          .setLngLat([parseFloat(m.lng), parseFloat(m.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
       }
     });
   });
 
+  // Iglesias (verde)
   IGLESIAS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const i = doc.data();
       if (i.lat && i.lng) {
-        const marker = new google.maps.Marker({
-          position: { lat: parseFloat(i.lat), lng: parseFloat(i.lng) },
-          map: googleMap,
-          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }
-        });
-        const info = new google.maps.InfoWindow({
-          content: `<div class="map-popup"><strong>${i.nombre}</strong><br>${i.direccion || ''}<br>📞 ${i.telefono || ''}<br>⏰ ${i.horarios || ''}</div>`
-        });
-        marker.addListener('click', () => info.open(googleMap, marker));
-        googleMarkers.push(marker);
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${i.nombre}</strong><br>${i.direccion || ''}<br>📞 ${i.telefono || ''}<br>⏰ ${i.horarios || ''}</div>`);
+        const marker = new mapboxgl.Marker({ color: '#2ecc71' })
+          .setLngLat([parseFloat(i.lng), parseFloat(i.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
       }
     });
   });
 
+  // Grupos (azul)
   GRUPOS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const g = doc.data();
       if (g.lat && g.lng) {
-        const marker = new google.maps.Marker({
-          position: { lat: parseFloat(g.lat), lng: parseFloat(g.lng) },
-          map: googleMap,
-          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }
-        });
-        const info = new google.maps.InfoWindow({
-          content: `<div class="map-popup"><strong>${g.nombre}</strong><br>Facilitador: ${g.facilitador}<br>${g.ubicacion || ''}</div>`
-        });
-        marker.addListener('click', () => info.open(googleMap, marker));
-        googleMarkers.push(marker);
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${g.nombre}</strong><br>Facilitador: ${g.facilitador}<br>${g.ubicacion || ''}</div>`);
+        const marker = new mapboxgl.Marker({ color: '#3498db' })
+          .setLngLat([parseFloat(g.lng), parseFloat(g.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
       }
     });
   });
 
+  // Servicios (amarillo)
   getServiciosRef().get().then(snapshot => {
     snapshot.forEach(doc => {
       const s = doc.data();
       if (s.lat && s.lng) {
-        const marker = new google.maps.Marker({
-          position: { lat: parseFloat(s.lat), lng: parseFloat(s.lng) },
-          map: googleMap,
-          icon: { url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' }
-        });
-        const info = new google.maps.InfoWindow({
-          content: `<div class="map-popup"><strong>${s.nombre}</strong><br>${s.direccion || ''}<br>📞 ${s.telefono || ''}<br>⏰ ${s.fecha} ${s.horario}</div>`
-        });
-        marker.addListener('click', () => info.open(googleMap, marker));
-        googleMarkers.push(marker);
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${s.nombre}</strong><br>${s.direccion || ''}<br>📞 ${s.telefono || ''}<br>⏰ ${s.fecha} ${s.horario}</div>`);
+        const marker = new mapboxgl.Marker({ color: '#f39c12' })
+          .setLngLat([parseFloat(s.lng), parseFloat(s.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
       }
     });
   });
@@ -2394,7 +2664,7 @@ function renderMisionerosMapa() {
       </div>`;
     });
     container.innerHTML = html;
-    if (googleMap) cargarMarcadoresGoogleMaps();
+    if (mapboxMap) cargarMarcadoresMapbox();
   });
 }
 
@@ -2428,7 +2698,7 @@ function renderIglesiasMapa() {
       </div>`;
     });
     container.innerHTML = html;
-    if (googleMap) cargarMarcadoresGoogleMaps();
+    if (mapboxMap) cargarMarcadoresMapbox();
   });
 }
 
@@ -2451,7 +2721,7 @@ function renderServiciosMapa() {
       </div>`;
     });
     container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay servicios con ubicación.</p>';
-    if (googleMap) cargarMarcadoresGoogleMaps();
+    if (mapboxMap) cargarMarcadoresMapbox();
   });
 }
 
@@ -3406,22 +3676,42 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
         talentos: 'Talentos',
         telefono: 'Teléfono',
         edad: 'Edad',
-        iglesia: 'Iglesia'
+        iglesia: 'Iglesia',
+        caracter: 'Carácter',
+        experiencia: 'Experiencia'
       };
-      return `<p><strong>${etiquetas[campo] || campo}:</strong> ${valor}</p>`;
+      return `<p><i class="fas fa-chevron-right" style="color:var(--teal);width:20px;"></i><strong>${etiquetas[campo] || campo}:</strong> ${valor}</p>`;
     }
     return '';
   }
 
+  // Fotos de perfil
+  const fotos = user.fotosPerfil || [];
+
+  let fotosHtml = '';
+  if (fotos.length > 0) {
+    fotosHtml = `
+      <div class="perfil-carrusel" id="perfilCarrusel">
+        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil">`).join('')}
+        <button class="carousel-control prev" onclick="cambiarFotoPerfil(-1)">❮</button>
+        <button class="carousel-control next" onclick="cambiarFotoPerfil(1)">❯</button>
+        <div class="indicators">
+          ${fotos.map((_, i) => `<span class="${i===0?'active':''}" onclick="irFotoPerfil(${i})"></span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   let html = `
-    <h3><i class="fas fa-user"></i> Perfil de ${user.displayName}</h3>
-    <div style="text-align:center;">
-      <img src="${user.fotoPerfil || ''}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid var(--teal);" onerror="this.style.display='none'">
-      <h4>${user.displayName}</h4>
-      ${user.iglesia ? `<p><i class="fas fa-church"></i> ${user.iglesia}</p>` : ''}
-      ${user.ministerio ? `<p><i class="fas fa-users"></i> ${user.ministerio}</p>` : ''}
+    <div style="position:relative;margin-bottom:16px;">
+      <div class="perfil-portada" style="background: linear-gradient(135deg, var(--teal), var(--teal-dark));"></div>
+      <img src="${user.fotoPerfil || ''}" class="perfil-avatar-grande" onerror="this.style.display='none'">
     </div>
-    <div style="margin-top:10px; text-align:left;">
+    <h3 class="perfil-nombre">${user.displayName}</h3>
+    ${user.iglesia ? `<p style="color:var(--text-secondary);"><i class="fas fa-church"></i> ${user.iglesia}</p>` : ''}
+    ${user.ministerio ? `<p style="color:var(--text-secondary);"><i class="fas fa-users"></i> ${user.ministerio}</p>` : ''}
+    ${fotosHtml}
+    <div class="perfil-detalle">
       ${campoVisible('biografia', user.biografia)}
       ${campoVisible('situacionLaboral', user.situacionLaboral)}
       ${campoVisible('situacionSentimental', user.situacionSentimental)}
@@ -3432,7 +3722,9 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
       ${campoVisible('telefono', user.telefono)}
       ${campoVisible('edad', user.edad)}
       ${campoVisible('iglesia', user.iglesia)}
-      ${user.apoyos && user.apoyos.length ? `<p><small>Apoyos: ${user.apoyos.join(', ')}</small></p>` : ''}
+      ${campoVisible('caracter', user.caracter)}
+      ${campoVisible('experiencia', user.experiencia)}
+      ${user.apoyos && user.apoyos.length ? `<p><i class="fas fa-tag"></i> <strong>Apoyos:</strong> ${user.apoyos.join(', ')}</p>` : ''}
     </div>
     ${currentUser && currentUser.uid === uid ? `
       <div style="text-align:center;margin-top:10px;">
@@ -3459,8 +3751,27 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   abrirModal('perfilModal');
 }
 
+// Control del carrusel de fotos en perfil
+let fotoPerfilIndex = 0;
+function cambiarFotoPerfil(dir) {
+  const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
+  if (!slides.length) return;
+  let current = 0;
+  slides.forEach((s, i) => { if (s.classList.contains('active')) current = i; });
+  let next = (current + dir + slides.length) % slides.length;
+  irFotoPerfil(next);
+}
+function irFotoPerfil(index) {
+  const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
+  const indicators = document.querySelectorAll('#perfilCarrusel .indicators span');
+  if (!slides.length) return;
+  slides.forEach((s, i) => s.classList.toggle('active', i === index));
+  indicators.forEach((s, i) => s.classList.toggle('active', i === index));
+  fotoPerfilIndex = index;
+}
+
 // ================================================================
-// GALERÍA DE FOTOS Y VIDEOS
+// GALERÍA DE FOTOS Y VIDEOS (adicional)
 // ================================================================
 async function verGaleria(uid) {
   if (!uid) return;
@@ -3567,6 +3878,8 @@ function cargarPerfilExtendido() {
   document.getElementById('editFechaNacimiento').value = currentUser.fechaNacimiento || '';
   document.getElementById('editEstudios').value = currentUser.estudios || '';
   document.getElementById('editTalentos').value = currentUser.talentos || '';
+  document.getElementById('editCaracter').value = currentUser.caracter || '';
+  document.getElementById('editExperiencia').value = currentUser.experiencia || '';
   const privacidad = currentUser.privacidad || {};
   document.querySelectorAll('#editPrivacidadContainer input[type="checkbox"]').forEach(cb => {
     const campo = cb.dataset.campo;
@@ -3588,6 +3901,8 @@ function guardarPerfilExtendido() {
   const fechaNacimiento = document.getElementById('editFechaNacimiento').value;
   const estudios = document.getElementById('editEstudios').value.trim();
   const talentos = document.getElementById('editTalentos').value.trim();
+  const caracter = document.getElementById('editCaracter').value.trim();
+  const experiencia = document.getElementById('editExperiencia').value.trim();
   const apoyos = [];
   document.querySelectorAll('#editApoyosContainer input[type="checkbox"]:checked').forEach(cb => apoyos.push(cb.value));
   const privacidad = {};
@@ -3600,23 +3915,68 @@ function guardarPerfilExtendido() {
     return;
   }
 
-  USERS.doc(currentUser.uid).update({
-    displayName: nombre,
-    telefono: telefono,
-    edad: edad,
-    fotoPerfil: fotoPerfil,
-    biografia: biografia,
-    iglesia: iglesia,
-    apoyos: apoyos,
-    situacionLaboral: situacionLaboral,
-    situacionSentimental: situacionSentimental,
-    nacionalidad: nacionalidad,
-    fechaNacimiento: fechaNacimiento,
-    estudios: estudios,
-    talentos: talentos,
-    privacidad: privacidad
-  }).then(() => {
-    Object.assign(currentUser, {
+  // Subir fotos (hasta 5)
+  const fotosFiles = document.getElementById('editFotosPerfil').files;
+  const promesas = [];
+  let fotosUrls = currentUser.fotosPerfil || [];
+
+  if (fotosFiles.length > 0) {
+    const filesArray = Array.from(fotosFiles).slice(0, 5);
+    filesArray.forEach((file, index) => {
+      const path = `perfil_fotos/${currentUser.uid}/${Date.now()}_${index}_${file.name}`;
+      promesas.push(subirArchivoStorage(file, path));
+    });
+  }
+
+  if (promesas.length > 0) {
+    Promise.all(promesas).then(results => {
+      fotosUrls = results.filter(url => url).slice(0, 5);
+      return USERS.doc(currentUser.uid).update({
+        displayName: nombre,
+        telefono: telefono,
+        edad: edad,
+        fotoPerfil: fotoPerfil,
+        biografia: biografia,
+        iglesia: iglesia,
+        apoyos: apoyos,
+        situacionLaboral: situacionLaboral,
+        situacionSentimental: situacionSentimental,
+        nacionalidad: nacionalidad,
+        fechaNacimiento: fechaNacimiento,
+        estudios: estudios,
+        talentos: talentos,
+        caracter: caracter,
+        experiencia: experiencia,
+        fotosPerfil: fotosUrls,
+        privacidad: privacidad
+      });
+    }).then(() => {
+      Object.assign(currentUser, {
+        displayName: nombre,
+        telefono: telefono,
+        edad: edad,
+        fotoPerfil: fotoPerfil,
+        biografia: biografia,
+        iglesia: iglesia,
+        apoyos: apoyos,
+        situacionLaboral: situacionLaboral,
+        situacionSentimental: situacionSentimental,
+        nacionalidad: nacionalidad,
+        fechaNacimiento: fechaNacimiento,
+        estudios: estudios,
+        talentos: talentos,
+        caracter: caracter,
+        experiencia: experiencia,
+        fotosPerfil: fotosUrls,
+        privacidad: privacidad
+      });
+      actualizarUIUsuario();
+      cerrarModal('editarPerfilModal');
+      alert('Perfil actualizado correctamente.');
+    }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+  } else {
+    // Sin nuevas fotos, solo actualizar datos
+    USERS.doc(currentUser.uid).update({
       displayName: nombre,
       telefono: telefono,
       edad: edad,
@@ -3630,12 +3990,33 @@ function guardarPerfilExtendido() {
       fechaNacimiento: fechaNacimiento,
       estudios: estudios,
       talentos: talentos,
+      caracter: caracter,
+      experiencia: experiencia,
       privacidad: privacidad
-    });
-    actualizarUIUsuario();
-    cerrarModal('editarPerfilModal');
-    alert('Perfil actualizado correctamente.');
-  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+    }).then(() => {
+      Object.assign(currentUser, {
+        displayName: nombre,
+        telefono: telefono,
+        edad: edad,
+        fotoPerfil: fotoPerfil,
+        biografia: biografia,
+        iglesia: iglesia,
+        apoyos: apoyos,
+        situacionLaboral: situacionLaboral,
+        situacionSentimental: situacionSentimental,
+        nacionalidad: nacionalidad,
+        fechaNacimiento: fechaNacimiento,
+        estudios: estudios,
+        talentos: talentos,
+        caracter: caracter,
+        experiencia: experiencia,
+        privacidad: privacidad
+      });
+      actualizarUIUsuario();
+      cerrarModal('editarPerfilModal');
+      alert('Perfil actualizado correctamente.');
+    }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+  }
 }
 
 function abrirEditarPerfil() {
@@ -3925,7 +4306,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 21. IA
+// 21. IA (mejorada para contexto histórico y teológico)
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -3947,7 +4328,15 @@ function preguntarIA() {
       return;
     }
 
-    const prompt = 'Eres un asistente para ayudar a entender el contexto histórico y teológico de pasajes bíblicos. ' + (contexto ? 'Instrucciones adicionales: ' + contexto : '') + ' Responde a esta pregunta de manera clara y concisa: ' + pregunta;
+    const prompt = `Eres un asistente especializado en historia y teología bíblica. Debes proporcionar respuestas que incluyan:
+1. El contexto histórico del pasaje o tema.
+2. La relevancia teológica y su aplicación para los cristianos.
+3. Citas de otros pasajes bíblicos que respalden tu respuesta.
+4. Mantén un tono claro, respetuoso y edificante.
+
+Instrucciones adicionales: ${contexto || 'Ninguna'}
+
+Pregunta del usuario: ${pregunta}`;
 
     fetch(baseUrl, {
       method: 'POST',
@@ -3960,7 +4349,7 @@ function preguntarIA() {
       body: JSON.stringify({
         model: model,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 500
+        max_tokens: 600
       })
     })
     .then(function(res) { return res.json(); })
@@ -4180,7 +4569,31 @@ if (localStorage.getItem(STORAGE_KEYS.theme) === 'dark') {
 }
 
 // ================================================================
-// 25. EVENTOS Y CARGA INICIAL
+// 25. VERSÍCULO DEL DÍA (inicio)
+// ================================================================
+const versiculosDia = [
+  { texto: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna.", ref: "Juan 3:16" },
+  { texto: "El Señor es mi pastor; nada me faltará.", ref: "Salmo 23:1" },
+  { texto: "Todo lo puedo en Cristo que me fortalece.", ref: "Filipenses 4:13" },
+  { texto: "Confía en el Señor de todo tu corazón, y no te apoyes en tu propia prudencia.", ref: "Proverbios 3:5" },
+  { texto: "Porque yo sé los planes que tengo para vosotros, planes de bienestar y no de mal, para daros un futuro y una esperanza.", ref: "Jeremías 29:11" },
+  { texto: "Mas los que esperan en el Señor renovarán sus fuerzas; levantarán alas como las águilas; correrán y no se cansarán; caminarán y no se fatigarán.", ref: "Isaías 40:31" },
+  { texto: "No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te fortalezco.", ref: "Isaías 41:10" },
+  { texto: "El amor es paciente, es bondadoso; el amor no tiene envidia, no se jacta, no se envanece.", ref: "1 Corintios 13:4" },
+  { texto: "Pero el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza.", ref: "Gálatas 5:22-23" },
+  { texto: "Y sabemos que todas las cosas ayudan a bien a los que aman a Dios, a los que son llamados conforme a su propósito.", ref: "Romanos 8:28" }
+];
+
+function actualizarVersiculoDia() {
+  const idx = Math.floor(Math.random() * versiculosDia.length);
+  const v = versiculosDia[idx];
+  document.getElementById('heroVerse').textContent = `"${v.texto}" — ${v.ref}`;
+  document.getElementById('verseText').textContent = `"${v.texto}"`;
+  document.querySelector('#verseDay footer').textContent = v.ref;
+}
+
+// ================================================================
+// 26. EVENTOS Y CARGA INICIAL
 // ================================================================
 document.addEventListener('DOMContentLoaded', function() {
   // Login
@@ -4245,10 +4658,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnIrBiblia').addEventListener('click', function() { switchPanel('biblia'); });
   document.getElementById('btnIrMuro').addEventListener('click', function() { switchPanel('muro'); });
   document.getElementById('btnIrOracion').addEventListener('click', function() { switchPanel('oracion'); });
-  document.getElementById('cardGrupos').addEventListener('click', function() { switchPanel('grupos'); });
-  document.getElementById('cardDiscipulado').addEventListener('click', function() { switchPanel('discipulado'); });
-  document.getElementById('cardOracion').addEventListener('click', function() { switchPanel('oracion'); });
-  document.getElementById('cardNecesidades').addEventListener('click', function() { switchPanel('necesidades'); });
 
   // Carrusel
   document.getElementById('carouselPrev').addEventListener('click', function() { cambiarSlide(-1); });
@@ -4335,9 +4744,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnGuardarConfigIA').addEventListener('click', guardarConfigIA);
   document.getElementById('btnGuardarContextoIA').addEventListener('click', guardarContextoIA);
 
-  // Google Maps
-  document.getElementById('btnGuardarGoogleMapsKey').addEventListener('click', guardarGoogleMapsKey);
-  document.getElementById('googleMapsKey').value = googleMapsKey;
+  // Mapbox
+  document.getElementById('btnGuardarMapboxToken').addEventListener('click', guardarMapboxToken);
+  document.getElementById('mapboxToken').value = mapboxToken;
 
   // Editar versículos
   document.getElementById('btnEditarVersos').addEventListener('click', function() {
@@ -4361,6 +4770,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnSubirLogo').addEventListener('click', subirLogo);
   document.getElementById('btnEliminarLogo').addEventListener('click', eliminarLogo);
 
+  // Versículo del día
+  actualizarVersiculoDia();
+
   // Cargar datos iniciales
   renderFeed();
   renderGrupos();
@@ -4381,9 +4793,9 @@ document.addEventListener('DOMContentLoaded', function() {
   actualizarTabs();
   cargarHistorial();
   cargarLogoConfig();
-  cargarGoogleMapsKey();
+  cargarMapboxToken();
 
-  console.log('✅ SAL Y LUZ completamente funcional con perfil extendido, galería y botón de editar.');
+  console.log('✅ SAL Y LUZ con Mapbox, perfil moderno, 5 fotos e IA mejorada.');
 });
 
 // ================================================================
@@ -4542,11 +4954,13 @@ async function sembrarDatosEjemplo() {
           fechaNacimiento: '1980-05-15',
           estudios: 'Teología',
           talentos: 'Predicación, Enseñanza',
-          privacidad: { biografia: true, situacionLaboral: true, situacionSentimental: true, nacionalidad: true, fechaNacimiento: true, estudios: true, talentos: true, telefono: true, edad: true, iglesia: true },
+          caracter: 'Líder',
+          experiencia: '20 años en el ministerio',
+          fotosPerfil: [],
+          privacidad: { biografia: true, situacionLaboral: true, situacionSentimental: true, nacionalidad: true, fechaNacimiento: true, estudios: true, talentos: true, telefono: true, edad: true, iglesia: true, caracter: true, experiencia: true },
           fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
         });
       }
-      // Agregar posts de ejemplo...
     }
   } catch (error) {
     console.error('Error al sembrar datos de ejemplo:', error);
@@ -4634,7 +5048,7 @@ window.buscarTexto = buscarTexto;
 window.preguntarIA = preguntarIA;
 window.guardarConfigIA = guardarConfigIA;
 window.guardarContextoIA = guardarContextoIA;
-window.guardarGoogleMapsKey = guardarGoogleMapsKey;
+window.guardarMapboxToken = guardarMapboxToken;
 window.initMap = initMap;
 window.buscarEnMapa = buscarEnMapa;
 window.guardarEdicionPerfil = guardarPerfilExtendido;
@@ -4644,11 +5058,13 @@ window.guardarEditarUsuario = guardarEditarUsuario;
 window.subirLogo = subirLogo;
 window.eliminarLogo = eliminarLogo;
 window.cargarLogoConfig = cargarLogoConfig;
-window.cargarGoogleMapsKey = cargarGoogleMapsKey;
-window.initGoogleMap = initGoogleMap;
+window.cargarMapboxToken = cargarMapboxToken;
+window.initMapboxMap = initMapboxMap;
 window.verGaleria = verGaleria;
 window.subirMedia = subirMedia;
 window.eliminarMedia = eliminarMedia;
+window.cambiarFotoPerfil = cambiarFotoPerfil;
+window.irFotoPerfil = irFotoPerfil;
 </script>
 </body>
 </html>
