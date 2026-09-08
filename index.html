@@ -10,8 +10,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- MAPBOX GL -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
   <style>
     /* ===== ESTILOS ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -354,12 +355,20 @@
       transform: translateY(-1px);
     }
     /* ===== MAPA ===== */
-    .map-wrapper { height: 200px; border-radius: 10px; border: 1px solid var(--border-color); margin: 6px 0; }
-    .map-wrapper .leaflet-container { height: 100%; width: 100%; border-radius: 10px; }
+    .map-wrapper {
+      height: 400px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      margin: 6px 0;
+      position: relative;
+    }
+    .map-wrapper .mapboxgl-map { height: 100%; width: 100%; border-radius: 10px; }
     .map-search { display: flex; gap: 6px; margin-bottom: 6px; }
     .map-search input { flex: 1; padding: 6px 12px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-size: 13px; }
     .map-search button { padding: 6px 14px; border-radius: 30px; border: none; background: var(--teal); color: white; cursor: pointer; }
     .map-search button:hover { background: var(--teal-dark); }
+    .map-popup { font-size: 13px; }
+    .map-popup strong { display: block; }
     /* ===== CHAT ===== */
     .chat-mensajes-container { max-height: 350px; overflow-y: auto; background: var(--bg-body); border-radius: var(--radius); padding: 10px; margin-bottom: 8px; border: 1px solid var(--border-color); }
     .chat-mensajes-container .msg { margin-bottom: 6px; font-size: 13px; padding: 4px 8px; border-radius: 8px; background: white; border: 1px solid var(--border-color); }
@@ -416,7 +425,7 @@
       .grupo-item { flex-direction: column; align-items: stretch; }
       .grupo-actions { justify-content: flex-start; margin-top: 4px; }
       .modal-box { padding: 16px; }
-      .map-wrapper { height: 160px; }
+      .map-wrapper { height: 300px; }
     }
     .text-secondary { color: var(--text-secondary); }
     .fw-500 { font-weight: 500; }
@@ -425,6 +434,16 @@
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
     .gap-8 { gap: 8px; }
     .carrusel-item-admin { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 6px 0; }
+    /* ===== REPORTES PÚBLICOS ===== */
+    .reporte-item {
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 0;
+    }
+    .reporte-item:last-child { border-bottom: none; }
+    .reporte-titulo { font-weight: 600; font-size: 15px; }
+    .reporte-fecha { font-size: 12px; color: var(--text-secondary); }
+    .reporte-desc { margin: 4px 0; font-size: 14px; }
+    .reporte-actions { display: flex; gap: 8px; margin-top: 6px; }
     /* ===== FOOTER ===== */
     .footer {
       text-align: center;
@@ -617,25 +636,26 @@
     <div id="oracionesContainer"></div>
   </div>
 
-  <!-- MAPA -->
+  <!-- MAPA (3D con Mapbox) -->
   <div class="panel" id="panel-mapa">
     <div class="card">
       <h3><i class="fas fa-church"></i> Grupos de conexión con ubicación</h3>
       <div id="gruposMapaList"></div>
     </div>
     <div class="card">
-      <h3><i class="fas fa-globe-americas"></i> Ubicación de misioneros</h3>
-      <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
-      <div id="misionerosMapaList" style="margin-top:10px;"></div>
-    </div>
-    <div class="card">
-      <h3><i class="fas fa-church"></i> Iglesias locales</h3>
-      <div class="map-container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509437!2d144.9537353153167!3d-37.81627997975159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d5df1f6d8b7%3A0x5045675218ce6e0!2sMelbourne%20VIC%2C%20Australia!5e0!3m2!1sen!2sus!4v1644262070673!5m2!1sen!2sus" allowfullscreen="" loading="lazy"></iframe>
+      <h3><i class="fas fa-globe-americas"></i> Misioneros e Iglesias locales</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+        <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
+        <button class="btn-primary" id="btnRegistrarIglesia" style="display:none; background:var(--orange);"><i class="fas fa-place-of-worship"></i> Registrar Iglesia</button>
       </div>
-      <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-        <span style="color:var(--teal);">●</span> Iglesias &nbsp; <span style="color:#e67e22;">●</span> Misioneros
-      </p>
+      <div class="map-wrapper" id="mapa3d"></div>
+      <div style="margin-top:6px; display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
+        <span><span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%;"></span> Misioneros</span>
+        <span><span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%;"></span> Iglesias</span>
+        <span><span style="display:inline-block; width:12px; height:12px; background:#3498db; border-radius:50%;"></span> Grupos</span>
+      </div>
+      <div id="misionerosMapaList" style="margin-top:10px;"></div>
+      <div id="iglesiasMapaList" style="margin-top:6px;"></div>
     </div>
   </div>
 
@@ -683,7 +703,7 @@
             <input type="text" id="servicioMapSearch" placeholder="Buscar dirección..." />
             <button id="btnBuscarServicioMap"><i class="fas fa-search"></i></button>
           </div>
-          <div id="servicioMap" class="map-wrapper"></div>
+          <div id="servicioMap" class="map-wrapper" style="height:200px;"></div>
           <input type="hidden" id="servicioLat" value="">
           <input type="hidden" id="servicioLng" value="">
           <p style="font-size:11px; color:var(--text-secondary);">Arrastra el marcador para ajustar la ubicación.</p>
@@ -717,11 +737,11 @@
     <div id="consejosContainer"></div>
   </div>
 
-  <!-- REPORTES -->
+  <!-- REPORTES (públicos) -->
   <div class="panel" id="panel-reportes">
     <div class="card">
-      <h3><i class="fas fa-clipboard-list"></i> Mis Reportes</h3>
-      <p style="font-size:13px; color:var(--text-secondary);">Crea reportes sobre tus actividades, avances o necesidades. El administrador puede ver todos.</p>
+      <h3><i class="fas fa-clipboard-list"></i> Reportes (públicos)</h3>
+      <p style="font-size:13px; color:var(--text-secondary);">Todos los reportes son visibles para la comunidad. Comparte tus avances, necesidades o testimonios.</p>
       <button class="btn-primary" id="btnNuevoReporte"><i class="fas fa-plus"></i> Nuevo Reporte</button>
     </div>
     <div id="reportesContainer"></div>
@@ -825,6 +845,15 @@
         <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">La clave y el contexto se almacenan en Firestore (privado).</p>
       </div>
     </div>
+    <div class="card">
+      <h3><i class="fas fa-map"></i> Configuración de Mapbox (para mapa 3D)</h3>
+      <div class="admin-ia-config">
+        <label>Token de Mapbox</label>
+        <input type="text" id="mapboxToken" placeholder="pk.eyJ1...">
+        <button class="btn-primary" id="btnGuardarMapboxToken" style="margin-top:6px;">Guardar Token</button>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Obtén un token gratis en <a href="https://account.mapbox.com/" target="_blank">Mapbox</a>.</p>
+      </div>
+    </div>
   </div>
 
   <!-- ===== MODALES ===== -->
@@ -869,7 +898,7 @@
     </div>
   </div>
 
-  <!-- Editar Perfil -->
+  <!-- Editar Perfil (propio) -->
   <div class="modal-overlay" id="editarPerfilModal">
     <div class="modal-box">
       <h3><i class="fas fa-user-edit"></i> Editar Perfil</h3>
@@ -903,18 +932,38 @@
     </div>
   </div>
 
-  <!-- Admin Login (ya no se usa, pero se mantiene por si acaso) -->
-  <div class="modal-overlay" id="adminLoginModal">
+  <!-- Editar Usuario (por Admin) -->
+  <div class="modal-overlay" id="editarUsuarioModal">
     <div class="modal-box">
-      <h3><i class="fas fa-user-shield"></i> Administrador</h3>
-      <label>Correo electrónico</label>
-      <input type="email" id="adminEmail" placeholder="admin@iglesia.com">
-      <label>Contraseña</label>
-      <input type="password" id="adminPassword" placeholder="••••••••">
-      <div id="adminLoginError" style="color:#e74c3c; font-size:13px; margin-top:4px;"></div>
+      <h3><i class="fas fa-user-cog"></i> Editar Usuario</h3>
+      <input type="hidden" id="editUsuarioUid">
+      <label>Nombre completo</label>
+      <input type="text" id="editUsuarioNombre" placeholder="Nombre">
+      <label>Teléfono</label>
+      <input type="tel" id="editUsuarioTelefono" placeholder="+506 8888-8888">
+      <label>Edad</label>
+      <input type="number" id="editUsuarioEdad" placeholder="Edad">
+      <label>Foto de perfil (URL)</label>
+      <input type="url" id="editUsuarioFoto" placeholder="https://ejemplo.com/foto.jpg">
+      <label>Biografía / Testimonio</label>
+      <textarea id="editUsuarioBiografia" placeholder="Cuéntanos algo..." rows="3"></textarea>
+      <label>Iglesia / Ministerio</label>
+      <input type="text" id="editUsuarioIglesia" placeholder="Nombre de iglesia">
+      <label>Áreas de apoyo</label>
+      <div class="checkbox-group" id="editUsuarioApoyos">
+        <label><input type="checkbox" value="facilitador"> Facilitador</label>
+        <label><input type="checkbox" value="asistente"> Asistente</label>
+        <label><input type="checkbox" value="anfitrion"> Anfitrión</label>
+        <label><input type="checkbox" value="misionero"> Misionero</label>
+        <label><input type="checkbox" value="servidor"> Servidor</label>
+        <label><input type="checkbox" value="consejero"> Consejero</label>
+        <label><input type="checkbox" value="oracion"> Oración</label>
+        <label><input type="checkbox" value="ayuda_alimentaria"> Ayuda alimentaria</label>
+      </div>
+      <div id="editUsuarioError" style="color:#e74c3c; font-size:13px; margin-top:4px;"></div>
       <div class="modal-actions">
-        <button class="btn-cancel" id="adminLoginCancel">Cancelar</button>
-        <button class="btn-confirm" id="adminLoginConfirm">Ingresar</button>
+        <button class="btn-cancel" id="editUsuarioCancel">Cancelar</button>
+        <button class="btn-confirm" id="editUsuarioGuardar">Guardar cambios</button>
       </div>
     </div>
   </div>
@@ -967,7 +1016,7 @@
           <input type="text" id="grupoMapSearch" placeholder="Buscar dirección..." />
           <button id="btnBuscarGrupoMap"><i class="fas fa-search"></i></button>
         </div>
-        <div id="grupoMap" class="map-wrapper"></div>
+        <div id="grupoMap" class="map-wrapper" style="height:200px;"></div>
         <input type="hidden" id="grupoLat" value="">
         <input type="hidden" id="grupoLng" value="">
         <p style="font-size:11px; color:var(--text-secondary);">Arrastra el marcador para fijar la ubicación.</p>
@@ -1028,7 +1077,7 @@
           <input type="text" id="misioneroMapSearch" placeholder="Buscar dirección..." />
           <button id="btnBuscarMisioneroMap"><i class="fas fa-search"></i></button>
         </div>
-        <div id="misioneroMap" class="map-wrapper"></div>
+        <div id="misioneroMap" class="map-wrapper" style="height:200px;"></div>
         <input type="hidden" id="misioneroLat" value="">
         <input type="hidden" id="misioneroLng" value="">
         <p style="font-size:11px; color:var(--text-secondary);">Arrastra el marcador para fijar la ubicación.</p>
@@ -1042,7 +1091,36 @@
     </div>
   </div>
 
-  <!-- Reporte -->
+  <!-- Iglesia -->
+  <div class="modal-overlay" id="iglesiaModal">
+    <div class="modal-box">
+      <h3><i class="fas fa-place-of-worship"></i> Registrar Iglesia Local</h3>
+      <label>Nombre de la iglesia *</label>
+      <input type="text" id="iglesiaNombre" placeholder="Ej: Iglesia Central">
+      <label>Dirección *</label>
+      <input type="text" id="iglesiaDireccion" placeholder="Dirección completa">
+      <label>Teléfono</label>
+      <input type="tel" id="iglesiaTelefono" placeholder="+506 8888-8888">
+      <label>Horarios (opcional)</label>
+      <input type="text" id="iglesiaHorarios" placeholder="Ej: Dom 9am y 6pm">
+      <div style="margin-top:10px;">
+        <div class="map-search">
+          <input type="text" id="iglesiaMapSearch" placeholder="Buscar dirección..." />
+          <button id="btnBuscarIglesiaMap"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="iglesiaMap" class="map-wrapper" style="height:200px;"></div>
+        <input type="hidden" id="iglesiaLat" value="">
+        <input type="hidden" id="iglesiaLng" value="">
+        <p style="font-size:11px; color:var(--text-secondary);">Arrastra el marcador para fijar la ubicación.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="iglesiaCancel">Cancelar</button>
+        <button class="btn-confirm" id="iglesiaRegistrar">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reporte (crear) -->
   <div class="modal-overlay" id="reporteModal">
     <div class="modal-box">
       <h3><i class="fas fa-file-alt"></i> Nuevo Reporte</h3>
@@ -1097,31 +1175,6 @@
     </div>
   </div>
 
-  <!-- Editar Roles (NUEVO) -->
-  <div class="modal-overlay" id="editarRolesModal">
-    <div class="modal-box">
-      <h3><i class="fas fa-user-cog"></i> Editar roles de usuario</h3>
-      <input type="hidden" id="editRolesUid">
-      <label>Nombre del usuario</label>
-      <input type="text" id="editRolesNombre" disabled style="background:var(--border-color);">
-      <label>Áreas de apoyo</label>
-      <div class="checkbox-group" id="editRolesContainer">
-        <label><input type="checkbox" value="facilitador"> Facilitador</label>
-        <label><input type="checkbox" value="asistente"> Asistente</label>
-        <label><input type="checkbox" value="anfitrion"> Anfitrión</label>
-        <label><input type="checkbox" value="misionero"> Misionero</label>
-        <label><input type="checkbox" value="servidor"> Servidor</label>
-        <label><input type="checkbox" value="consejero"> Consejero</label>
-        <label><input type="checkbox" value="oracion"> Oración</label>
-        <label><input type="checkbox" value="ayuda_alimentaria"> Ayuda alimentaria</label>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-cancel" id="editarRolesCancel">Cancelar</button>
-        <button class="btn-confirm" id="editarRolesGuardar">Guardar cambios</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Perfil Público -->
   <div class="modal-overlay" id="perfilModal">
     <div class="modal-box" id="perfilModalContent">
@@ -1165,6 +1218,7 @@ const DISCIPULADOS = db.collection('discipulados');
 const ORACIONES = db.collection('oraciones');
 const NECESIDADES = db.collection('necesidades');
 const MISIONEROS = db.collection('misioneros');
+const IGLESIAS = db.collection('iglesias');
 const CONSEJOS = db.collection('consejos');
 const CARRUSEL = db.collection('carrusel');
 const CHAT_GRUPOS = (grupoId) => db.collection('grupos').doc(grupoId).collection('mensajes');
@@ -1175,17 +1229,21 @@ const SEGUIDORES = db.collection('seguidores');
 const NOTIFICACIONES = (uid) => db.collection('notificaciones').doc(uid).collection('items');
 const CONFIG_IA = db.collection('config_ia').doc('config');
 const APP_CONFIG = db.collection('appConfig').doc('config');
+const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 
 // ================================================================
 // 2. ESTADO GLOBAL
 // ================================================================
 let currentUser = null;
 let isAdmin = false;
+let isSuperAdmin = false;
 let carruselInterval = null;
 let editModeActivo = false;
 let chatGrupoActual = null;
 let mapInstances = {};
 let listeners = {};
+let mapboxMap = null;
+let mapboxMarkers = [];
 
 const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
@@ -1272,6 +1330,7 @@ async function cargarUsuarioActual(user) {
   if (!user) {
     currentUser = null;
     isAdmin = false;
+    isSuperAdmin = false;
     actualizarUIUsuario();
     return;
   }
@@ -1318,10 +1377,13 @@ async function cargarUsuarioActual(user) {
         ministerio: ''
       };
     }
+    // Definir superadmin y admin
+    isSuperAdmin = (user.email === 'salyluz@comunidad.com');
     isAdmin = (user.email === 'salyluz@comunidad.com' || user.email === 'admin@iglesia.com');
     actualizarUIUsuario();
     cargarContadorNotificaciones();
     cargarLogoConfig();
+    cargarMapboxToken();
   } catch (error) {
     console.error('Error cargando perfil:', error);
   }
@@ -1332,8 +1394,8 @@ window.logoutUser = async function() {
     await auth.signOut();
     currentUser = null;
     isAdmin = false;
+    isSuperAdmin = false;
     actualizarUIUsuario();
-    // Limpiar listeners
     Object.keys(listeners).forEach(key => {
       if (typeof listeners[key] === 'function') listeners[key]();
     });
@@ -1348,8 +1410,13 @@ window.logoutUser = async function() {
     renderChatAdmin();
     renderChatEquipo();
     renderMisionerosMapa();
+    renderIglesiasMapa();
     actualizarBotonesPorRol();
     actualizarTabs();
+    if (mapboxMap) {
+      mapboxMarkers.forEach(m => m.remove());
+      mapboxMarkers = [];
+    }
   } catch (error) {
     console.error('Error al cerrar sesión:', error);
   }
@@ -1371,7 +1438,7 @@ function actualizarUIUsuario() {
     }
     if (isAdmin) {
       adminBadgeContainer.style.display = 'inline-block';
-      document.getElementById('adminBadge').textContent = ' Admin (' + currentUser.email + ')';
+      document.getElementById('adminBadge').textContent = (isSuperAdmin ? ' SuperAdmin' : ' Admin') + ' (' + currentUser.email + ')';
     } else {
       adminBadgeContainer.style.display = 'none';
     }
@@ -1424,7 +1491,7 @@ function switchPanel(name) {
     case 'reportes': renderReportes(); break;
     case 'chatadmin': renderChatAdmin(); break;
     case 'chatequipo': renderChatEquipo(); break;
-    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); break;
+    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); initMapbox(); break;
     case 'biblia': cargarHistorial(); break;
     case 'inicio': renderCarrusel(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
@@ -2065,8 +2132,174 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA Y MISIONEROS
+// 11. MAPA 3D CON MAPBOX
 // ================================================================
+let mapboxToken = '';
+
+function cargarMapboxToken() {
+  CONFIG_MAPBOX.get().then(doc => {
+    if (doc.exists && doc.data().token) {
+      mapboxToken = doc.data().token;
+    } else {
+      mapboxToken = '';
+    }
+    if (document.getElementById('panel-mapa').classList.contains('active')) {
+      initMapbox();
+    }
+  }).catch(console.error);
+}
+
+function guardarMapboxToken() {
+  if (!isAdmin) return;
+  const token = document.getElementById('mapboxToken').value.trim();
+  if (!token) { alert('Ingresa un token de Mapbox.'); return; }
+  CONFIG_MAPBOX.set({ token: token }).then(() => {
+    alert('Token guardado.');
+    mapboxToken = token;
+    initMapbox();
+  }).catch(console.error);
+}
+
+function initMapbox() {
+  if (!mapboxToken) {
+    document.getElementById('mapa3d').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">⚠️ El administrador debe configurar un token de Mapbox en el panel de Admin.</p>';
+    return;
+  }
+  const container = document.getElementById('mapa3d');
+  if (mapboxMap) {
+    mapboxMap.remove();
+    mapboxMap = null;
+    mapboxMarkers.forEach(m => m.remove());
+    mapboxMarkers = [];
+  }
+  mapboxgl.accessToken = mapboxToken;
+  mapboxMap = new mapboxgl.Map({
+    container: container,
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-84.0, 10.0], // Costa Rica
+    zoom: 6,
+    pitch: 45,
+    bearing: 0,
+    antialias: true
+  });
+  mapboxMap.addControl(new mapboxgl.NavigationControl());
+  mapboxMap.addControl(new mapboxgl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: true },
+    trackUserLocation: true
+  }));
+
+  mapboxMap.on('load', function() {
+    cargarMarcadoresMapbox();
+  });
+}
+
+function cargarMarcadoresMapbox() {
+  if (!mapboxMap) return;
+  // Eliminar marcadores antiguos
+  mapboxMarkers.forEach(m => m.remove());
+  mapboxMarkers = [];
+
+  // Cargar misioneros
+  MISIONEROS.get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const m = doc.data();
+      if (m.lat && m.lng) {
+        const el = document.createElement('div');
+        el.className = 'marcador-misionero';
+        el.style.width = '24px';
+        el.style.height = '24px';
+        el.style.background = '#e74c3c';
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid white';
+        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${m.nombre}</strong><br>${m.ciudad || ''}<br>📞 ${m.whatsapp || ''}</div>`);
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([parseFloat(m.lng), parseFloat(m.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
+      }
+    });
+  });
+
+  // Cargar iglesias
+  IGLESIAS.get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const i = doc.data();
+      if (i.lat && i.lng) {
+        const el = document.createElement('div');
+        el.className = 'marcador-iglesia';
+        el.style.width = '24px';
+        el.style.height = '24px';
+        el.style.background = '#2ecc71';
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid white';
+        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${i.nombre}</strong><br>${i.direccion || ''}<br>📞 ${i.telefono || ''}<br>⏰ ${i.horarios || ''}</div>`);
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([parseFloat(i.lng), parseFloat(i.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
+      }
+    });
+  });
+
+  // Cargar grupos con ubicación
+  GRUPOS.get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const g = doc.data();
+      if (g.lat && g.lng) {
+        const el = document.createElement('div');
+        el.className = 'marcador-grupo';
+        el.style.width = '24px';
+        el.style.height = '24px';
+        el.style.background = '#3498db';
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid white';
+        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`<div class="map-popup"><strong>${g.nombre}</strong><br>Facilitador: ${g.facilitador}<br>${g.ubicacion || ''}</div>`);
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([parseFloat(g.lng), parseFloat(g.lat)])
+          .setPopup(popup)
+          .addTo(mapboxMap);
+        mapboxMarkers.push(marker);
+      }
+    });
+  });
+}
+
+function renderGruposMapa() {
+  const container = document.getElementById('gruposMapaList');
+  GRUPOS.get().then(snapshot => {
+    const conUbicacion = [];
+    snapshot.forEach(doc => {
+      const g = doc.data();
+      if (g.ubicacion || (g.lat && g.lng)) conUbicacion.push(g);
+    });
+    if (conUbicacion.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-secondary);">No hay grupos con ubicación registrada.</p>';
+      return;
+    }
+    let html = '';
+    conUbicacion.forEach(g => {
+      let link = '';
+      if (g.lat && g.lng) {
+        link = `<a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+      } else if (g.ubicacion) {
+        link = `<a href="https://www.google.com/maps?q=${encodeURIComponent(g.ubicacion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+      }
+      html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
+        <strong>${g.nombre}</strong> - ${link}
+      </div>`;
+    });
+    container.innerHTML = html;
+  });
+}
+
 function renderMisionerosMapa() {
   if (listeners.misioneros) listeners.misioneros();
   const container = document.getElementById('misionerosMapaList');
@@ -2096,6 +2329,41 @@ function renderMisionerosMapa() {
       </div>`;
     });
     container.innerHTML = html;
+    if (mapboxMap) cargarMarcadoresMapbox();
+  });
+}
+
+function renderIglesiasMapa() {
+  if (listeners.iglesias) listeners.iglesias();
+  const container = document.getElementById('iglesiasMapaList');
+  container.innerHTML = '<p style="color:var(--text-secondary);">Cargando iglesias...</p>';
+  listeners.iglesias = IGLESIAS.orderBy('fechaRegistro', 'desc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary);">No hay iglesias registradas.</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const i = { id: doc.id, ...doc.data() };
+      let ubicacionDisplay = '';
+      if (i.lat && i.lng) {
+        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${i.lat},${i.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+      } else if (i.direccion) {
+        ubicacionDisplay = `<a href="https://www.google.com/maps?q=${encodeURIComponent(i.direccion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
+      }
+      const puedeEliminar = (currentUser && currentUser.uid === i.uidCreador) || isAdmin;
+      html += `<div class="iglesia-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
+        <div>
+          <strong>${i.nombre}</strong> (${i.direccion || ''})
+          ${i.telefono ? ` · 📞 ${i.telefono}` : ''}
+          ${i.horarios ? ` · ⏰ ${i.horarios}` : ''}
+          ${ubicacionDisplay ? ` · ${ubicacionDisplay}` : ''}
+          ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarIglesia('${i.id}')" style="margin-left:8px; font-size:10px;">Eliminar</button>` : ''}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+    if (mapboxMap) cargarMarcadoresMapbox();
   });
 }
 
@@ -2154,32 +2422,49 @@ function eliminarMisionero(id) {
   });
 }
 
-function renderGruposMapa() {
-  const container = document.getElementById('gruposMapaList');
-  GRUPOS.get().then(snapshot => {
-    const conUbicacion = [];
-    snapshot.forEach(doc => {
-      const g = doc.data();
-      if (g.ubicacion || (g.lat && g.lng)) conUbicacion.push(g);
-    });
-    if (conUbicacion.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-secondary);">No hay grupos con ubicación registrada.</p>';
-      return;
-    }
-    let html = '';
-    conUbicacion.forEach(g => {
-      let link = '';
-      if (g.lat && g.lng) {
-        link = `<a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
-      } else if (g.ubicacion) {
-        link = `<a href="https://www.google.com/maps?q=${encodeURIComponent(g.ubicacion)}" target="_blank" style="color:var(--teal);">Ver en mapa</a>`;
-      }
-      html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
-        <strong>${g.nombre}</strong> - ${link}
-      </div>`;
-    });
-    container.innerHTML = html;
-  });
+function abrirModalIglesia() {
+  if (!isAdmin) { alert('Solo administradores pueden registrar iglesias.'); return; }
+  document.getElementById('iglesiaNombre').value = '';
+  document.getElementById('iglesiaDireccion').value = '';
+  document.getElementById('iglesiaTelefono').value = '';
+  document.getElementById('iglesiaHorarios').value = '';
+  document.getElementById('iglesiaLat').value = '';
+  document.getElementById('iglesiaLng').value = '';
+  setTimeout(() => initMap('iglesiaMap', 'iglesiaMapSearch', 'iglesiaLat', 'iglesiaLng'), 200);
+  abrirModal('iglesiaModal');
+}
+
+function registrarIglesia() {
+  if (!isAdmin) { alert('No autorizado.'); return; }
+  const nombre = document.getElementById('iglesiaNombre').value.trim();
+  const direccion = document.getElementById('iglesiaDireccion').value.trim();
+  const telefono = document.getElementById('iglesiaTelefono').value.trim();
+  const horarios = document.getElementById('iglesiaHorarios').value.trim();
+  const lat = document.getElementById('iglesiaLat').value;
+  const lng = document.getElementById('iglesiaLng').value;
+  if (!nombre || !direccion) {
+    alert('Nombre y dirección son obligatorios.');
+    return;
+  }
+  IGLESIAS.add({
+    uidCreador: currentUser.uid,
+    nombre: nombre,
+    direccion: direccion,
+    telefono: telefono || '',
+    horarios: horarios || '',
+    lat: lat || '',
+    lng: lng || '',
+    fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    cerrarModal('iglesiaModal');
+    alert('Iglesia registrada correctamente.');
+  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+}
+
+function eliminarIglesia(id) {
+  if (!isAdmin) return;
+  if (!confirm('¿Eliminar esta iglesia?')) return;
+  IGLESIAS.doc(id).delete().catch(console.error);
 }
 
 // ================================================================
@@ -2603,36 +2888,36 @@ function orarConsejo(id) {
 }
 
 // ================================================================
-// 15. REPORTES
+// 15. REPORTES (PÚBLICOS)
 // ================================================================
 function getReportesRef() { return db.collection('reportes'); }
 
 function renderReportes() {
-  if (!currentUser) {
-    document.getElementById('reportesContainer').innerHTML = '<p style="color:var(--text-secondary);">Inicia sesión para ver tus reportes.</p>';
-    return;
-  }
   if (listeners.reportes) listeners.reportes();
   const container = document.getElementById('reportesContainer');
-  container.innerHTML = '<p style="color:var(--text-secondary);">Cargando...</p>';
-  listeners.reportes = getReportesRef().where('uid', '==', currentUser.uid).orderBy('fecha', 'desc').onSnapshot(snapshot => {
+  container.innerHTML = '<p style="color:var(--text-secondary);">Cargando reportes...</p>';
+  // Mostrar todos los reportes (públicos)
+  listeners.reportes = getReportesRef().orderBy('fecha', 'desc').onSnapshot(snapshot => {
     if (snapshot.empty) {
-      container.innerHTML = '<p style="color:var(--text-secondary);">No has creado reportes aún.</p>';
+      container.innerHTML = '<p style="color:var(--text-secondary);">No hay reportes aún. ¡Crea el primero!</p>';
       return;
     }
     let html = '';
     snapshot.forEach(doc => {
       const r = { id: doc.id, ...doc.data() };
+      const esPropio = currentUser && r.uid === currentUser.uid;
       html += `<div class="reporte-item">
-        <div class="reporte-header">
+        <div class="reporte-header flex-between">
           <span class="reporte-titulo">${r.titulo}</span>
-          <span class="reporte-fecha">${new Date(r.fecha.seconds * 1000).toLocaleString()}</span>
+          <span class="reporte-fecha">${r.fecha ? new Date(r.fecha.seconds * 1000).toLocaleString() : ''}</span>
         </div>
         ${r.rol ? `<span style="font-size:12px; background:var(--teal-light); padding:1px 10px; border-radius:20px;">${r.rol}</span>` : ''}
         <div class="reporte-desc">${r.descripcion}</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin:4px 0;">Publicado por: ${r.usuario || 'Anónimo'}</div>
         <div class="reporte-actions">
-          <button class="btn-primary" onclick="abrirEditarReporte('${r.id}')"><i class="fas fa-edit"></i> Editar</button>
-          <button class="btn-danger" onclick="eliminarReporte('${r.id}')"><i class="fas fa-trash"></i> Eliminar</button>
+          <button class="btn-primary" onclick="compartirReporte('${r.id}')"><i class="fas fa-share-alt"></i> Compartir</button>
+          ${esPropio || isAdmin ? `<button class="btn-primary" onclick="abrirEditarReporte('${r.id}')"><i class="fas fa-edit"></i> Editar</button>` : ''}
+          ${esPropio || isAdmin ? `<button class="btn-danger" onclick="eliminarReporte('${r.id}')"><i class="fas fa-trash"></i> Eliminar</button>` : ''}
         </div>
       </div>`;
     });
@@ -2723,6 +3008,15 @@ function eliminarReporte(id) {
     }
     getReportesRef().doc(id).delete().then(() => alert('Reporte eliminado.'));
   }).catch(console.error);
+}
+
+function compartirReporte(id) {
+  const url = window.location.href + '?reporte=' + id;
+  if (navigator.share) {
+    navigator.share({ title: 'Reporte', text: 'Mira este reporte', url: url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => alert('Enlace copiado al portapapeles.'));
+  }
 }
 
 // ================================================================
@@ -2848,7 +3142,7 @@ function renderAdminPanel() {
     document.getElementById('statReportes').textContent = stats.reportes;
   });
 
-  // Usuarios con botón para editar roles
+  // Usuarios con opción de editar (excepto superadmin)
   USERS.get().then(snapshot => {
     const list = document.getElementById('adminUserList');
     if (snapshot.empty) {
@@ -2858,13 +3152,16 @@ function renderAdminPanel() {
     let html = '';
     snapshot.forEach(doc => {
       const u = doc.data();
+      const esSuper = u.email === 'salyluz@comunidad.com';
       html += '<div class="admin-list-item">' +
         '<span class="info"><strong>' + u.displayName + '</strong> · 📞 ' + u.telefono + ' · Edad: ' + u.edad +
         (u.apoyos && u.apoyos.length ? ' · Apoyos: ' + u.apoyos.join(', ') : '') +
+        (esSuper ? ' ⭐ SuperAdmin' : '') +
         '</span>' +
         '<div class="actions">' +
-        `<button class="btn-primary" onclick="abrirEditarRoles('${u.uid}', '${u.displayName}')" style="font-size:10px;">Editar roles</button>` +
-        `<button class="btn-danger" onclick="eliminarUsuario('${u.uid}')" style="font-size:10px;">Eliminar</button>` +
+        (esSuper ? '<span style="font-size:11px; color:var(--text-secondary);">No editable</span>' :
+          `<button class="btn-primary" onclick="abrirEditarUsuario('${u.uid}')" style="font-size:10px;">Editar</button>`) +
+        (isAdmin && !esSuper ? `<button class="btn-danger" onclick="eliminarUsuario('${u.uid}')" style="font-size:10px;">Eliminar</button>` : '') +
         '</div></div>';
     });
     list.innerHTML = html;
@@ -2958,7 +3255,9 @@ function renderAdminPanel() {
 
 // Funciones admin para eliminar de todas las colecciones
 function eliminarUsuario(uid) {
-  if (!isAdmin || !confirm('¿Eliminar este usuario? Se eliminarán también sus publicaciones.')) return;
+  if (!isAdmin) return;
+  if (isSuperAdmin) { alert('No puedes eliminar al SuperAdmin.'); return; }
+  if (!confirm('¿Eliminar este usuario? Se eliminarán también sus publicaciones.')) return;
   Promise.all([
     POSTS.where('uid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     ORACIONES.where('uid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
@@ -3421,7 +3720,7 @@ function cargarConfigIA() {
 }
 
 // ================================================================
-// 23. MAPA INTERACTIVO (Leaflet)
+// 23. MAPA INTERACTIVO (Leaflet para modales)
 // ================================================================
 function initMap(mapId, searchId, latId, lngId) {
   if (mapInstances[mapId]) {
@@ -3491,7 +3790,7 @@ function buscarEnMapa(mapId) {
 }
 
 // ================================================================
-// 24. EDICIÓN DE PERFIL
+// 24. EDICIÓN DE PERFIL (propio y por admin)
 // ================================================================
 function guardarEdicionPerfil() {
   if (!currentUser) return;
@@ -3549,11 +3848,69 @@ function abrirEditarPerfil() {
   abrirModal('editarPerfilModal');
 }
 
-// ================================================================
-// 25. NUEVAS FUNCIONES: LOGO Y EDICIÓN DE ROLES
-// ================================================================
+// EDICIÓN DE USUARIO POR ADMIN
+function abrirEditarUsuario(uid) {
+  if (!isAdmin) return;
+  USERS.doc(uid).get().then(doc => {
+    if (!doc.exists) return;
+    const u = doc.data();
+    if (u.email === 'salyluz@comunidad.com') {
+      document.getElementById('editUsuarioError').textContent = 'No se puede editar al SuperAdmin.';
+      return;
+    }
+    document.getElementById('editUsuarioUid').value = uid;
+    document.getElementById('editUsuarioNombre').value = u.displayName || '';
+    document.getElementById('editUsuarioTelefono').value = u.telefono || '';
+    document.getElementById('editUsuarioEdad').value = u.edad || '';
+    document.getElementById('editUsuarioFoto').value = u.fotoPerfil || '';
+    document.getElementById('editUsuarioBiografia').value = u.biografia || '';
+    document.getElementById('editUsuarioIglesia').value = u.iglesia || '';
+    const apoyos = u.apoyos || [];
+    document.querySelectorAll('#editUsuarioApoyos input[type="checkbox"]').forEach(cb => {
+      cb.checked = apoyos.includes(cb.value);
+    });
+    document.getElementById('editUsuarioError').textContent = '';
+    abrirModal('editarUsuarioModal');
+  }).catch(console.error);
+}
 
-// --- LOGO ---
+function guardarEditarUsuario() {
+  const uid = document.getElementById('editUsuarioUid').value;
+  const nombre = document.getElementById('editUsuarioNombre').value.trim();
+  const telefono = document.getElementById('editUsuarioTelefono').value.trim();
+  const edad = parseInt(document.getElementById('editUsuarioEdad').value.trim());
+  const foto = document.getElementById('editUsuarioFoto').value.trim();
+  const biografia = document.getElementById('editUsuarioBiografia').value.trim();
+  const iglesia = document.getElementById('editUsuarioIglesia').value.trim();
+  const apoyos = [];
+  document.querySelectorAll('#editUsuarioApoyos input[type="checkbox"]:checked').forEach(cb => apoyos.push(cb.value));
+
+  if (!nombre || !telefono || isNaN(edad) || edad <= 0) {
+    document.getElementById('editUsuarioError').textContent = 'Completa todos los campos correctamente.';
+    return;
+  }
+
+  USERS.doc(uid).update({
+    displayName: nombre,
+    telefono: telefono,
+    edad: edad,
+    fotoPerfil: foto,
+    biografia: biografia,
+    iglesia: iglesia,
+    apoyos: apoyos
+  }).then(() => {
+    alert('Usuario actualizado correctamente.');
+    cerrarModal('editarUsuarioModal');
+    if (isAdmin) renderAdminPanel();
+  }).catch(err => {
+    console.error(err);
+    document.getElementById('editUsuarioError').textContent = 'Error: ' + err.message;
+  });
+}
+
+// ================================================================
+// 25. LOGO
+// ================================================================
 function cargarLogoConfig() {
   APP_CONFIG.get().then(doc => {
     if (doc.exists && doc.data().logoUrl) {
@@ -3610,41 +3967,6 @@ function eliminarLogo() {
     alert('Logo eliminado.');
     cargarLogoConfig();
   }).catch(console.error);
-}
-
-// --- EDICIÓN DE ROLES ---
-function abrirEditarRoles(uid, nombre) {
-  if (!isAdmin) return;
-  document.getElementById('editRolesUid').value = uid;
-  document.getElementById('editRolesNombre').value = nombre;
-  USERS.doc(uid).get().then(doc => {
-    if (doc.exists) {
-      const apoyos = doc.data().apoyos || [];
-      const checkboxes = document.querySelectorAll('#editRolesContainer input[type="checkbox"]');
-      checkboxes.forEach(cb => {
-        cb.checked = apoyos.includes(cb.value);
-      });
-      abrirModal('editarRolesModal');
-    }
-  }).catch(console.error);
-}
-
-function guardarEditarRoles() {
-  const uid = document.getElementById('editRolesUid').value;
-  const apoyos = [];
-  document.querySelectorAll('#editRolesContainer input[type="checkbox"]:checked').forEach(cb => {
-    apoyos.push(cb.value);
-  });
-  USERS.doc(uid).update({ apoyos: apoyos })
-    .then(() => {
-      alert('Roles actualizados correctamente.');
-      cerrarModal('editarRolesModal');
-      if (isAdmin) renderAdminPanel();
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Error al actualizar roles: ' + err.message);
-    });
 }
 
 // ================================================================
@@ -3806,12 +4128,22 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('misioneroRegistrar').addEventListener('click', registrarMisionero);
   document.getElementById('btnBuscarMisioneroMap').addEventListener('click', function() { buscarEnMapa('misioneroMap'); });
 
+  // ---- IGLESIA ----
+  document.getElementById('btnRegistrarIglesia').addEventListener('click', abrirModalIglesia);
+  document.getElementById('iglesiaCancel').addEventListener('click', function() { cerrarModal('iglesiaModal'); });
+  document.getElementById('iglesiaRegistrar').addEventListener('click', registrarIglesia);
+  document.getElementById('btnBuscarIglesiaMap').addEventListener('click', function() { buscarEnMapa('iglesiaMap'); });
+
   // ---- PERFIL ----
   document.getElementById('userBadge').addEventListener('click', verMiPerfil);
 
   // ---- EDICIÓN DE PERFIL ----
   document.getElementById('editarPerfilCancel').addEventListener('click', function() { cerrarModal('editarPerfilModal'); });
   document.getElementById('editarPerfilGuardar').addEventListener('click', guardarEdicionPerfil);
+
+  // ---- EDICIÓN DE USUARIO POR ADMIN ----
+  document.getElementById('editUsuarioCancel').addEventListener('click', function() { cerrarModal('editarUsuarioModal'); });
+  document.getElementById('editUsuarioGuardar').addEventListener('click', guardarEditarUsuario);
 
   // ---- BIBLIA ----
   document.getElementById('btnBuscarBiblia').addEventListener('click', buscarBiblia);
@@ -3824,6 +4156,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // ---- ADMIN IA ----
   document.getElementById('btnGuardarConfigIA').addEventListener('click', guardarConfigIA);
   document.getElementById('btnGuardarContextoIA').addEventListener('click', guardarContextoIA);
+
+  // ---- ADMIN MAPBOX ----
+  document.getElementById('btnGuardarMapboxToken').addEventListener('click', guardarMapboxToken);
+  document.getElementById('mapboxToken').value = mapboxToken;
 
   // ---- EDICIÓN DE VERSÍCULOS ----
   document.getElementById('btnEditarVersos').addEventListener('click', function() {
@@ -3844,13 +4180,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // ---- NOTIFICACIONES ----
   document.getElementById('notificacionesBadge').addEventListener('click', mostrarNotificaciones);
 
-  // ---- NUEVOS: LOGO ----
+  // ---- LOGO ----
   document.getElementById('btnSubirLogo').addEventListener('click', subirLogo);
   document.getElementById('btnEliminarLogo').addEventListener('click', eliminarLogo);
-
-  // ---- NUEVOS: ROLES ----
-  document.getElementById('editarRolesCancel').addEventListener('click', function() { cerrarModal('editarRolesModal'); });
-  document.getElementById('editarRolesGuardar').addEventListener('click', guardarEditarRoles);
 
   // ---- CARGAR DATOS INICIALES ----
   renderFeed();
@@ -3865,11 +4197,13 @@ document.addEventListener('DOMContentLoaded', function() {
   renderChatAdmin();
   renderChatEquipo();
   renderMisionerosMapa();
+  renderIglesiasMapa();
   renderCarrusel();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
   cargarLogoConfig();
+  cargarMapboxToken();
 
   console.log('✅ SAL Y LUZ completamente funcional y corregido.');
 });
@@ -3883,6 +4217,7 @@ function actualizarBotonesPorRol() {
   const servicioForm = document.getElementById('servicioFormContainer');
   const servicioMsg = document.getElementById('servicioMensaje');
   const btnMisionero = document.getElementById('btnRegistrarMisionero');
+  const btnIglesia = document.getElementById('btnRegistrarIglesia');
   const misServicios = document.getElementById('misServiciosContainer');
 
   if (puedeCrearGrupo()) btnGrupo.style.display = 'inline-block';
@@ -3904,15 +4239,15 @@ function actualizarBotonesPorRol() {
 
   if (isAdmin || tieneRol('misionero')) btnMisionero.style.display = 'inline-block';
   else btnMisionero.style.display = 'none';
+
+  if (isAdmin) btnIglesia.style.display = 'inline-block';
+  else btnIglesia.style.display = 'none';
 }
 
 function actualizarTabs() {
   const tabEquipo = document.getElementById('tabChatEquipo');
   if (tieneAlgunRolApoyo() || isAdmin) tabEquipo.style.display = 'inline-block';
   else tabEquipo.style.display = 'none';
-  const tabReportes = document.querySelector('.tab[data-panel="reportes"]');
-  if (currentUser) tabReportes.style.display = 'inline-block';
-  else tabReportes.style.display = 'none';
 }
 
 // ================================================================
@@ -4012,9 +4347,13 @@ window.renderOraciones = renderOraciones;
 window.publicarOracion = publicarOracion;
 window.orarOracion = orarOracion;
 window.renderMisionerosMapa = renderMisionerosMapa;
+window.renderIglesiasMapa = renderIglesiasMapa;
 window.abrirModalMisionero = abrirModalMisionero;
 window.registrarMisionero = registrarMisionero;
 window.eliminarMisionero = eliminarMisionero;
+window.abrirModalIglesia = abrirModalIglesia;
+window.registrarIglesia = registrarIglesia;
+window.eliminarIglesia = eliminarIglesia;
 window.renderNecesidades = renderNecesidades;
 window.publicarNecesidad = publicarNecesidad;
 window.subirAyuda = subirAyuda;
@@ -4034,6 +4373,7 @@ window.guardarReporte = guardarReporte;
 window.abrirEditarReporte = abrirEditarReporte;
 window.actualizarReporte = actualizarReporte;
 window.eliminarReporte = eliminarReporte;
+window.compartirReporte = compartirReporte;
 window.renderChatAdmin = renderChatAdmin;
 window.enviarChatAdmin = enviarChatAdmin;
 window.renderChatEquipo = renderChatEquipo;
@@ -4058,11 +4398,14 @@ window.initMap = initMap;
 window.buscarEnMapa = buscarEnMapa;
 window.guardarEdicionPerfil = guardarEdicionPerfil;
 window.abrirEditarPerfil = abrirEditarPerfil;
-window.abrirEditarRoles = abrirEditarRoles;
-window.guardarEditarRoles = guardarEditarRoles;
+window.abrirEditarUsuario = abrirEditarUsuario;
+window.guardarEditarUsuario = guardarEditarUsuario;
 window.subirLogo = subirLogo;
 window.eliminarLogo = eliminarLogo;
 window.cargarLogoConfig = cargarLogoConfig;
+window.cargarMapboxToken = cargarMapboxToken;
+window.guardarMapboxToken = guardarMapboxToken;
+window.initMapbox = initMapbox;
 </script>
 </body>
 </html>
