@@ -660,6 +660,141 @@
       .landing-posts .post-preview { flex-direction: column; align-items: flex-start; }
       .landing-posts .post-preview img { width: 100%; height: 120px; }
     }
+
+    /* ===== ESTILOS NUEVOS PARA PERFIL PROFESIONAL ===== */
+    .perfil-profesional {
+      padding: 0;
+      background: var(--bg-body);
+    }
+    .perfil-header-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0;
+    }
+    .perfil-avatar-grande {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--teal);
+      margin: 0 auto 12px;
+      display: block;
+      background: var(--teal-light);
+    }
+    .perfil-nombre-grande {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .perfil-bio {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin: 6px 0 4px;
+    }
+    .perfil-detalles {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .perfil-detalle-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+    .perfil-detalle-item:last-child {
+      border-bottom: none;
+    }
+    .perfil-detalle-item i {
+      width: 20px;
+      color: var(--teal);
+      text-align: center;
+    }
+    .perfil-apoyos {
+      background: white;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .perfil-apoyo-badge {
+      background: var(--teal-light);
+      color: var(--teal-dark);
+      padding: 2px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .perfil-galeria-section {
+      background: white;
+      padding: 16px 20px;
+    }
+    .perfil-galeria-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .perfil-galeria-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: var(--bg-body);
+    }
+    .perfil-galeria-item img, .perfil-galeria-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .perfil-galeria-item .delete-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(231,76,60,0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .perfil-galeria-item .delete-btn:hover {
+      background: #c0392b;
+    }
+    .perfil-actions {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 0 0 var(--radius) var(--radius);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      border-top: 1px solid var(--border-color);
+    }
+    .perfil-upload-area {
+      background: white;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .perfil-upload-area input[type="file"] {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -694,8 +829,8 @@
     <button class="tab" data-panel="necesidades"><i class="fas fa-hand-holding-heart"></i><span> Necesidades</span></button>
     <button class="tab" data-panel="servicio"><i class="fas fa-utensils"></i><span> Servicio</span></button>
     <button class="tab" data-panel="consejeria"><i class="fas fa-comment-dots"></i><span> Consejería</span></button>
-    <button class="tab" data-panel="reportes"><i class="fas fa-clipboard-list"></i><span> Reportes</span></button>
-    <button class="tab" data-panel="chatadmin"><i class="fas fa-user-cog"></i><span> Chat Admin</span></button>
+    <button class="tab" data-panel="reportes" id="tabReportes"><i class="fas fa-clipboard-list"></i><span> Reportes</span></button>
+    <button class="tab" data-panel="chatadmin" id="tabChatAdmin"><i class="fas fa-user-cog"></i><span> Chat Admin</span></button>
     <button class="tab" id="tabChatEquipo" data-panel="chatequipo" style="display:none;"><i class="fas fa-users-cog"></i><span> Equipo</span></button>
     <button class="tab" data-panel="admin" id="adminTab" style="display:none;"><i class="fas fa-cog"></i><span> Admin</span></button>
   </nav>
@@ -1072,7 +1207,7 @@
     <div class="config-msg" id="msgGoogleMapsConfig"><p>⚠️ Solo el SuperAdmin puede configurar la clave de Google Maps.</p></div>
   </div>
 
-  <!-- ===== MODALES (sin cambios) ===== -->
+  <!-- ===== MODALES ===== -->
   <!-- LOGIN -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
@@ -1114,18 +1249,21 @@
     </div>
   </div>
 
-  <!-- EDITAR PERFIL -->
+  <!-- EDITAR PERFIL (mejorado con carga de foto) -->
   <div class="modal-overlay" id="editarPerfilModal">
     <div class="modal-box">
       <h3><i class="fas fa-user-edit"></i> Editar Perfil</h3>
+      <label>Foto de perfil</label>
+      <input type="file" id="editFotoPerfilInput" accept="image/png,image/jpeg,image/jpg" style="margin-bottom:6px;">
+      <div id="editFotoPerfilPreview" style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:2px solid var(--teal);margin-bottom:10px;display:flex;align-items:center;justify-content:center;background:var(--bg-body);">
+        <i class="fas fa-user" style="font-size:32px;color:var(--text-secondary);"></i>
+      </div>
       <label>Nombre completo *</label>
       <input type="text" id="editNombre" placeholder="Nombre">
       <label>Teléfono *</label>
       <input type="tel" id="editTelefono" placeholder="+506 8888-8888">
       <label>Edad *</label>
       <input type="number" id="editEdad" placeholder="Edad">
-      <label>Foto de perfil (URL)</label>
-      <input type="url" id="editFotoPerfil" placeholder="https://ejemplo.com/foto.jpg">
       <label>Biografía / Testimonio</label>
       <textarea id="editBiografia" placeholder="Cuéntanos algo sobre ti..." rows="3"></textarea>
       <label>Iglesia / Ministerio</label>
@@ -1222,6 +1360,12 @@
     </div>
   </div>
 
+  <!-- PERFIL PÚBLICO (modal renovado) -->
+  <div class="modal-overlay" id="perfilModal">
+    <div class="modal-box" id="perfilModalContent" style="max-width:700px; padding:0; overflow-y:auto;"></div>
+  </div>
+
+  <!-- OTROS MODALES (carrusel, grupo, discipulado, chat, misionero, iglesia, reporte, editar reporte) -->
   <!-- CARRUSEL -->
   <div class="modal-overlay" id="carruselModal">
     <div class="modal-box">
@@ -1427,11 +1571,6 @@
         <button class="btn-confirm" id="editReporteActualizar">Actualizar</button>
       </div>
     </div>
-  </div>
-
-  <!-- PERFIL PÚBLICO -->
-  <div class="modal-overlay" id="perfilModal">
-    <div class="modal-box" id="perfilModalContent" style="max-width:800px; padding:0; overflow-y:auto;"></div>
   </div>
 
 </div><!-- /app -->
@@ -1774,6 +1913,17 @@ function actualizarUIUsuario() {
     btnEditarVersos.style.display = 'none';
   }
 
+  // Restringir reportes y chat admin para invitados
+  const tabReportes = document.getElementById('tabReportes');
+  const tabChatAdmin = document.getElementById('tabChatAdmin');
+  if (currentUser) {
+    tabReportes.style.display = 'inline-block';
+    tabChatAdmin.style.display = 'inline-block';
+  } else {
+    tabReportes.style.display = 'none';
+    tabChatAdmin.style.display = 'none';
+  }
+
   const isConfigAllowed = isSuperAdmin;
   const configCards = ['cardLogoConfig', 'cardIAConfig', 'cardGoogleMapsConfig'];
   configCards.forEach(id => {
@@ -1794,6 +1944,11 @@ function actualizarUIUsuario() {
 // 5. NAVEGACIÓN Y PANELES
 // ================================================================
 function switchPanel(name) {
+  // Restringir acceso a reportes y chat admin para invitados
+  if ((name === 'reportes' || name === 'chatadmin') && !currentUser) {
+    alert('Debes iniciar sesión para acceder a esta sección.');
+    return;
+  }
   if (listeners[name]) {
     listeners[name]();
     delete listeners[name];
@@ -2462,7 +2617,6 @@ function cargarGoogleMapsKey() {
     if (doc.exists && doc.data().apiKey) {
       googleMapsKey = doc.data().apiKey;
     }
-    // Siempre usamos Leaflet como mapa principal, pero dejamos la opción de Google si se desea.
     initMapPrincipal();
   }).catch(console.error);
 }
@@ -2486,7 +2640,6 @@ function initMapPrincipal() {
     mapLeaflet = null;
     mapMarkers = [];
   }
-  // Usamos Leaflet por defecto (no requiere API key)
   mapLeaflet = L.map(container).setView([10.0, -84.0], 7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -2496,11 +2649,9 @@ function initMapPrincipal() {
 
 function cargarMarcadoresLeaflet() {
   if (!mapLeaflet) return;
-  // Limpiar marcadores previos
   mapMarkers.forEach(m => mapLeaflet.removeLayer(m));
   mapMarkers = [];
 
-  // Misioneros (rojo)
   MISIONEROS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
@@ -2513,7 +2664,6 @@ function cargarMarcadoresLeaflet() {
     });
   });
 
-  // Iglesias (verde)
   IGLESIAS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const i = doc.data();
@@ -2526,7 +2676,6 @@ function cargarMarcadoresLeaflet() {
     });
   });
 
-  // Grupos (azul)
   GRUPOS.get().then(snapshot => {
     snapshot.forEach(doc => {
       const g = doc.data();
@@ -2539,7 +2688,6 @@ function cargarMarcadoresLeaflet() {
     });
   });
 
-  // Servicios (amarillo)
   getServiciosRef().get().then(snapshot => {
     snapshot.forEach(doc => {
       const s = doc.data();
@@ -3588,6 +3736,11 @@ function eliminarReporteAdmin(id) {
 // ================================================================
 function verPerfil(uid) {
   if (!uid) return;
+  // Restringir a usuarios autenticados
+  if (!currentUser) {
+    alert('Debes iniciar sesión para ver perfiles.');
+    return;
+  }
   USERS.doc(uid).get().then(async doc => {
     if (!doc.exists) { alert('Usuario no encontrado.'); return; }
     const user = doc.data();
@@ -3610,18 +3763,19 @@ function verPerfil(uid) {
       const susTalentos = (user.talentos || '').split(',').map(t => t.trim()).filter(Boolean);
       talentosComunes = misTalentos.filter(t => susTalentos.includes(t));
     }
-    mostrarPerfilConPrivacidad(user, uid, seguido, amigosComunes, talentosComunes);
+    mostrarPerfilProfesional(user, uid, seguido, amigosComunes, talentosComunes);
   }).catch(console.error);
 }
 
-function mostrarPerfilConPrivacidad(user, uid, esSeguidor, amigosComunes, talentosComunes) {
+function mostrarPerfilProfesional(user, uid, esSeguidor, amigosComunes, talentosComunes) {
   const privacidad = user.privacidad || {};
   const modalContent = document.getElementById('perfilModalContent');
+  const esPropio = currentUser && currentUser.uid === uid;
 
   function campoVisible(campo, valor) {
     if (!valor) return '';
     const esPublico = privacidad[campo] !== undefined ? privacidad[campo] : true;
-    if (esPublico || (currentUser && currentUser.uid === uid)) {
+    if (esPublico || esPropio) {
       const etiquetas = {
         biografia: 'Biografía',
         situacionLaboral: 'Situación laboral',
@@ -3635,19 +3789,19 @@ function mostrarPerfilConPrivacidad(user, uid, esSeguidor, amigosComunes, talent
         iglesia: 'Iglesia',
         ubicacion: 'Ubicación'
       };
-      return `<div class="perfil-detail-item"><i class="fas fa-info-circle"></i> <strong>${etiquetas[campo] || campo}:</strong> ${valor}</div>`;
+      return `<div class="perfil-detalle-item"><i class="fas fa-info-circle"></i> <strong>${etiquetas[campo] || campo}:</strong> ${valor}</div>`;
     }
     return '';
   }
 
   let html = `
-    <div class="perfil-landing">
-      <div class="perfil-header">
-        <img src="${user.fotoPerfil || ''}" class="perfil-avatar" onerror="this.style.display='none'" />
-        <div class="perfil-nombre">${user.displayName}</div>
-        <div class="perfil-bio">${user.biografia || ''}</div>
+    <div class="perfil-profesional">
+      <div class="perfil-header-card">
+        <img src="${user.fotoPerfil || ''}" class="perfil-avatar-grande" onerror="this.style.display='none'" />
+        <div class="perfil-nombre-grande">${user.displayName}</div>
+        ${user.biografia ? `<div class="perfil-bio">${user.biografia}</div>` : ''}
       </div>
-      <div class="perfil-details">
+      <div class="perfil-detalles">
         ${campoVisible('iglesia', user.iglesia)}
         ${campoVisible('ubicacion', user.ubicacion)}
         ${campoVisible('situacionLaboral', user.situacionLaboral)}
@@ -3659,23 +3813,36 @@ function mostrarPerfilConPrivacidad(user, uid, esSeguidor, amigosComunes, talent
         ${campoVisible('edad', user.edad)}
         ${campoVisible('talentos', user.talentos)}
       </div>
-      ${(user.apoyos && user.apoyos.length) ? `<div style="padding:0 16px 8px;"><strong>Áreas de apoyo:</strong> ${user.apoyos.map(a => `<span class="badge-amigo">${a}</span>`).join(' ')}</div>` : ''}
-      ${(talentosComunes && talentosComunes.length) ? `<div class="perfil-talentos"><strong>Talentos en común:</strong> ${talentosComunes.map(t => `<span class="badge-talento">${t}</span>`).join(' ')}</div>` : ''}
-      ${(amigosComunes && amigosComunes.length) ? `<div class="perfil-amigos"><strong>Amigos en común:</strong> ${amigosComunes.map(n => `<span class="badge-amigo">${n}</span>`).join(' ')}</div>` : ''}
+      ${(user.apoyos && user.apoyos.length) ? `<div class="perfil-apoyos">${user.apoyos.map(a => `<span class="perfil-apoyo-badge">${a}</span>`).join(' ')}</div>` : ''}
+      ${(talentosComunes && talentosComunes.length) ? `<div style="padding:0 20px 8px;"><strong>Talentos en común:</strong> ${talentosComunes.map(t => `<span class="perfil-apoyo-badge">${t}</span>`).join(' ')}</div>` : ''}
+      ${(amigosComunes && amigosComunes.length) ? `<div style="padding:0 20px 8px;"><strong>Amigos en común:</strong> ${amigosComunes.map(n => `<span class="perfil-apoyo-badge">${n}</span>`).join(' ')}</div>` : ''}
   `;
 
-  const mostrarGaleria = (currentUser && currentUser.uid === uid) || user.privacidadGaleria !== false;
+  const mostrarGaleria = esPropio || user.privacidadGaleria !== false;
+  html += `<div class="perfil-galeria-section">`;
   if (mostrarGaleria) {
-    html += `<div class="perfil-galeria" id="galeriaPerfil">Cargando galería...</div>`;
+    html += `<div class="perfil-galeria-grid" id="galeriaPerfilGrid">Cargando galería...</div>`;
   } else {
-    html += `<div style="padding:16px; color:var(--text-secondary);">Este usuario mantiene su galería privada.</div>`;
+    html += `<p style="color:var(--text-secondary);">Este usuario mantiene su galería privada.</p>`;
+  }
+  html += `</div>`;
+
+  // Área de subida de fotos (solo propio perfil)
+  if (esPropio) {
+    html += `
+      <div class="perfil-upload-area">
+        <span style="font-weight:500;font-size:13px;"><i class="fas fa-camera"></i> Agregar foto (máx 20):</span>
+        <input type="file" id="subirFotoPerfilPropio" accept="image/png,image/jpeg,image/jpg" />
+        <button class="btn-primary" id="btnSubirFotoPerfilPropio"><i class="fas fa-upload"></i> Subir</button>
+        <span style="font-size:11px;color:var(--text-secondary);">(JPG, PNG)</span>
+      </div>
+    `;
   }
 
   html += `
-      <div style="padding:16px; text-align:center; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-        ${currentUser && currentUser.uid === uid ? `<button class="btn-primary" onclick="abrirEditarPerfil()"><i class="fas fa-edit"></i> Editar perfil</button>` : ''}
+      <div class="perfil-actions">
+        ${esPropio ? `<button class="btn-primary" onclick="abrirEditarPerfil()"><i class="fas fa-edit"></i> Editar perfil</button>` : ''}
         ${currentUser && currentUser.uid !== uid ? `<button class="btn-primary" onclick="seguirUsuario('${uid}')">${esSeguidor ? 'Dejar de seguir' : 'Seguir'}</button>` : ''}
-        ${mostrarGaleria ? `<button class="btn-primary" onclick="verGaleria('${uid}')"><i class="fas fa-images"></i> Ver galería completa</button>` : ''}
         <button class="btn-cancel" onclick="cerrarModal('perfilModal')">Cerrar</button>
       </div>
     </div>
@@ -3684,143 +3851,90 @@ function mostrarPerfilConPrivacidad(user, uid, esSeguidor, amigosComunes, talent
   abrirModal('perfilModal');
 
   if (mostrarGaleria) {
-    cargarMiniGaleria(uid);
+    cargarGaleriaPerfil(uid);
+    if (esPropio) {
+      document.getElementById('btnSubirFotoPerfilPropio')?.addEventListener('click', function() {
+        const fileInput = document.getElementById('subirFotoPerfilPropio');
+        if (fileInput.files[0]) {
+          subirFotoGaleria(uid, fileInput.files[0]);
+        } else {
+          alert('Selecciona una foto primero.');
+        }
+      });
+    }
   }
 }
 
-async function cargarMiniGaleria(uid) {
-  const container = document.getElementById('galeriaPerfil');
+async function cargarGaleriaPerfil(uid) {
+  const container = document.getElementById('galeriaPerfilGrid');
   if (!container) return;
   try {
-    const fotosSnap = await USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc').limit(8).get();
-    const videosSnap = await USERS.doc(uid).collection('videos').orderBy('fecha', 'desc').limit(8).get();
+    const fotosSnap = await USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc').limit(20).get();
     const items = [];
-    fotosSnap.forEach(doc => items.push({ id: doc.id, ...doc.data(), tipo: 'foto' }));
-    videosSnap.forEach(doc => items.push({ id: doc.id, ...doc.data(), tipo: 'video' }));
-    items.sort((a,b) => (b.fecha?.seconds || 0) - (a.fecha?.seconds || 0));
+    fotosSnap.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
     if (items.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-secondary); padding:16px;">No hay fotos o videos en esta galería.</p>';
+      container.innerHTML = '<p style="color:var(--text-secondary); padding:12px 0;">No hay fotos en la galería.</p>';
       return;
     }
     let html = '';
-    items.slice(0, 8).forEach(item => {
-      if (item.tipo === 'foto') {
-        html += `<div class="perfil-galeria-item"><img src="${item.url}" alt="foto" loading="lazy" /></div>`;
-      } else {
-        html += `<div class="perfil-galeria-item"><video src="${item.url}" muted controls></video></div>`;
-      }
+    const esPropio = currentUser && currentUser.uid === uid;
+    items.forEach(item => {
+      html += `<div class="perfil-galeria-item">
+        <img src="${item.url}" alt="foto" loading="lazy" />
+        ${esPropio ? `<button class="delete-btn" onclick="eliminarFotoGaleria('${uid}','${item.id}')"><i class="fas fa-trash"></i></button>` : ''}
+      </div>`;
     });
-    if (items.length > 8) {
-      html += `<div class="perfil-galeria-item" style="background:var(--teal-light); display:flex; align-items:center; justify-content:center; font-weight:600; color:var(--teal-dark);">+${items.length - 8} más</div>`;
-    }
     container.innerHTML = html;
   } catch (error) {
-    console.error('Error cargando mini galería:', error);
+    console.error('Error cargando galería:', error);
     container.innerHTML = '<p style="color:var(--text-secondary);">Error al cargar la galería.</p>';
   }
 }
 
-async function verGaleria(uid) {
-  if (!uid) return;
-  const modalContent = document.getElementById('perfilModalContent');
-  modalContent.innerHTML = '<p>Cargando galería completa...</p>';
-  try {
-    const fotosSnap = await USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc').limit(30).get();
-    const videosSnap = await USERS.doc(uid).collection('videos').orderBy('fecha', 'desc').limit(30).get();
-    const items = [];
-    fotosSnap.forEach(doc => items.push({ id: doc.id, ...doc.data(), tipo: 'foto' }));
-    videosSnap.forEach(doc => items.push({ id: doc.id, ...doc.data(), tipo: 'video' }));
-    items.sort((a,b) => (b.fecha?.seconds || 0) - (a.fecha?.seconds || 0));
-
-    let html = `<h3><i class="fas fa-images"></i> Galería completa</h3>`;
-    if (items.length === 0) {
-      html += `<p style="color:var(--text-secondary);">No hay contenido en la galería.</p>`;
-    } else {
-      html += `<div class="galeria-grid" style="grid-template-columns: repeat(auto-fill, minmax(150px,1fr));">`;
-      items.forEach(item => {
-        if (item.tipo === 'foto') {
-          html += `<div class="galeria-item"><img src="${item.url}" alt="foto" loading="lazy" /></div>`;
-        } else {
-          html += `<div class="galeria-item"><video src="${item.url}" controls></video></div>`;
-        }
-      });
-      html += `</div>`;
-    }
-    if (currentUser && currentUser.uid === uid) {
-      html += `
-        <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="file" accept="image/*" id="subirFotoGaleriaCompleta" style="display:none;">
-          <button class="btn-primary" onclick="document.getElementById('subirFotoGaleriaCompleta').click()"><i class="fas fa-camera"></i> Subir foto</button>
-          <input type="file" accept="video/*" id="subirVideoGaleriaCompleta" style="display:none;">
-          <button class="btn-primary" onclick="document.getElementById('subirVideoGaleriaCompleta').click()"><i class="fas fa-video"></i> Subir video</button>
-          <span style="font-size:12px; color:var(--text-secondary); margin-left:8px;">(Máx 30 archivos)</span>
-        </div>
-      `;
-    }
-    html += `<div class="modal-actions"><button class="btn-cancel" onclick="verPerfil('${uid}')">Volver</button></div>`;
-    modalContent.innerHTML = html;
-
-    document.getElementById('subirFotoGaleriaCompleta')?.addEventListener('change', function(e) {
-      if (this.files[0]) subirMedia(uid, 'fotos', this.files[0]);
-    });
-    document.getElementById('subirVideoGaleriaCompleta')?.addEventListener('change', function(e) {
-      if (this.files[0]) subirMedia(uid, 'videos', this.files[0]);
-    });
-  } catch (error) {
-    console.error('Error cargando galería completa:', error);
-    modalContent.innerHTML = '<p>Error al cargar la galería.</p>';
-  }
-}
-
-async function subirMedia(uid, tipo, file) {
-  if (!currentUser) { alert('Inicia sesión.'); return; }
-  if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
-  const snap = await USERS.doc(uid).collection(tipo).limit(30).get();
-  if (snap.size >= 30) {
-    alert(`Ya tienes 30 ${tipo === 'fotos' ? 'fotos' : 'videos'} en tu galería. Elimina alguno para subir más.`);
+async function subirFotoGaleria(uid, file) {
+  if (!currentUser || currentUser.uid !== uid) {
+    alert('No tienes permiso.');
     return;
   }
-  const path = `galeria/${uid}/${tipo}/${Date.now()}_${file.name}`;
+  // Verificar cantidad
+  const snap = await USERS.doc(uid).collection('fotos').get();
+  if (snap.size >= 20) {
+    alert('Ya tienes 20 fotos en tu galería. Elimina alguna para subir más.');
+    return;
+  }
+  const path = `galeria/${uid}/fotos/${Date.now()}_${file.name}`;
   try {
     const url = await subirArchivoStorage(file, path);
-    await USERS.doc(uid).collection(tipo).add({
+    await USERS.doc(uid).collection('fotos').add({
       url: url,
       nombre: file.name,
       fecha: firebase.firestore.FieldValue.serverTimestamp()
     });
-    alert('Archivo subido correctamente.');
-    if (document.getElementById('galeriaPerfil')) {
-      cargarMiniGaleria(uid);
-    }
-    if (document.getElementById('perfilModalContent')) {
-      verGaleria(uid);
-    }
+    alert('Foto subida correctamente.');
+    cargarGaleriaPerfil(uid);
   } catch (error) {
-    console.error('Error subiendo archivo:', error);
-    alert('Error al subir el archivo.');
+    console.error('Error subiendo foto:', error);
+    alert('Error al subir la foto.');
   }
 }
 
-async function eliminarMedia(uid, tipo, mediaId) {
-  if (!currentUser) return;
-  if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
-  if (!confirm('¿Eliminar este archivo?')) return;
+async function eliminarFotoGaleria(uid, fotoId) {
+  if (!currentUser || currentUser.uid !== uid) {
+    alert('No tienes permiso.');
+    return;
+  }
+  if (!confirm('¿Eliminar esta foto?')) return;
   try {
-    const doc = await USERS.doc(uid).collection(tipo).doc(mediaId).get();
+    const doc = await USERS.doc(uid).collection('fotos').doc(fotoId).get();
     if (doc.exists) {
       const url = doc.data().url;
       try {
         const ref = storage.refFromURL(url);
         await ref.delete();
       } catch (e) {}
-      await USERS.doc(uid).collection(tipo).doc(mediaId).delete();
-      alert('Eliminado.');
-      if (document.getElementById('galeriaPerfil')) {
-        cargarMiniGaleria(uid);
-      }
-      if (document.getElementById('perfilModalContent')) {
-        verGaleria(uid);
-      }
+      await USERS.doc(uid).collection('fotos').doc(fotoId).delete();
+      alert('Foto eliminada.');
+      cargarGaleriaPerfil(uid);
     }
   } catch (error) {
     console.error(error);
@@ -3866,7 +3980,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// 20. BIBLIA (con búsqueda por referencia y limpiar)
+// 20. BIBLIA (sin cambios)
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -4140,7 +4254,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 21. IA (corregida)
+// 21. IA (sin cambios)
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -4433,7 +4547,6 @@ function abrirEditarPerfil() {
   document.getElementById('editNombre').value = currentUser.displayName || '';
   document.getElementById('editTelefono').value = currentUser.telefono || '';
   document.getElementById('editEdad').value = currentUser.edad || '';
-  document.getElementById('editFotoPerfil').value = currentUser.fotoPerfil || '';
   document.getElementById('editBiografia').value = currentUser.biografia || '';
   document.getElementById('editIglesia').value = currentUser.iglesia || '';
   document.getElementById('editSituacionLaboral').value = currentUser.situacionLaboral || '';
@@ -4443,6 +4556,14 @@ function abrirEditarPerfil() {
   document.getElementById('editEstudios').value = currentUser.estudios || '';
   document.getElementById('editTalentos').value = currentUser.talentos || '';
   document.getElementById('editUbicacion').value = currentUser.ubicacion || '';
+
+  // Limpiar preview de foto
+  const preview = document.getElementById('editFotoPerfilPreview');
+  if (currentUser.fotoPerfil) {
+    preview.innerHTML = `<img src="${currentUser.fotoPerfil}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    preview.innerHTML = `<i class="fas fa-user" style="font-size:32px;color:var(--text-secondary);"></i>`;
+  }
 
   // Apoyos
   const apoyos = currentUser.apoyos || [];
@@ -4457,15 +4578,26 @@ function abrirEditarPerfil() {
     if (priv[campo] !== undefined) {
       cb.checked = priv[campo];
     } else {
-      cb.checked = true; // por defecto
+      cb.checked = true;
     }
   });
 
-  // Privacidad galería
   const privGal = document.getElementById('editPrivacidadGaleria');
   if (privGal) {
     privGal.checked = currentUser.privacidadGaleria !== false;
   }
+
+  // Manejar cambio de archivo para previsualizar
+  document.getElementById('editFotoPerfilInput').onchange = function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        preview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   abrirModal('editarPerfilModal');
 }
@@ -4475,7 +4607,6 @@ function guardarPerfilExtendido() {
   const nombre = document.getElementById('editNombre').value.trim();
   const telefono = document.getElementById('editTelefono').value.trim();
   const edad = parseInt(document.getElementById('editEdad').value.trim());
-  const fotoPerfil = document.getElementById('editFotoPerfil').value.trim();
   const biografia = document.getElementById('editBiografia').value.trim();
   const iglesia = document.getElementById('editIglesia').value.trim();
   const situacionLaboral = document.getElementById('editSituacionLaboral').value.trim();
@@ -4504,38 +4635,78 @@ function guardarPerfilExtendido() {
 
   const privacidadGaleria = document.getElementById('editPrivacidadGaleria').checked;
 
-  const datosActualizar = {
-    displayName: nombre,
-    telefono: telefono,
-    edad: edad,
-    fotoPerfil: fotoPerfil,
-    biografia: biografia,
-    iglesia: iglesia,
-    situacionLaboral: situacionLaboral,
-    situacionSentimental: situacionSentimental,
-    nacionalidad: nacionalidad,
-    fechaNacimiento: fechaNacimiento,
-    estudios: estudios,
-    talentos: talentos,
-    ubicacion: ubicacion,
-    apoyos: apoyos,
-    privacidad: privacidad,
-    privacidadGaleria: privacidadGaleria
-  };
-
-  USERS.doc(currentUser.uid).update(datosActualizar)
-    .then(() => {
-      // Actualizar currentUser local
-      Object.assign(currentUser, datosActualizar);
-      // Actualizar UI
-      actualizarUIUsuario();
-      alert('Perfil actualizado correctamente.');
-      cerrarModal('editarPerfilModal');
-    })
-    .catch(err => {
-      console.error('Error al actualizar perfil:', err);
-      alert('Error al guardar: ' + err.message);
-    });
+  // Subir foto de perfil si se seleccionó un archivo
+  const fileInput = document.getElementById('editFotoPerfilInput');
+  const file = fileInput.files[0];
+  if (file) {
+    const path = `perfil/${currentUser.uid}/foto_${Date.now()}_${file.name}`;
+    subirArchivoStorage(file, path)
+      .then((url) => {
+        const datosActualizar = {
+          displayName: nombre,
+          telefono: telefono,
+          edad: edad,
+          fotoPerfil: url,
+          biografia: biografia,
+          iglesia: iglesia,
+          situacionLaboral: situacionLaboral,
+          situacionSentimental: situacionSentimental,
+          nacionalidad: nacionalidad,
+          fechaNacimiento: fechaNacimiento,
+          estudios: estudios,
+          talentos: talentos,
+          ubicacion: ubicacion,
+          apoyos: apoyos,
+          privacidad: privacidad,
+          privacidadGaleria: privacidadGaleria
+        };
+        USERS.doc(currentUser.uid).update(datosActualizar)
+          .then(() => {
+            Object.assign(currentUser, datosActualizar);
+            actualizarUIUsuario();
+            alert('Perfil actualizado correctamente.');
+            cerrarModal('editarPerfilModal');
+          })
+          .catch(err => {
+            console.error('Error al actualizar perfil:', err);
+            alert('Error al guardar: ' + err.message);
+          });
+      })
+      .catch(err => {
+        console.error('Error subiendo foto de perfil:', err);
+        alert('Error al subir la foto de perfil.');
+      });
+  } else {
+    // Sin nueva foto
+    const datosActualizar = {
+      displayName: nombre,
+      telefono: telefono,
+      edad: edad,
+      biografia: biografia,
+      iglesia: iglesia,
+      situacionLaboral: situacionLaboral,
+      situacionSentimental: situacionSentimental,
+      nacionalidad: nacionalidad,
+      fechaNacimiento: fechaNacimiento,
+      estudios: estudios,
+      talentos: talentos,
+      ubicacion: ubicacion,
+      apoyos: apoyos,
+      privacidad: privacidad,
+      privacidadGaleria: privacidadGaleria
+    };
+    USERS.doc(currentUser.uid).update(datosActualizar)
+      .then(() => {
+        Object.assign(currentUser, datosActualizar);
+        actualizarUIUsuario();
+        alert('Perfil actualizado correctamente.');
+        cerrarModal('editarPerfilModal');
+      })
+      .catch(err => {
+        console.error('Error al actualizar perfil:', err);
+        alert('Error al guardar: ' + err.message);
+      });
+  }
 }
 
 // ================================================================
@@ -4600,7 +4771,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Logo
   document.getElementById('logoInicio').addEventListener('click', function() { switchPanel('inicio'); });
 
-  // Botones inicio (hero y tarjetas)
+  // Botones inicio
   document.getElementById('btnIrBiblia').addEventListener('click', function() { switchPanel('biblia'); });
   document.getElementById('btnIrMuro').addEventListener('click', function() { switchPanel('muro'); });
   document.getElementById('btnIrOracion').addEventListener('click', function() { switchPanel('oracion'); });
@@ -4748,7 +4919,7 @@ document.addEventListener('DOMContentLoaded', function() {
   cargarLogoConfig();
   cargarGoogleMapsKey();
 
-  console.log('✅ SAL Y LUZ actualizado con landing moderno, mapa Leaflet, perfil extendido y galería.');
+  console.log('✅ SAL Y LUZ actualizado con perfil profesional, carga de fotos, y restricciones de acceso.');
 });
 
 // ================================================================
@@ -5016,9 +5187,9 @@ window.eliminarLogo = eliminarLogo;
 window.cargarLogoConfig = cargarLogoConfig;
 window.cargarGoogleMapsKey = cargarGoogleMapsKey;
 window.initMapPrincipal = initMapPrincipal;
-window.verGaleria = verGaleria;
-window.subirMedia = subirMedia;
-window.eliminarMedia = eliminarMedia;
+window.cargarGaleriaPerfil = cargarGaleriaPerfil;
+window.subirFotoGaleria = subirFotoGaleria;
+window.eliminarFotoGaleria = eliminarFotoGaleria;
 window.renderLandingFeed = renderLandingFeed;
 </script>
 </body>
