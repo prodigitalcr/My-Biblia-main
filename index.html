@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    /* Estilos generales (se mantienen) */
+    /* Estilos (se mantienen igual que antes) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --teal: #1D9E75;
@@ -1032,7 +1032,7 @@
     <div id="necesidadesContainer"></div>
   </div>
 
-  <!-- SERVICIO -->
+  <!-- SERVICIO (con mapa Leaflet) -->
   <div class="panel" id="panel-servicio">
     <div class="card">
       <h3><i class="fas fa-utensils"></i> Ofrecer ayuda alimentaria</h3>
@@ -1995,6 +1995,13 @@ function switchPanel(name) {
   if (panel) panel.classList.add('active');
   const tab = document.querySelector('.tab[data-panel="' + name + '"]');
   if (tab) tab.classList.add('active');
+
+  // Inicializar mapa de servicio si es necesario
+  if (name === 'servicio' && puedeOfrecerServicio()) {
+    setTimeout(() => {
+      initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng');
+    }, 500);
+  }
 
   switch (name) {
     case 'muro': renderFeed(); break;
@@ -3086,7 +3093,7 @@ function subirAyuda(id, input) {
 }
 
 // ================================================================
-// 13. SERVICIO (con mapa funcional)
+// 13. SERVICIO (con mapa Leaflet funcional)
 // ================================================================
 function getServiciosRef() { return db.collection('servicios'); }
 function puedeOfrecerServicio() {
@@ -4753,7 +4760,7 @@ document.getElementById('openrouterModelSelect').addEventListener('change', func
 });
 
 // ================================================================
-// MAPA (Leaflet para modales)
+// MAPA (Leaflet para modales) - MEJORADO
 // ================================================================
 function initMap(mapId, searchId, latId, lngId) {
   if (mapInstances[mapId]) {
@@ -4762,15 +4769,21 @@ function initMap(mapId, searchId, latId, lngId) {
   }
   var container = document.getElementById(mapId);
   if (!container) {
-    setTimeout(() => initMap(mapId, searchId, latId, lngId), 300);
+    console.warn('Contenedor no encontrado para mapa:', mapId);
     return;
   }
+  // Asegurar altura
   container.style.height = '200px';
   container.style.width = '100%';
-  var map = L.map(mapId).setView([0, 0], 2);
+  
+  var map = L.map(mapId, {
+    center: [0, 0],
+    zoom: 2
+  });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+  
   var marker = L.marker([0, 0], { draggable: true }).addTo(map);
   marker.on('dragend', function(e) {
     var pos = marker.getLatLng();
@@ -4781,6 +4794,7 @@ function initMap(mapId, searchId, latId, lngId) {
       searchInput.value = pos.lat.toFixed(6) + ', ' + pos.lng.toFixed(6);
     }
   });
+  
   var searchInput = document.getElementById(searchId);
   if (searchInput) {
     searchInput.addEventListener('keypress', function(e) {
@@ -4788,14 +4802,24 @@ function initMap(mapId, searchId, latId, lngId) {
         buscarEnMapa(mapId);
       }
     });
+    // Botón de búsqueda
+    var btn = document.querySelector(`#${mapId.replace('Map','')} .map-search button`) || 
+              document.querySelector(`#${mapId} ~ .map-search button`);
+    if (btn) {
+      btn.addEventListener('click', function() { buscarEnMapa(mapId); });
+    }
   }
+  
   mapInstances[mapId] = map;
   mapInstances[mapId + '_marker'] = marker;
   mapInstances[mapId + '_lat'] = latId;
   mapInstances[mapId + '_lng'] = lngId;
   mapInstances[mapId + '_search'] = searchId;
   
-  setTimeout(() => map.invalidateSize(), 500);
+  // Forzar redimensionamiento después de un tiempo
+  setTimeout(() => {
+    if (map) map.invalidateSize();
+  }, 500);
 }
 
 function buscarEnMapa(mapId) {
@@ -5026,6 +5050,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Servicio
   document.getElementById('btnOfrecerServicio').addEventListener('click', ofrecerServicio);
+  // Botón de búsqueda en mapa de servicio
   document.getElementById('btnBuscarServicioMap').addEventListener('click', function() { buscarEnMapa('servicioMap'); });
 
   // Consejería
@@ -5138,6 +5163,13 @@ document.addEventListener('DOMContentLoaded', function() {
   cargarLogoConfig();
   cargarMapboxToken();
 
+  // Inicializar mapa de servicio si ya está visible y tiene permisos
+  if (document.getElementById('panel-servicio').classList.contains('active') && puedeOfrecerServicio()) {
+    setTimeout(() => {
+      initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng');
+    }, 500);
+  }
+
   console.log('✅ SAL Y LUZ con todas las mejoras: mapa en servicios y eventos, perfil profesional, permisos de carrusel y más.');
 });
 
@@ -5162,6 +5194,12 @@ function actualizarBotonesPorRol() {
   if (tieneRol('servidor') || tieneRol('ayuda_alimentaria')) {
     servicioForm.style.display = 'block';
     servicioMsg.style.display = 'none';
+    // Inicializar mapa de servicio si ya está visible
+    if (document.getElementById('panel-servicio').classList.contains('active')) {
+      setTimeout(() => {
+        initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng');
+      }, 300);
+    }
   } else {
     servicioForm.style.display = 'none';
     servicioMsg.style.display = 'block';
