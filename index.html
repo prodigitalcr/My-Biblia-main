@@ -737,6 +737,7 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 6px;
+      position: relative;
     }
     .preview-container img, .preview-container video {
       max-width: 100px;
@@ -753,6 +754,31 @@
       border-radius: 20px;
       border: 1px solid var(--border-color);
     }
+    .preview-container .remove-preview {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .perfil-foto-item {
+      background: var(--bg-body);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .perfil-foto-item img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 4px; }
+    .perfil-foto-item .foto-desc { font-size: 13px; color: var(--text-secondary); margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -1287,7 +1313,9 @@
       <h5 style="font-size:15px; margin-bottom:8px;">Fotos de perfil (máximo 5)</h5>
       <label>Selecciona hasta 5 imágenes JPG o PNG</label>
       <input type="file" id="editFotosPerfil" accept="image/jpeg,image/png" multiple style="margin:4px 0;">
-      <p style="font-size:11px; color:var(--text-secondary);">Las fotos se mostrarán en un carrusel en tu perfil público.</p>
+      <label>Descripción para las fotos (opcional)</label>
+      <input type="text" id="editFotosDesc" placeholder="Descripción de las fotos..." style="margin-bottom:6px;">
+      <p style="font-size:11px; color:var(--text-secondary);">Las fotos se mostrarán en un carrusel en tu perfil público y podrán ser comentadas y reaccionadas.</p>
 
       <label>Biografía / Testimonio</label>
       <textarea id="editBiografia" placeholder="Cuéntanos algo sobre ti..." rows="3"></textarea>
@@ -2861,16 +2889,18 @@ function guardarMapboxToken() {
   }).catch(console.error);
 }
 
-function verEnMapa(lat, lng, nombre) {
+function verEnMapa(lat, lng, nombre, info) {
   if (!currentUser) { alert('Inicia sesión para ver el mapa.'); return; }
   switchPanel('mapa');
-  if (mapboxMap && lat && lng) {
-    mapboxMap.flyTo({ center: [lng, lat], zoom: 14 });
-    new mapboxgl.Popup({ closeOnClick: true })
-      .setLngLat([lng, lat])
-      .setHTML(`<strong>${nombre}</strong>`)
-      .addTo(mapboxMap);
-  }
+  setTimeout(() => {
+    if (mapboxMap && lat && lng) {
+      mapboxMap.flyTo({ center: [lng, lat], zoom: 14 });
+      const popup = new mapboxgl.Popup({ closeOnClick: true })
+        .setLngLat([lng, lat])
+        .setHTML(`<div class="map-popup"><strong>${nombre}</strong>${info ? '<br>' + info : ''}</div>`);
+      popup.addTo(mapboxMap);
+    }
+  }, 500);
 }
 
 function initMapboxMap() {
@@ -3010,10 +3040,13 @@ function renderGruposMapa() {
     let html = '';
     conUbicacion.forEach(g => {
       let link = '';
+      let info = '';
       if (g.lat && g.lng) {
-        link = `<a href="#" onclick="verEnMapa(${g.lat},${g.lng},'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        link = `<a href="#" onclick="verEnMapa(${g.lat},${g.lng},'${g.nombre}','Facilitador: ${g.facilitador}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = `Facilitador: ${g.facilitador}`;
       } else if (g.ubicacion) {
-        link = `<a href="#" onclick="verEnMapa(null,null,'${g.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        link = `<a href="#" onclick="verEnMapa(null,null,'${g.nombre}','${g.ubicacion}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = g.ubicacion;
       }
       html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
         <strong>${g.nombre}</strong> - ${link}
@@ -3037,12 +3070,14 @@ function renderMisionerosMapa() {
     snapshot.forEach(doc => {
       const m = { id: doc.id, ...doc.data() };
       let ubicacionDisplay = '';
+      let info = '';
       if (m.lat && m.lng) {
-        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${m.lat},${m.lng},'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${m.lat},${m.lng},'${m.nombre}','${m.ciudad || ''}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = m.ciudad || '';
       } else if (m.ubicacion) {
-        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${m.nombre}','${m.ubicacion}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = m.ubicacion;
       }
-      // Sin enlace a perfil
       const puedeEliminar = (currentUser && currentUser.uid === m.uidCreador) || isAdmin;
       html += `<div class="misionero-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
@@ -3072,12 +3107,14 @@ function renderIglesiasMapa() {
     snapshot.forEach(doc => {
       const i = { id: doc.id, ...doc.data() };
       let ubicacionDisplay = '';
+      let info = '';
       if (i.lat && i.lng) {
-        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${i.lat},${i.lng},'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(${i.lat},${i.lng},'${i.nombre}','${i.direccion || ''}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = i.direccion || '';
       } else if (i.direccion) {
-        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${i.nombre}','${i.direccion}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = i.direccion;
       }
-      // Sin enlace a perfil
       const puedeEliminar = (currentUser && currentUser.uid === i.uidCreador) || isAdmin;
       html += `<div class="iglesia-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
@@ -3109,7 +3146,7 @@ function renderServiciosMapa() {
       const s = doc.data();
       if (!s.lat || !s.lng) return;
       html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
-        <strong>${s.nombre}</strong> - <a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>
+        <strong>${s.nombre}</strong> - <a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}','${s.direccion || ''}')" style="color:var(--teal);">Ver en mapa</a>
       </div>`;
     });
     container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay servicios con ubicación.</p>';
@@ -3132,7 +3169,7 @@ function renderEventosMapa() {
       const e = doc.data();
       if (!e.lat || !e.lng) return;
       html += `<div style="padding:4px 0; border-bottom:1px solid var(--border-color);">
-        <strong>${e.titulo}</strong> - <a href="#" onclick="verEnMapa(${e.lat},${e.lng},'${e.titulo}')" style="color:var(--teal);">Ver en mapa</a>
+        <strong>${e.titulo}</strong> - <a href="#" onclick="verEnMapa(${e.lat},${e.lng},'${e.titulo}','${e.lugar || ''}')" style="color:var(--teal);">Ver en mapa</a>
       </div>`;
     });
     container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay eventos con ubicación.</p>';
@@ -3413,10 +3450,13 @@ function renderServicios() {
       const finalizado = fechaServicio < ahora;
 
       let ubicacionLink = '';
+      let info = '';
       if (s.lat && s.lng) {
-        ubicacionLink = `<a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionLink = `<a href="#" onclick="verEnMapa(${s.lat},${s.lng},'${s.nombre}','${s.direccion || ''}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = s.direccion || '';
       } else if (s.direccion) {
-        ubicacionLink = `<a href="#" onclick="verEnMapa(null,null,'${s.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
+        ubicacionLink = `<a href="#" onclick="verEnMapa(null,null,'${s.nombre}','${s.direccion}')" style="color:var(--teal);">Ver en mapa</a>`;
+        info = s.direccion;
       }
 
       const claseFinalizado = finalizado ? 'finalizado' : '';
@@ -3805,7 +3845,7 @@ function eliminarReporte(id) {
 }
 
 // ================================================================
-// 16. CHATS - con colores, envío de archivos y vista previa
+// 16. CHATS - con colores, envío de archivos y vista previa con eliminación
 // ================================================================
 function getChatAdminRef() { return db.collection('chat_admin'); }
 function getChatEquipoRef() { return db.collection('chat_equipo'); }
@@ -3852,7 +3892,6 @@ function enviarChatAdmin() {
   const input = document.getElementById('chatAdminInput');
   const texto = input.value.trim();
   if (!texto) return;
-  // Verificar si hay archivo pendiente
   const fileInput = document.getElementById('chatAdminFile');
   const file = fileInput.files[0];
   if (file) {
@@ -3940,66 +3979,48 @@ function enviarChatEquipo() {
   }
 }
 
-// Previsualización de archivos en chats
-document.getElementById('chatAdminFile').addEventListener('change', function(e) {
-  const file = this.files[0];
-  const preview = document.getElementById('chatAdminPreview');
-  preview.innerHTML = '';
-  if (file) {
+// Previsualización de archivos en chats con opción de eliminar
+function setupFilePreview(fileInputId, previewContainerId) {
+  const input = document.getElementById(fileInputId);
+  const container = document.getElementById(previewContainerId);
+  if (!input || !container) return;
+  input.addEventListener('change', function(e) {
+    container.innerHTML = '';
+    const file = this.files[0];
+    if (!file) return;
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
     if (file.type.startsWith('image/')) {
       const img = document.createElement('img');
       img.src = URL.createObjectURL(file);
-      preview.appendChild(img);
+      img.style.maxWidth = '100px';
+      img.style.maxHeight = '100px';
+      wrapper.appendChild(img);
     } else {
       const div = document.createElement('div');
       div.className = 'file-preview';
       div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
-      preview.appendChild(div);
+      wrapper.appendChild(div);
     }
-  }
-});
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-preview';
+    removeBtn.innerHTML = '✕';
+    removeBtn.title = 'Eliminar vista previa';
+    removeBtn.onclick = function(e) {
+      e.stopPropagation();
+      input.value = '';
+      container.innerHTML = '';
+    };
+    wrapper.appendChild(removeBtn);
+    container.appendChild(wrapper);
+  });
+}
 
-document.getElementById('chatEquipoFile').addEventListener('change', function(e) {
-  const file = this.files[0];
-  const preview = document.getElementById('chatEquipoPreview');
-  preview.innerHTML = '';
-  if (file) {
-    if (file.type.startsWith('image/')) {
-      const img = document.createElement('img');
-      img.src = URL.createObjectURL(file);
-      preview.appendChild(img);
-    } else {
-      const div = document.createElement('div');
-      div.className = 'file-preview';
-      div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
-      preview.appendChild(div);
-    }
-  }
-});
-
-// Previsualización en publicaciones
-document.getElementById('postImage').addEventListener('change', function(e) {
-  const file = this.files[0];
-  const preview = document.getElementById('postPreviewContainer');
-  preview.innerHTML = '';
-  if (file) {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    preview.appendChild(img);
-  }
-});
-document.getElementById('postVideo').addEventListener('change', function(e) {
-  const file = this.files[0];
-  const preview = document.getElementById('postPreviewContainer');
-  preview.innerHTML = '';
-  if (file) {
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-    video.controls = true;
-    video.style.maxWidth = '100px';
-    preview.appendChild(video);
-  }
-});
+setupFilePreview('chatAdminFile', 'chatAdminPreview');
+setupFilePreview('chatEquipoFile', 'chatEquipoPreview');
+setupFilePreview('postImage', 'postPreviewContainer');
+setupFilePreview('postVideo', 'postPreviewContainer');
 
 // ================================================================
 // 17. ADMIN PANEL - con gestión de eventos y moderación
@@ -4286,7 +4307,7 @@ function renderEventos() {
         <h5>${e.titulo}</h5>
         ${e.lugar ? `<p><i class="fas fa-map-pin"></i> ${e.lugar}</p>` : ''}
         ${e.desc ? `<p>${e.desc}</p>` : ''}
-        ${e.lat && e.lng ? `<p><i class="fas fa-map"></i> <a href="#" onclick="verEnMapa(${e.lat},${e.lng},'${e.titulo}')" style="color:var(--teal);">Ver en mapa</a></p>` : ''}
+        ${e.lat && e.lng ? `<p><i class="fas fa-map"></i> <a href="#" onclick="verEnMapa(${e.lat},${e.lng},'${e.titulo}','${e.lugar || ''}')" style="color:var(--teal);">Ver en mapa</a></p>` : ''}
       </div>`;
     });
     container.innerHTML = html || '<p style="color:var(--text-secondary);">No hay eventos próximos.</p>';
@@ -4294,7 +4315,7 @@ function renderEventos() {
 }
 
 // ================================================================
-// 19. PERFIL PROFESIONAL - con galería y sin enlaces a perfiles en el mapa
+// 19. PERFIL PROFESIONAL - con galería, interacciones y fotos con descripción
 // ================================================================
 function verPerfil(uid) {
   console.log('verPerfil llamado con uid:', uid);
@@ -4412,27 +4433,65 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }
   });
 
-  const fotos = user.fotosPerfil || [];
+  // Obtener fotos de la galería del usuario (subcolección "fotos")
+  const fotosRef = USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc');
+  let fotos = [];
   let fotosHtml = '';
-  if (fotos.length > 0) {
-    fotosHtml = `
-      <div class="perfil-carrusel" id="perfilCarrusel" style="margin:10px 0; position:relative;">
-        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${JSON.stringify(fotos)}, ${i})" style="width:100%; height:150px; object-fit:cover; border-radius:8px; display:none;">`).join('')}
-        <button class="carousel-control prev" onclick="event.stopPropagation(); cambiarFotoPerfil(-1)" style="position:absolute; top:50%; left:5px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; padding:4px 10px;">❮</button>
-        <button class="carousel-control next" onclick="event.stopPropagation(); cambiarFotoPerfil(1)" style="position:absolute; top:50%; right:5px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; border-radius:50%; padding:4px 10px;">❯</button>
-        <div class="indicators" style="text-align:center; margin-top:4px;">
-          ${fotos.map((_, i) => `<span class="${i===0?'active':''}" onclick="event.stopPropagation(); irFotoPerfil(${i})" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${i===0?'var(--teal)':'var(--border-color)'}; margin:0 3px; cursor:pointer;"></span>`).join('')}
+
+  // Función para renderizar fotos con interacciones
+  function renderFotosGaleria(fotosArray) {
+    if (!fotosArray || fotosArray.length === 0) return '';
+    let html = '<div style="margin:10px 0;"><h4>📸 Galería de fotos</h4>';
+    fotosArray.forEach(foto => {
+      const fotoId = foto.id;
+      const url = foto.url;
+      const desc = foto.desc || '';
+      // Obtener likes y comentarios de la foto (guardados en la misma subcolección o en un documento aparte)
+      // Para simplificar, usaremos el documento de la foto para almacenar likes y comentarios
+      // pero como no tenemos esos campos, los añadimos al documento
+      // Para que funcione, al subir foto se debe crear el documento con likes y comentarios vacíos.
+      // Aquí asumimos que el documento de la foto tiene campos "likes" y "comentarios"
+      // Para no romper, si no existen los inicializamos.
+      // En la función subirMedia, debemos añadir esos campos.
+      // Modificaremos subirMedia más adelante.
+      // Por ahora, mostramos la foto con botones de interacción que llamarán a funciones específicas.
+      html += `<div class="perfil-foto-item" data-fotoid="${fotoId}">
+        <img src="${url}" alt="foto" onclick="abrirVisor(['${url}'],0)">
+        ${desc ? `<div class="foto-desc">${desc}</div>` : ''}
+        <div class="post-actions" style="margin-top:4px;">
+          <button onclick="likeFoto('${uid}','${fotoId}')" id="like-foto-${fotoId}"><i class="fas fa-heart"></i> <span id="likes-count-${fotoId}">${foto.likes ? foto.likes.length : 0}</span></button>
+          <button onclick="toggleComentariosFoto('${uid}','${fotoId}')"><i class="fas fa-comment"></i> <span>${foto.comentarios ? foto.comentarios.length : 0}</span></button>
+          <button onclick="compartirFoto('${uid}','${fotoId}')"><i class="fas fa-share"></i> Compartir</button>
         </div>
-      </div>
-    `;
-    setTimeout(() => {
-      document.querySelectorAll('#perfilCarrusel .foto-slide').forEach((el, i) => {
-        el.style.display = i === 0 ? 'block' : 'none';
-      });
-    }, 100);
+        <div class="comments" id="comments-foto-${fotoId}" style="display:none; margin-top:4px;">
+          ${foto.comentarios ? foto.comentarios.map(c => `<div><span class="autor" onclick="verPerfil('${c.uid}')" style="cursor:pointer;font-weight:600;">${c.autor}</span>: ${c.texto} <small style="color:var(--text-secondary);">${new Date(c.fecha).toLocaleString()}</small></div>`).join('') : ''}
+          ${currentUser ? `<div class="comment-box"><input type="text" id="commentInput-foto-${fotoId}" placeholder="Comentar..."><button onclick="comentarFoto('${uid}','${fotoId}')"><i class="fas fa-paper-plane"></i></button></div>` : '<p style="font-size:12px;color:var(--text-secondary);">Inicia sesión para comentar.</p>'}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    return html;
   }
 
-  // Construir HTML del perfil
+  // Obtener fotos de la galería y mostrarlas
+  fotosRef.get().then(snapshot => {
+    fotos = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      // Asegurar campos de interacción
+      if (!data.likes) data.likes = [];
+      if (!data.comentarios) data.comentarios = [];
+      fotos.push({ id: doc.id, ...data });
+    });
+    // Re-renderizar el modal con las fotos
+    // Como el modal ya está abierto, actualizamos la sección
+    const galeriaContainer = document.getElementById('galeriaFotosContainer');
+    if (galeriaContainer) {
+      galeriaContainer.innerHTML = renderFotosGaleria(fotos);
+    }
+  });
+
+  // Construir HTML del perfil (sección de fotos se actualizará después)
   let html = `
   <div class="perfil-facebook">
     <div class="portada" style="background-image:url('${user.portada || ''}'); height:200px; background-size:cover; background-position:center; position:relative; border-radius:8px 8px 0 0;">
@@ -4456,7 +4515,10 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
         <div class="perfil-badges" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;">
             ${user.apoyos && user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('')}
         </div>
-        ${fotosHtml}
+        <!-- Galería de fotos con interacciones -->
+        <div id="galeriaFotosContainer">
+          <p style="color:var(--text-secondary);">Cargando fotos...</p>
+        </div>
         ${infoHtml ? `<div class="info-grid">${infoHtml}</div>` : ''}
         <div id="perfilPublicaciones" style="margin-top:20px;">
             <h4>Publicaciones</h4>
@@ -4488,7 +4550,9 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
           this.value = '';
           return;
         }
-        subirMedia(uid, 'fotos', file);
+        // Pedir descripción
+        const desc = prompt('Descripción de la foto (opcional):') || '';
+        subirMediaConDesc(uid, file, desc);
         this.value = '';
       }
     });
@@ -4498,72 +4562,82 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   cargarPublicacionesUsuario(uid);
   // Cargar seguidores y seguidos
   cargarSeguidores(uid);
-}
 
-// Función para cambiar foto en el carrusel del perfil
-let fotoPerfilIndex = 0;
-function cambiarFotoPerfil(dir) {
-  const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
-  if (!slides.length) return;
-  let current = 0;
-  slides.forEach((s, i) => { if (s.style.display !== 'none') current = i; });
-  let next = (current + dir + slides.length) % slides.length;
-  irFotoPerfil(next);
-}
-function irFotoPerfil(index) {
-  const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
-  const indicators = document.querySelectorAll('#perfilCarrusel .indicators span');
-  if (!slides.length) return;
-  slides.forEach((s, i) => {
-    s.style.display = i === index ? 'block' : 'none';
-  });
-  indicators.forEach((s, i) => {
-    s.style.background = i === index ? 'var(--teal)' : 'var(--border-color)';
-  });
-  fotoPerfilIndex = index;
-}
-
-function cargarPublicacionesUsuario(uid) {
-  const container = document.getElementById('perfilFeed');
-  if (!container) return;
-  POSTS.where('uid', '==', uid).orderBy('fecha', 'desc').get().then(snapshot => {
-    if (snapshot.empty) {
-      container.innerHTML = '<p style="color:var(--text-secondary);">No hay publicaciones.</p>';
+  // Función para subir foto con descripción (sobrescribe la anterior)
+  window.subirMediaConDesc = function(uid, file, desc) {
+    if (!currentUser) { alert('Inicia sesión.'); return; }
+    if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
+    if (!file.type.match(/image\/(jpeg|png)/)) {
+      alert('Solo se permiten imágenes JPG o PNG.');
       return;
     }
-    let html = '';
-    snapshot.forEach(doc => {
-      const post = { id: doc.id, ...doc.data() };
-      const liked = post.likes && post.likes.includes(currentUser ? currentUser.uid : null);
-      const orando = post.orando && post.orando.includes(currentUser ? currentUser.uid : null);
-      html += `<div class="post">
-        <div class="post-content">${post.texto}</div>
-        ${post.media && post.media.type === 'image' ? `<img src="${post.media.data}" class="post-media" onclick="abrirVisor(['${post.media.data}'],0)">` : ''}
-        ${post.media && post.media.type === 'video' ? `<video controls src="${post.media.data}" class="post-media"></video>` : ''}
-        <div class="post-actions">
-          <button onclick="likePost('${post.id}')" class="${liked ? 'liked' : ''}"><i class="fas fa-heart"></i> ${post.likes ? post.likes.length : 0}</button>
-          <button onclick="orandoPost('${post.id}')" class="${orando ? 'orando' : ''}"><i class="fas fa-pray"></i> ${post.orando ? post.orando.length : 0}</button>
-          <button onclick="toggleComentarios('${post.id}')"><i class="fas fa-comment"></i> ${post.comentarios ? post.comentarios.length : 0}</button>
-          <button onclick="compartirPost('${post.id}')"><i class="fas fa-share"></i> Compartir</button>
-        </div>
-        <div class="comments" id="comments-${post.id}" style="display:none;">
-          ${post.comentarios ? post.comentarios.map(c => `<div><span class="autor" onclick="verPerfil('${c.uid}')">${c.autor}</span>: ${c.texto} <small>${new Date(c.fecha).toLocaleString()}</small></div>`).join('') : ''}
-          ${currentUser ? `<div class="comment-box"><input type="text" id="commentInput-${post.id}" placeholder="Comentar..."><button onclick="comentarPost('${post.id}')"><i class="fas fa-paper-plane"></i></button></div>` : ''}
-        </div>
-      </div>`;
-    });
-    container.innerHTML = html;
+    const path = `galeria/${uid}/fotos/${Date.now()}_${file.name}`;
+    subirArchivoStorage(file, path).then(url => {
+      return USERS.doc(uid).collection('fotos').add({
+        url: url,
+        desc: desc || '',
+        fecha: firebase.firestore.FieldValue.serverTimestamp(),
+        likes: [],
+        comentarios: []
+      });
+    }).then(() => {
+      alert('Foto subida correctamente.');
+      verPerfil(uid);
+    }).catch(console.error);
+  };
+}
+
+// Funciones para interacciones en fotos de galería
+function likeFoto(uid, fotoId) {
+  if (!currentUser) { alert('Inicia sesión.'); return; }
+  const ref = USERS.doc(uid).collection('fotos').doc(fotoId);
+  ref.get().then(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    const likes = data.likes || [];
+    const idx = likes.indexOf(currentUser.uid);
+    if (idx > -1) likes.splice(idx, 1);
+    else likes.push(currentUser.uid);
+    ref.update({ likes });
   }).catch(console.error);
 }
 
-function cargarSeguidores(uid) {
-  SEGUIDORES.where('seguidoUid', '==', uid).get().then(snap => {
-    document.getElementById('numSeguidores').textContent = snap.size;
-  });
-  SEGUIDORES.where('seguidorUid', '==', uid).get().then(snap => {
-    document.getElementById('numSeguidos').textContent = snap.size;
-  });
+function toggleComentariosFoto(uid, fotoId) {
+  const div = document.getElementById('comments-foto-' + fotoId);
+  if (div) div.style.display = div.style.display === 'none' ? 'block' : 'none';
 }
+
+function comentarFoto(uid, fotoId) {
+  if (!currentUser) { alert('Inicia sesión.'); return; }
+  const input = document.getElementById('commentInput-foto-' + fotoId);
+  const texto = input.value.trim();
+  if (!texto) return;
+  const ref = USERS.doc(uid).collection('fotos').doc(fotoId);
+  ref.get().then(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    const comentarios = data.comentarios || [];
+    comentarios.push({
+      uid: currentUser.uid,
+      autor: currentUser.displayName,
+      texto: texto,
+      fecha: new Date().toISOString()
+    });
+    ref.update({ comentarios });
+    input.value = '';
+  }).catch(console.error);
+}
+
+function compartirFoto(uid, fotoId) {
+  const url = window.location.origin + window.location.pathname + '?foto=' + uid + '_' + fotoId;
+  if (navigator.share) {
+    navigator.share({ title: 'Foto', text: 'Mira esta foto', url: url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => alert('Enlace copiado al portapapeles.'));
+  }
+}
+
+// Actualizar contadores de likes y comentarios en tiempo real (se puede hacer con listeners, pero por simplicidad se actualizará al recargar)
 
 // ================================================================
 // 20. ELIMINAR CUENTA (con sus datos)
@@ -4609,116 +4683,8 @@ function compartirPerfil(uid) {
 }
 
 // ================================================================
-// 22. GALERÍA DE FOTOS Y VIDEOS (adicional)
+// 22. GALERÍA DE FOTOS Y VIDEOS (adicional) - ya integrado en perfil
 // ================================================================
-async function verGaleria(uid) {
-  if (!uid) return;
-  const modalContent = document.getElementById('perfilModalContent');
-  modalContent.innerHTML = '<p>Cargando galería...</p>';
-  try {
-    const fotosSnap = await USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc').get();
-    const fotos = [];
-    fotosSnap.forEach(doc => fotos.push({ id: doc.id, ...doc.data() }));
-    const videosSnap = await USERS.doc(uid).collection('videos').orderBy('fecha', 'desc').get();
-    const videos = [];
-    videosSnap.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
-
-    let html = `<h3><i class="fas fa-images"></i> Galería de ${uid === currentUser?.uid ? 'tu perfil' : 'usuario'}</h3>`;
-    html += `<div class="galeria-grid">`;
-    fotos.forEach(f => {
-      html += `<div class="galeria-item" onclick="abrirVisor(['${f.url}'], 0)">
-        <img src="${f.url}" alt="foto">
-        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="event.stopPropagation(); eliminarMedia('${uid}', 'fotos', '${f.id}')">✕</button>` : ''}
-      </div>`;
-    });
-    videos.forEach(v => {
-      html += `<div class="galeria-item">
-        <video src="${v.url}" controls onclick="event.stopPropagation();"></video>
-        ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="event.stopPropagation(); eliminarMedia('${uid}', 'videos', '${v.id}')">✕</button>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-
-    if (currentUser && (currentUser.uid === uid || isAdmin)) {
-      html += `
-        <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="file" accept="image/jpeg,image/png" id="subirFotoGaleria" style="display:none;">
-          <button class="btn-primary" onclick="document.getElementById('subirFotoGaleria').click()"><i class="fas fa-camera"></i> Subir foto</button>
-          <input type="file" accept="video/*" id="subirVideoGaleria" style="display:none;">
-          <button class="btn-primary" onclick="document.getElementById('subirVideoGaleria').click()"><i class="fas fa-video"></i> Subir video</button>
-        </div>
-      `;
-    }
-    html += `<div class="modal-actions"><button class="btn-cancel" onclick="verPerfil('${uid}')">Volver</button></div>`;
-    modalContent.innerHTML = html;
-
-    document.getElementById('subirFotoGaleria')?.addEventListener('change', function(e) {
-      if (this.files[0]) {
-        const file = this.files[0];
-        if (!file.type.match(/image\/(jpeg|png)/)) {
-          alert('Solo se permiten imágenes JPG o PNG.');
-          this.value = '';
-          return;
-        }
-        subirMedia(uid, 'fotos', file);
-      }
-    });
-    document.getElementById('subirVideoGaleria')?.addEventListener('change', function(e) {
-      if (this.files[0]) subirMedia(uid, 'videos', this.files[0]);
-    });
-  } catch (error) {
-    console.error('Error cargando galería:', error);
-    modalContent.innerHTML = '<p>Error al cargar la galería.</p>';
-  }
-}
-
-async function subirMedia(uid, tipo, file) {
-  if (!currentUser) { alert('Inicia sesión.'); return; }
-  if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
-  if (tipo === 'fotos') {
-    const validTypes = ['image/jpeg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-      alert('Solo se permiten imágenes JPG o PNG.');
-      return;
-    }
-  }
-  const path = `galeria/${uid}/${tipo}/${Date.now()}_${file.name}`;
-  try {
-    const url = await subirArchivoStorage(file, path);
-    await USERS.doc(uid).collection(tipo).add({
-      url: url,
-      nombre: file.name,
-      fecha: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert('Archivo subido correctamente.');
-    verGaleria(uid);
-  } catch (error) {
-    console.error('Error subiendo archivo:', error);
-    alert('Error al subir el archivo.');
-  }
-}
-
-async function eliminarMedia(uid, tipo, mediaId) {
-  if (!currentUser) return;
-  if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
-  if (!confirm('¿Eliminar este archivo?')) return;
-  try {
-    const doc = await USERS.doc(uid).collection(tipo).doc(mediaId).get();
-    if (doc.exists) {
-      const url = doc.data().url;
-      try {
-        const ref = storage.refFromURL(url);
-        await ref.delete();
-      } catch (e) {}
-      await USERS.doc(uid).collection(tipo).doc(mediaId).delete();
-      alert('Eliminado.');
-      verGaleria(uid);
-    }
-  } catch (error) {
-    console.error(error);
-    alert('Error al eliminar.');
-  }
-}
 
 // ================================================================
 // FUNCIONES DE PERFIL EXTENDIDO (edición)
@@ -4772,6 +4738,7 @@ function guardarPerfilExtendido() {
   const fotosFiles = document.getElementById('editFotosPerfil').files;
   const promesas = [];
   let fotosUrls = currentUser.fotosPerfil || [];
+  const descFotos = document.getElementById('editFotosDesc').value.trim();
 
   if (fotosFiles.length > 0) {
     const filesArray = Array.from(fotosFiles).slice(0, 5);
@@ -4784,25 +4751,37 @@ function guardarPerfilExtendido() {
   if (promesas.length > 0) {
     Promise.all(promesas).then(results => {
       fotosUrls = results.filter(url => url).slice(0, 5);
-      return USERS.doc(currentUser.uid).update({
-        displayName: nombre,
-        telefono: telefono,
-        edad: edad,
-        fotoPerfil: fotoPerfil,
-        portada: portada,
-        biografia: biografia,
-        iglesia: iglesia,
-        apoyos: apoyos,
-        situacionLaboral: situacionLaboral,
-        situacionSentimental: situacionSentimental,
-        nacionalidad: nacionalidad,
-        fechaNacimiento: fechaNacimiento,
-        estudios: estudios,
-        talentos: talentos,
-        caracter: caracter,
-        experiencia: experiencia,
-        fotosPerfil: fotosUrls,
-        privacidad: privacidad
+      // Guardar cada foto con su descripción en la subcolección "fotos" del usuario
+      const promesasFotos = fotosUrls.map(url => {
+        return USERS.doc(currentUser.uid).collection('fotos').add({
+          url: url,
+          desc: descFotos || '',
+          fecha: firebase.firestore.FieldValue.serverTimestamp(),
+          likes: [],
+          comentarios: []
+        });
+      });
+      return Promise.all(promesasFotos).then(() => {
+        return USERS.doc(currentUser.uid).update({
+          displayName: nombre,
+          telefono: telefono,
+          edad: edad,
+          fotoPerfil: fotoPerfil,
+          portada: portada,
+          biografia: biografia,
+          iglesia: iglesia,
+          apoyos: apoyos,
+          situacionLaboral: situacionLaboral,
+          situacionSentimental: situacionSentimental,
+          nacionalidad: nacionalidad,
+          fechaNacimiento: fechaNacimiento,
+          estudios: estudios,
+          talentos: talentos,
+          caracter: caracter,
+          experiencia: experiencia,
+          fotosPerfil: fotosUrls,
+          privacidad: privacidad
+        });
       });
     }).then(() => {
       Object.assign(currentUser, {
@@ -5762,7 +5741,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
   }
 
-  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox, IA mejorada.');
+  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox, IA mejorada, galería con interacciones.');
 });
 
 // ================================================================
@@ -6055,6 +6034,10 @@ window.cargarPublicacionesUsuario = cargarPublicacionesUsuario;
 window.cargarSeguidores = cargarSeguidores;
 window.cambiarFotoPerfil = cambiarFotoPerfil;
 window.irFotoPerfil = irFotoPerfil;
+window.likeFoto = likeFoto;
+window.toggleComentariosFoto = toggleComentariosFoto;
+window.comentarFoto = comentarFoto;
+window.compartirFoto = compartirFoto;
 </script>
 </body>
 </html>
