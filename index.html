@@ -745,12 +745,15 @@
     <button class="tab" data-panel="grupos"><i class="fas fa-users"></i><span> Grupos</span></button>
     <button class="tab" data-panel="discipulado"><i class="fas fa-user-friends"></i><span> Discipulado</span></button>
     <button class="tab" data-panel="oracion"><i class="fas fa-pray"></i><span> Oración</span></button>
-    <button class="tab" data-panel="mapa"><i class="fas fa-map-marked-alt"></i><span> Mapa</span></button>
+    <!-- Mapa: oculto para invitados -->
+    <button class="tab" data-panel="mapa" id="tabMapa" style="display:none;"><i class="fas fa-map-marked-alt"></i><span> Mapa</span></button>
     <button class="tab" data-panel="necesidades"><i class="fas fa-hand-holding-heart"></i><span> Necesidades</span></button>
     <button class="tab" data-panel="servicio"><i class="fas fa-utensils"></i><span> Servicio</span></button>
     <button class="tab" data-panel="consejeria"><i class="fas fa-comment-dots"></i><span> Consejería</span></button>
-    <button class="tab" data-panel="reportes"><i class="fas fa-clipboard-list"></i><span> Reportes</span></button>
-    <button class="tab" data-panel="chatadmin"><i class="fas fa-user-cog"></i><span> Chat Admin</span></button>
+    <!-- Reportes: oculto para invitados -->
+    <button class="tab" data-panel="reportes" id="tabReportes" style="display:none;"><i class="fas fa-clipboard-list"></i><span> Reportes</span></button>
+    <!-- Chat Admin: oculto para invitados -->
+    <button class="tab" data-panel="chatadmin" id="tabChatAdmin" style="display:none;"><i class="fas fa-user-cog"></i><span> Chat Admin</span></button>
     <button class="tab" id="tabChatEquipo" data-panel="chatequipo" style="display:none;"><i class="fas fa-users-cog"></i><span> Equipo</span></button>
     <button class="tab" data-panel="admin" id="adminTab" style="display:none;"><i class="fas fa-cog"></i><span> Admin</span></button>
   </nav>
@@ -802,7 +805,7 @@
         <h5>Servicio</h5>
         <small>Ayuda alimentaria</small>
       </div>
-      <div class="feature-card" onclick="switchPanel('mapa')">
+      <div class="feature-card" onclick="switchPanel('mapa')" id="featureMapa" style="display:none;">
         <i class="fas fa-map-marked-alt"></i>
         <h5>Mapa</h5>
         <small>Misioneros e iglesias</small>
@@ -874,7 +877,7 @@
       </select>
       <textarea id="postInput" placeholder="¿Qué quieres compartir?" rows="3" style="width:100%; border-radius:10px; border:1px solid var(--border-color); padding:8px; background:var(--bg-body); color:var(--text-primary); resize:vertical; font-size:13px;"></textarea>
       <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
-        <input type="file" id="postImage" accept="image/*" style="display:none;">
+        <input type="file" id="postImage" accept="image/jpeg,image/png" style="display:none;">
         <button class="btn-outline" id="btnSubirFoto"><i class="fas fa-image"></i> Foto</button>
         <input type="file" id="postVideo" accept="video/*" style="display:none;">
         <button class="btn-outline" id="btnSubirVideo"><i class="fas fa-video"></i> Video</button>
@@ -914,25 +917,32 @@
     <div id="oracionesContainer"></div>
   </div>
 
-  <!-- MAPA (con Mapbox) -->
+  <!-- MAPA (solo visible para autenticados) -->
   <div class="panel" id="panel-mapa">
-    <div class="card"><h3><i class="fas fa-church"></i> Grupos de conexión con ubicación</h3><div id="gruposMapaList"></div></div>
-    <div class="card">
-      <h3><i class="fas fa-globe-americas"></i> Misioneros, Iglesias y Servicios</h3>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-        <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
-        <button class="btn-primary" id="btnRegistrarIglesia" style="display:none; background:var(--orange);"><i class="fas fa-place-of-worship"></i> Registrar Iglesia</button>
+    <div id="mapaMsgNoAuth" style="display:block; padding:20px; text-align:center; color:var(--text-secondary);">
+      <i class="fas fa-lock" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+      <h4>Acceso restringido</h4>
+      <p>Debes <button class="btn-primary" onclick="document.getElementById('loginBtn').click()">iniciar sesión</button> para ver el mapa.</p>
+    </div>
+    <div id="mapaContent" style="display:none;">
+      <div class="card"><h3><i class="fas fa-church"></i> Grupos de conexión con ubicación</h3><div id="gruposMapaList"></div></div>
+      <div class="card">
+        <h3><i class="fas fa-globe-americas"></i> Misioneros, Iglesias y Servicios</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <button class="btn-primary" id="btnRegistrarMisionero" style="display:none;"><i class="fas fa-user-plus"></i> Registrar Misionero</button>
+          <button class="btn-primary" id="btnRegistrarIglesia" style="display:none; background:var(--orange);"><i class="fas fa-place-of-worship"></i> Registrar Iglesia</button>
+        </div>
+        <div class="map-wrapper" id="mapa3d"><div id="mapboxMap" class="mapboxgl-map" style="height:100%;width:100%;"></div></div>
+        <div style="margin-top:6px; display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
+          <span><span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%;"></span> Misioneros</span>
+          <span><span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%;"></span> Iglesias</span>
+          <span><span style="display:inline-block; width:12px; height:12px; background:#3498db; border-radius:50%;"></span> Grupos</span>
+          <span><span style="display:inline-block; width:12px; height:12px; background:#f39c12; border-radius:50%;"></span> Servicios</span>
+        </div>
+        <div id="misionerosMapaList" style="margin-top:10px;"></div>
+        <div id="iglesiasMapaList" style="margin-top:6px;"></div>
+        <div id="serviciosMapaList" style="margin-top:6px;"></div>
       </div>
-      <div class="map-wrapper" id="mapa3d"><div id="mapboxMap" class="mapboxgl-map" style="height:100%;width:100%;"></div></div>
-      <div style="margin-top:6px; display:flex; gap:16px; flex-wrap:wrap; font-size:12px;">
-        <span><span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%;"></span> Misioneros</span>
-        <span><span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%;"></span> Iglesias</span>
-        <span><span style="display:inline-block; width:12px; height:12px; background:#3498db; border-radius:50%;"></span> Grupos</span>
-        <span><span style="display:inline-block; width:12px; height:12px; background:#f39c12; border-radius:50%;"></span> Servicios</span>
-      </div>
-      <div id="misionerosMapaList" style="margin-top:10px;"></div>
-      <div id="iglesiasMapaList" style="margin-top:6px;"></div>
-      <div id="serviciosMapaList" style="margin-top:6px;"></div>
     </div>
   </div>
 
@@ -951,7 +961,7 @@
       <input type="text" id="needDesc" placeholder="Descripción de la necesidad..." style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-body); color:var(--text-primary); margin-bottom:6px; font-size:13px;">
       <input type="tel" id="needTelefono" placeholder="Teléfono de contacto" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-body); color:var(--text-primary); margin-bottom:6px; font-size:13px;">
       <label style="font-size:12px; color:var(--text-secondary);">Fotos (opcional):</label>
-      <input type="file" id="needFotos" accept="image/*" multiple style="margin:2px 0 8px;">
+      <input type="file" id="needFotos" accept="image/jpeg,image/png" multiple style="margin:2px 0 8px;">
       <button class="btn-primary" id="btnPublicarNecesidad"><i class="fas fa-upload"></i> Publicar</button>
     </div>
     <div id="necesidadesContainer"></div>
@@ -1006,24 +1016,38 @@
     <div id="consejosContainer"></div>
   </div>
 
-  <!-- REPORTES -->
+  <!-- REPORTES (solo autenticados) -->
   <div class="panel" id="panel-reportes">
-    <div class="card">
-      <h3><i class="fas fa-clipboard-list"></i> Reportes (públicos)</h3>
-      <p style="font-size:13px; color:var(--text-secondary);">Todos los reportes son visibles para la comunidad. Comparte tus avances, necesidades o testimonios.</p>
-      <button class="btn-primary" id="btnNuevoReporte"><i class="fas fa-plus"></i> Nuevo Reporte</button>
+    <div id="reportesMsgNoAuth" style="display:block; padding:20px; text-align:center; color:var(--text-secondary);">
+      <i class="fas fa-lock" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+      <h4>Acceso restringido</h4>
+      <p>Debes <button class="btn-primary" onclick="document.getElementById('loginBtn').click()">iniciar sesión</button> para ver los reportes.</p>
     </div>
-    <div id="reportesContainer"></div>
+    <div id="reportesContent" style="display:none;">
+      <div class="card">
+        <h3><i class="fas fa-clipboard-list"></i> Reportes (públicos)</h3>
+        <p style="font-size:13px; color:var(--text-secondary);">Todos los reportes son visibles para la comunidad. Comparte tus avances, necesidades o testimonios.</p>
+        <button class="btn-primary" id="btnNuevoReporte"><i class="fas fa-plus"></i> Nuevo Reporte</button>
+      </div>
+      <div id="reportesContainer"></div>
+    </div>
   </div>
 
-  <!-- CHAT ADMIN -->
+  <!-- CHAT ADMIN (solo autenticados) -->
   <div class="panel" id="panel-chatadmin">
-    <div class="card">
-      <h3><i class="fas fa-user-cog"></i> Chat con el Administrador</h3>
-      <div id="chatAdminMensajes" class="chat-mensajes-container"></div>
-      <div class="chat-input">
-        <input type="text" id="chatAdminInput" placeholder="Escribe tu mensaje...">
-        <button id="btnEnviarChatAdmin"><i class="fas fa-paper-plane"></i></button>
+    <div id="chatAdminMsgNoAuth" style="display:block; padding:20px; text-align:center; color:var(--text-secondary);">
+      <i class="fas fa-lock" style="font-size:40px; display:block; margin-bottom:10px;"></i>
+      <h4>Acceso restringido</h4>
+      <p>Debes <button class="btn-primary" onclick="document.getElementById('loginBtn').click()">iniciar sesión</button> para acceder al chat con el administrador.</p>
+    </div>
+    <div id="chatAdminContent" style="display:none;">
+      <div class="card">
+        <h3><i class="fas fa-user-cog"></i> Chat con el Administrador</h3>
+        <div id="chatAdminMensajes" class="chat-mensajes-container"></div>
+        <div class="chat-input">
+          <input type="text" id="chatAdminInput" placeholder="Escribe tu mensaje...">
+          <button id="btnEnviarChatAdmin"><i class="fas fa-paper-plane"></i></button>
+        </div>
       </div>
     </div>
   </div>
@@ -1189,8 +1213,8 @@
       <!-- Subir fotos (hasta 5) -->
       <hr style="border-color:var(--border-color); margin:12px 0;">
       <h5 style="font-size:15px; margin-bottom:8px;">Fotos de perfil (máximo 5)</h5>
-      <label>Selecciona hasta 5 imágenes JPG</label>
-      <input type="file" id="editFotosPerfil" accept="image/jpeg" multiple style="margin:4px 0;">
+      <label>Selecciona hasta 5 imágenes JPG o PNG</label>
+      <input type="file" id="editFotosPerfil" accept="image/jpeg,image/png" multiple style="margin:4px 0;">
       <p style="font-size:11px; color:var(--text-secondary);">Las fotos se mostrarán en un carrusel en tu perfil público.</p>
 
       <label>Biografía / Testimonio</label>
@@ -1857,6 +1881,12 @@ function actualizarUIUsuario() {
   const editProfileBtn = document.getElementById('editProfileBtn');
   const miPerfilBtn = document.getElementById('miPerfilBtn');
 
+  // Ocultar/mostrar pestañas según autenticación
+  const tabMapa = document.getElementById('tabMapa');
+  const tabReportes = document.getElementById('tabReportes');
+  const tabChatAdmin = document.getElementById('tabChatAdmin');
+  const featureMapa = document.getElementById('featureMapa');
+
   if (currentUser) {
     userNameDisplay.textContent = currentUser.displayName;
     loginBtn.textContent = 'Cerrar sesión';
@@ -1875,6 +1905,21 @@ function actualizarUIUsuario() {
     editProfileBtn.onclick = abrirEditarPerfil;
     miPerfilBtn.style.display = 'inline-block';
     miPerfilBtn.onclick = () => verPerfil(currentUser.uid);
+
+    // Mostrar pestañas restringidas
+    tabMapa.style.display = 'inline-block';
+    tabReportes.style.display = 'inline-block';
+    tabChatAdmin.style.display = 'inline-block';
+    featureMapa.style.display = 'block';
+
+    // Mostrar contenido de mapa, reportes y chat admin
+    document.getElementById('mapaMsgNoAuth').style.display = 'none';
+    document.getElementById('mapaContent').style.display = 'block';
+    document.getElementById('reportesMsgNoAuth').style.display = 'none';
+    document.getElementById('reportesContent').style.display = 'block';
+    document.getElementById('chatAdminMsgNoAuth').style.display = 'none';
+    document.getElementById('chatAdminContent').style.display = 'block';
+
   } else {
     userNameDisplay.textContent = 'Invitado';
     loginBtn.textContent = 'Entrar';
@@ -1882,6 +1927,20 @@ function actualizarUIUsuario() {
     adminBadgeContainer.style.display = 'none';
     editProfileBtn.style.display = 'none';
     miPerfilBtn.style.display = 'none';
+
+    // Ocultar pestañas restringidas
+    tabMapa.style.display = 'none';
+    tabReportes.style.display = 'none';
+    tabChatAdmin.style.display = 'none';
+    featureMapa.style.display = 'none';
+
+    // Ocultar contenido y mostrar mensaje de autenticación
+    document.getElementById('mapaMsgNoAuth').style.display = 'block';
+    document.getElementById('mapaContent').style.display = 'none';
+    document.getElementById('reportesMsgNoAuth').style.display = 'block';
+    document.getElementById('reportesContent').style.display = 'none';
+    document.getElementById('chatAdminMsgNoAuth').style.display = 'block';
+    document.getElementById('chatAdminContent').style.display = 'none';
   }
 
   const adminTab = document.getElementById('adminTab');
@@ -1917,9 +1976,16 @@ function actualizarUIUsuario() {
 }
 
 // ================================================================
-// 5. NAVEGACIÓN Y PANELES
+// 5. NAVEGACIÓN Y PANELES (con bloqueo para invitados)
 // ================================================================
 function switchPanel(name) {
+  // Si el usuario no está autenticado, bloquear acceso a mapa, reportes y chatadmin
+  if (!currentUser && ['mapa', 'reportes', 'chatadmin'].includes(name)) {
+    alert('Debes iniciar sesión para acceder a esta sección.');
+    document.getElementById('loginBtn').click();
+    return;
+  }
+
   if (listeners[name]) {
     listeners[name]();
     delete listeners[name];
@@ -1948,7 +2014,7 @@ function switchPanel(name) {
     case 'reportes': renderReportes(); break;
     case 'chatadmin': renderChatAdmin(); break;
     case 'chatequipo': renderChatEquipo(); break;
-    case 'mapa': renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initMapboxMap(); break;
+    case 'mapa': if (currentUser) { renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); initMapboxMap(); } break;
     case 'biblia': cargarHistorial(); break;
     case 'inicio': renderCarrusel(); renderEventos(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
@@ -2580,7 +2646,7 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA CON MAPBOX (ordenado alfabéticamente)
+// 11. MAPA CON MAPBOX (ordenado alfabéticamente) - solo autenticados
 // ================================================================
 function cargarMapboxToken() {
   CONFIG_MAPBOX.get().then(doc => {
@@ -2588,7 +2654,7 @@ function cargarMapboxToken() {
       mapboxToken = doc.data().token;
       if (typeof mapboxgl !== 'undefined') {
         mapboxgl.accessToken = mapboxToken;
-        if (document.getElementById('panel-mapa').classList.contains('active')) {
+        if (document.getElementById('panel-mapa').classList.contains('active') && currentUser) {
           initMapboxMap();
         }
       }
@@ -2611,6 +2677,7 @@ function guardarMapboxToken() {
 }
 
 function verEnMapa(lat, lng, nombre) {
+  if (!currentUser) { alert('Inicia sesión para ver el mapa.'); return; }
   switchPanel('mapa');
   if (mapboxMap && lat && lng) {
     mapboxMap.flyTo({ center: [lng, lat], zoom: 14 });
@@ -2622,6 +2689,7 @@ function verEnMapa(lat, lng, nombre) {
 }
 
 function initMapboxMap() {
+  if (!currentUser) return;
   if (!mapboxToken || typeof mapboxgl === 'undefined') return;
   const container = document.getElementById('mapboxMap');
   if (!container) return;
@@ -2642,7 +2710,7 @@ function initMapboxMap() {
 }
 
 function cargarMarcadoresMapbox() {
-  if (!mapboxMap) return;
+  if (!mapboxMap || !currentUser) return;
   mapboxMarkers.forEach(m => m.remove());
   mapboxMarkers = [];
 
@@ -2708,6 +2776,7 @@ function cargarMarcadoresMapbox() {
 }
 
 function renderGruposMapa() {
+  if (!currentUser) return;
   const container = document.getElementById('gruposMapaList');
   GRUPOS.orderBy('nombre', 'asc').get().then(snapshot => {
     const conUbicacion = [];
@@ -2736,6 +2805,7 @@ function renderGruposMapa() {
 }
 
 function renderMisionerosMapa() {
+  if (!currentUser) return;
   if (listeners.misioneros) listeners.misioneros();
   const container = document.getElementById('misionerosMapaList');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando misioneros...</p>';
@@ -2779,6 +2849,7 @@ function renderMisionerosMapa() {
 }
 
 function renderIglesiasMapa() {
+  if (!currentUser) return;
   if (listeners.iglesias) listeners.iglesias();
   const container = document.getElementById('iglesiasMapaList');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando iglesias...</p>';
@@ -2823,6 +2894,7 @@ function renderIglesiasMapa() {
 }
 
 function renderServiciosMapa() {
+  if (!currentUser) return;
   if (listeners.serviciosMapa) listeners.serviciosMapa();
   const container = document.getElementById('serviciosMapaList');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando servicios...</p>';
@@ -3361,11 +3433,12 @@ function orarConsejo(id) {
 }
 
 // ================================================================
-// 15. REPORTES
+// 15. REPORTES (solo autenticados)
 // ================================================================
 function getReportesRef() { return db.collection('reportes'); }
 
 function renderReportes() {
+  if (!currentUser) return;
   if (listeners.reportes) listeners.reportes();
   const container = document.getElementById('reportesContainer');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando reportes...</p>';
@@ -3498,6 +3571,7 @@ function getChatAdminRef() { return db.collection('chat_admin'); }
 function getChatEquipoRef() { return db.collection('chat_equipo'); }
 
 function renderChatAdmin() {
+  if (!currentUser) return;
   if (listeners.chatAdmin) listeners.chatAdmin();
   const container = document.getElementById('chatAdminMensajes');
   container.innerHTML = '<p style="color:var(--text-secondary);">Cargando mensajes...</p>';
@@ -3838,7 +3912,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   const modalContent = document.getElementById('perfilModalContent');
   const esPropio = currentUser && currentUser.uid === uid;
 
-  // Función para mostrar campo si es público o es el propietario/admin
   function campoVisible(campo, valor) {
     if (!valor) return null;
     const esPublico = privacidad[campo] !== undefined ? privacidad[campo] : true;
@@ -3848,7 +3921,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     return null;
   }
 
-  // Función para obtener icono de cada campo
   function getIcon(campo) {
     const iconos = {
       biografia: 'fa-book-open',
@@ -3867,7 +3939,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     return iconos[campo] || 'fa-circle';
   }
 
-  // Función para obtener etiqueta legible
   function getLabel(campo) {
     const labels = {
       biografia: 'Biografía',
@@ -3886,14 +3957,12 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     return labels[campo] || campo;
   }
 
-  // Construir lista de campos a mostrar
   const camposInfo = [
     'biografia', 'situacionLaboral', 'situacionSentimental', 'nacionalidad',
     'fechaNacimiento', 'estudios', 'talentos', 'telefono', 'edad',
     'iglesia', 'caracter', 'experiencia'
   ];
 
-  // Generar HTML de la cuadrícula de información
   let infoHtml = '';
   camposInfo.forEach(campo => {
     const valor = campoVisible(campo, user[campo]);
@@ -3908,7 +3977,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }
   });
 
-  // Fotos de perfil (carrusel)
   const fotos = user.fotosPerfil || [];
   let fotosHtml = '';
   if (fotos.length > 0) {
@@ -3922,7 +3990,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
         </div>
       </div>
     `;
-    // Mostrar la primera foto
     setTimeout(() => {
       document.querySelectorAll('#perfilCarrusel .foto-slide').forEach((el, i) => {
         el.style.display = i === 0 ? 'block' : 'none';
@@ -3930,22 +3997,22 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }, 100);
   }
 
-  // Construir HTML del perfil
+  // Construir HTML del perfil con foto en esquina superior izquierda
   let html = `
   <div class="perfil-facebook">
     <div class="portada" style="background-image:url('${user.portada || ''}'); height:200px; background-size:cover; background-position:center; position:relative; border-radius:8px 8px 0 0;">
-        <div class="foto-perfil" style="position:absolute; bottom:-50px; left:20px; width:120px; height:120px; border-radius:50%; border:4px solid white; background-image:url('${user.fotoPerfil || ''}'); background-size:cover; background-position:center; cursor:pointer;" onclick="abrirVisor(['${user.fotoPerfil || ''}'],0)"></div>
-        <div style="position:absolute; bottom:-30px; right:20px; display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="foto-perfil" style="position:absolute; top:20px; left:20px; width:120px; height:120px; border-radius:50%; border:4px solid white; background-image:url('${user.fotoPerfil || ''}'); background-size:cover; background-position:center; cursor:pointer;" onclick="abrirVisor(['${user.fotoPerfil || ''}'],0)"></div>
+        <div style="position:absolute; bottom:10px; right:20px; display:flex; gap:8px; flex-wrap:wrap;">
             ${esPropio ? `<button class="btn-primary" onclick="abrirEditarPerfil()"><i class="fas fa-edit"></i> Editar</button>` : ''}
             ${esPropio ? `<button class="btn-danger" onclick="eliminarCuenta()"><i class="fas fa-user-slash"></i> Eliminar cuenta</button>` : ''}
             ${!esPropio && currentUser ? `<button class="btn-primary" onclick="seguirUsuario('${uid}')">${esSeguidor ? 'Dejar de seguir' : 'Seguir'}</button>` : ''}
             <button class="btn-outline" onclick="compartirPerfil('${uid}')"><i class="fas fa-share-alt"></i> Compartir</button>
         </div>
     </div>
-    <div style="padding:60px 20px 20px;">
-        <h2 style="margin:0;">${user.displayName}</h2>
-        ${user.iglesia ? `<p><i class="fas fa-church"></i> ${user.iglesia}</p>` : ''}
-        ${user.biografia ? `<p style="background:var(--bg-body); padding:10px; border-radius:8px;">${user.biografia}</p>` : ''}
+    <div style="padding:20px 20px 20px 20px; margin-top:0;">
+        <h2 style="margin:0; padding-left:140px;">${user.displayName}</h2>
+        ${user.iglesia ? `<p style="padding-left:140px;"><i class="fas fa-church"></i> ${user.iglesia}</p>` : ''}
+        ${user.biografia ? `<p style="background:var(--bg-body); padding:10px; border-radius:8px; margin-top:10px;">${user.biografia}</p>` : ''}
         <div style="display:flex; gap:20px; margin:10px 0; flex-wrap:wrap;">
             <span><strong>${user.apoyos ? user.apoyos.length : 0}</strong> Roles</span>
             <span><strong id="numSeguidores">0</strong> Seguidores</span>
@@ -3960,6 +4027,12 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
             <h4>Publicaciones</h4>
             <div id="perfilFeed"></div>
         </div>
+        ${esPropio ? `
+          <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+            <input type="file" accept="image/jpeg,image/png" id="subirFotoGaleriaPerfil" style="display:none;">
+            <button class="btn-primary" onclick="document.getElementById('subirFotoGaleriaPerfil').click()"><i class="fas fa-camera"></i> Subir foto a galería</button>
+          </div>
+        ` : ''}
     </div>
   </div>
   <div class="modal-actions">
@@ -3968,6 +4041,24 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   `;
   modalContent.innerHTML = html;
   abrirModal('perfilModal');
+
+  // Evento para subir foto a galería desde el perfil
+  const subirFotoInput = document.getElementById('subirFotoGaleriaPerfil');
+  if (subirFotoInput) {
+    subirFotoInput.addEventListener('change', function(e) {
+      if (this.files[0]) {
+        const file = this.files[0];
+        // Validar tipo
+        if (!file.type.match(/image\/(jpeg|png)/)) {
+          alert('Solo se permiten imágenes JPG o PNG.');
+          this.value = '';
+          return;
+        }
+        subirMedia(uid, 'fotos', file);
+        this.value = '';
+      }
+    });
+  }
 
   // Cargar publicaciones del usuario
   cargarPublicacionesUsuario(uid);
@@ -4117,7 +4208,7 @@ async function verGaleria(uid) {
     if (currentUser && (currentUser.uid === uid || isAdmin)) {
       html += `
         <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="file" accept="image/*" id="subirFotoGaleria" style="display:none;">
+          <input type="file" accept="image/jpeg,image/png" id="subirFotoGaleria" style="display:none;">
           <button class="btn-primary" onclick="document.getElementById('subirFotoGaleria').click()"><i class="fas fa-camera"></i> Subir foto</button>
           <input type="file" accept="video/*" id="subirVideoGaleria" style="display:none;">
           <button class="btn-primary" onclick="document.getElementById('subirVideoGaleria').click()"><i class="fas fa-video"></i> Subir video</button>
@@ -4128,7 +4219,15 @@ async function verGaleria(uid) {
     modalContent.innerHTML = html;
 
     document.getElementById('subirFotoGaleria')?.addEventListener('change', function(e) {
-      if (this.files[0]) subirMedia(uid, 'fotos', this.files[0]);
+      if (this.files[0]) {
+        const file = this.files[0];
+        if (!file.type.match(/image\/(jpeg|png)/)) {
+          alert('Solo se permiten imágenes JPG o PNG.');
+          this.value = '';
+          return;
+        }
+        subirMedia(uid, 'fotos', file);
+      }
     });
     document.getElementById('subirVideoGaleria')?.addEventListener('change', function(e) {
       if (this.files[0]) subirMedia(uid, 'videos', this.files[0]);
@@ -4142,6 +4241,14 @@ async function verGaleria(uid) {
 async function subirMedia(uid, tipo, file) {
   if (!currentUser) { alert('Inicia sesión.'); return; }
   if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
+  // Validar tipo para fotos
+  if (tipo === 'fotos') {
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      alert('Solo se permiten imágenes JPG o PNG.');
+      return;
+    }
+  }
   const path = `galeria/${uid}/${tipo}/${Date.now()}_${file.name}`;
   try {
     const url = await subirArchivoStorage(file, path);
