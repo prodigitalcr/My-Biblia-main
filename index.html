@@ -731,6 +731,28 @@
     .color-usuario-3 { background-color: #f8d7da; }
     .color-usuario-4 { background-color: #fff3cd; }
     .color-usuario-5 { background-color: #d6d8db; }
+    /* Vista previa de archivos */
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .preview-container img, .preview-container video {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .preview-container .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-body);
+      padding: 4px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
   </style>
 </head>
 <body>
@@ -919,6 +941,8 @@
         <input type="url" id="postLink" placeholder="Enlace..." style="flex:1; min-width:120px; padding:6px 12px; border-radius:30px; border:1px solid var(--border-color); background:var(--bg-body); color:var(--text-primary); font-size:13px;">
         <button class="btn-primary" id="btnPublicarPost">Publicar</button>
       </div>
+      <!-- Vista previa de archivos -->
+      <div id="postPreviewContainer" class="preview-container"></div>
     </div>
     <div class="card">
       <h3><i class="fas fa-filter"></i> Filtro</h3>
@@ -1089,6 +1113,7 @@
         <div style="margin-top:6px;">
           <input type="file" id="chatAdminFile" accept="image/*,video/*,.pdf,.doc,.docx" style="display:none;">
           <button class="btn-outline" onclick="document.getElementById('chatAdminFile').click()"><i class="fas fa-paperclip"></i> Adjuntar</button>
+          <div id="chatAdminPreview" class="preview-container"></div>
         </div>
       </div>
     </div>
@@ -1106,6 +1131,7 @@
       <div style="margin-top:6px;">
         <input type="file" id="chatEquipoFile" accept="image/*,video/*,.pdf,.doc,.docx" style="display:none;">
         <button class="btn-outline" onclick="document.getElementById('chatEquipoFile').click()"><i class="fas fa-paperclip"></i> Adjuntar</button>
+        <div id="chatEquipoPreview" class="preview-container"></div>
       </div>
     </div>
   </div>
@@ -2352,6 +2378,7 @@ function crearPublicacion() {
       document.getElementById('encuestaOpcionesInput').value = '';
       document.getElementById('campaniaMontoInput').value = '';
       document.getElementById('campaniaBeneficiario').value = '';
+      document.getElementById('postPreviewContainer').innerHTML = '';
     } catch (error) {
       console.error('Error al publicar:', error);
       alert('Error: ' + error.message);
@@ -2804,7 +2831,7 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA CON MAPBOX - organizado por categorías y con ubicación del usuario
+// 11. MAPA CON MAPBOX - organizado por categorías y sin enlaces a perfiles
 // ================================================================
 function cargarMapboxToken() {
   CONFIG_MAPBOX.get().then(doc => {
@@ -2886,7 +2913,7 @@ function cargarMarcadoresMapbox() {
   mapboxMarkers.forEach(m => m.remove());
   mapboxMarkers = [];
 
-  // Misioneros (rojo)
+  // Misioneros (rojo) - sin enlace a perfil
   MISIONEROS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
@@ -3015,15 +3042,13 @@ function renderMisionerosMapa() {
       } else if (m.ubicacion) {
         ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
-      // Solo mostrar enlace a perfil si el usuario está autenticado
-      const perfilLink = currentUser ? ` · <span onclick="verPerfil('${m.uidCreador}')" style="cursor:pointer;color:var(--teal);">${m.uidCreador ? 'ver perfil' : ''}</span>` : '';
+      // Sin enlace a perfil
       const puedeEliminar = (currentUser && currentUser.uid === m.uidCreador) || isAdmin;
       html += `<div class="misionero-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
           <strong>${m.nombre}</strong> (${m.ciudad || 'Ubicación no especificada'})
           ${m.whatsapp ? ` · <i class="fab fa-whatsapp"></i> <a href="https://wa.me/${m.whatsapp.replace(/\s/g, '')}" target="_blank" style="color:var(--teal);">${m.whatsapp}</a>` : ''}
           ${ubicacionDisplay ? ` · ${ubicacionDisplay}` : ''}
-          ${perfilLink}
           ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarMisionero('${m.id}')" style="margin-left:8px; font-size:10px;">Eliminar</button>` : ''}
         </div>
       </div>`;
@@ -3052,7 +3077,7 @@ function renderIglesiasMapa() {
       } else if (i.direccion) {
         ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
-      const perfilLink = currentUser ? ` · <span onclick="verPerfil('${i.uidCreador}')" style="cursor:pointer;color:var(--teal);">ver perfil</span>` : '';
+      // Sin enlace a perfil
       const puedeEliminar = (currentUser && currentUser.uid === i.uidCreador) || isAdmin;
       html += `<div class="iglesia-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
@@ -3060,7 +3085,6 @@ function renderIglesiasMapa() {
           ${i.telefono ? ` · 📞 ${i.telefono}` : ''}
           ${i.horarios ? ` · ⏰ ${i.horarios}` : ''}
           ${ubicacionDisplay ? ` · ${ubicacionDisplay}` : ''}
-          ${perfilLink}
           ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarIglesia('${i.id}')" style="margin-left:8px; font-size:10px;">Eliminar</button>` : ''}
         </div>
       </div>`;
@@ -3781,7 +3805,7 @@ function eliminarReporte(id) {
 }
 
 // ================================================================
-// 16. CHATS - con colores y envío de archivos
+// 16. CHATS - con colores, envío de archivos y vista previa
 // ================================================================
 function getChatAdminRef() { return db.collection('chat_admin'); }
 function getChatEquipoRef() { return db.collection('chat_equipo'); }
@@ -3828,13 +3852,31 @@ function enviarChatAdmin() {
   const input = document.getElementById('chatAdminInput');
   const texto = input.value.trim();
   if (!texto) return;
-  getChatAdminRef().add({
-    uid: currentUser.uid,
-    remitente: currentUser.displayName,
-    texto: texto,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => input.value = '')
-    .catch(console.error);
+  // Verificar si hay archivo pendiente
+  const fileInput = document.getElementById('chatAdminFile');
+  const file = fileInput.files[0];
+  if (file) {
+    const path = `chat_adjuntos/admin/${Date.now()}_${file.name}`;
+    subirArchivoStorage(file, path).then(url => {
+      getChatAdminRef().add({
+        uid: currentUser.uid,
+        remitente: currentUser.displayName,
+        texto: texto || '📎 Archivo adjunto',
+        adjunto: url,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      fileInput.value = '';
+      document.getElementById('chatAdminPreview').innerHTML = '';
+    }).catch(console.error);
+  } else {
+    getChatAdminRef().add({
+      uid: currentUser.uid,
+      remitente: currentUser.displayName,
+      texto: texto,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => input.value = '')
+      .catch(console.error);
+  }
 }
 
 function renderChatEquipo() {
@@ -3872,46 +3914,91 @@ function enviarChatEquipo() {
   const input = document.getElementById('chatEquipoInput');
   const texto = input.value.trim();
   if (!texto) return;
-  getChatEquipoRef().add({
-    uid: currentUser.uid,
-    remitente: currentUser.displayName,
-    texto: texto,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => input.value = '')
-    .catch(console.error);
-}
-
-// Subir archivos en chats
-document.getElementById('chatAdminFile').addEventListener('change', function(e) {
-  const file = this.files[0];
-  if (!file) return;
-  const path = `chat_adjuntos/admin/${Date.now()}_${file.name}`;
-  subirArchivoStorage(file, path).then(url => {
-    getChatAdminRef().add({
+  const fileInput = document.getElementById('chatEquipoFile');
+  const file = fileInput.files[0];
+  if (file) {
+    const path = `chat_adjuntos/equipo/${Date.now()}_${file.name}`;
+    subirArchivoStorage(file, path).then(url => {
+      getChatEquipoRef().add({
+        uid: currentUser.uid,
+        remitente: currentUser.displayName,
+        texto: texto || '📎 Archivo adjunto',
+        adjunto: url,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      fileInput.value = '';
+      document.getElementById('chatEquipoPreview').innerHTML = '';
+    }).catch(console.error);
+  } else {
+    getChatEquipoRef().add({
       uid: currentUser.uid,
       remitente: currentUser.displayName,
-      texto: '📎 Archivo adjunto',
-      adjunto: url,
+      texto: texto,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    this.value = '';
-  }).catch(console.error);
+    }).then(() => input.value = '')
+      .catch(console.error);
+  }
+}
+
+// Previsualización de archivos en chats
+document.getElementById('chatAdminFile').addEventListener('change', function(e) {
+  const file = this.files[0];
+  const preview = document.getElementById('chatAdminPreview');
+  preview.innerHTML = '';
+  if (file) {
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'file-preview';
+      div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
+      preview.appendChild(div);
+    }
+  }
 });
 
 document.getElementById('chatEquipoFile').addEventListener('change', function(e) {
   const file = this.files[0];
-  if (!file) return;
-  const path = `chat_adjuntos/equipo/${Date.now()}_${file.name}`;
-  subirArchivoStorage(file, path).then(url => {
-    getChatEquipoRef().add({
-      uid: currentUser.uid,
-      remitente: currentUser.displayName,
-      texto: '📎 Archivo adjunto',
-      adjunto: url,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    this.value = '';
-  }).catch(console.error);
+  const preview = document.getElementById('chatEquipoPreview');
+  preview.innerHTML = '';
+  if (file) {
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'file-preview';
+      div.innerHTML = `<i class="fas fa-file"></i> ${file.name}`;
+      preview.appendChild(div);
+    }
+  }
+});
+
+// Previsualización en publicaciones
+document.getElementById('postImage').addEventListener('change', function(e) {
+  const file = this.files[0];
+  const preview = document.getElementById('postPreviewContainer');
+  preview.innerHTML = '';
+  if (file) {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  }
+});
+document.getElementById('postVideo').addEventListener('change', function(e) {
+  const file = this.files[0];
+  const preview = document.getElementById('postPreviewContainer');
+  preview.innerHTML = '';
+  if (file) {
+    const video = document.createElement('video');
+    video.src = URL.createObjectURL(file);
+    video.controls = true;
+    video.style.maxWidth = '100px';
+    preview.appendChild(video);
+  }
 });
 
 // ================================================================
@@ -4207,7 +4294,7 @@ function renderEventos() {
 }
 
 // ================================================================
-// 19. PERFIL PROFESIONAL - con privacidad y galería
+// 19. PERFIL PROFESIONAL - con galería y sin enlaces a perfiles en el mapa
 // ================================================================
 function verPerfil(uid) {
   console.log('verPerfil llamado con uid:', uid);
@@ -5132,7 +5219,7 @@ function preguntarIA() {
     const contexto = config ? config.contexto : '';
 
     if (!key) {
-      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ⚠️ La clave API de OpenRouter no está configurada. El SuperAdmin debe ingresarla.</div>';
+      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ⚠️ La clave API de OpenRouter no está configurada. El SuperAdmin debe ingresarla en el panel de Admin.</div>';
       chat.scrollTop = chat.scrollHeight;
       return;
     }
@@ -5163,12 +5250,16 @@ Pregunta del usuario: ${pregunta}`;
     })
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      const reply = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : 'No pude obtener una respuesta.';
-      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ' + reply + '</div>';
+      if (data.error) {
+        chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ❌ Error: ' + (data.error.message || data.error) + '. Verifica la configuración de la API.</div>';
+      } else {
+        const reply = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : 'No pude obtener una respuesta.';
+        chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ' + reply + '</div>';
+      }
       chat.scrollTop = chat.scrollHeight;
     })
     .catch(function(err) {
-      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> Error: ' + err.message + '</div>';
+      chat.innerHTML += '<div class="msg bot"><strong>Asistente:</strong> ❌ Error de conexión: ' + err.message + '. Asegúrate de que la URL y la clave sean correctas.</div>';
       chat.scrollTop = chat.scrollHeight;
     });
   });
@@ -5671,7 +5762,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
   }
 
-  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox.');
+  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox, IA mejorada.');
 });
 
 // ================================================================
