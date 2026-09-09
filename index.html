@@ -86,23 +86,23 @@
     }
     @keyframes logoPulse { 0% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.05) rotate(2deg); } 100% { transform: scale(1) rotate(0deg); } }
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--teal), var(--orange));
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 16px;
+      color: var(--teal);
+      font-size: 28px;
       transition: transform 0.3s ease;
       overflow: hidden;
     }
-    .logo-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-    .logo:hover .logo-icon { transform: rotate(20deg) scale(1.1); }
-    .logo-text { font-weight: 700; font-size: 16px; letter-spacing: -0.5px; }
+    .logo-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; background: transparent; }
+    .logo:hover .logo-icon { transform: rotate(10deg) scale(1.05); }
+    .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
     .logo-text span { color: var(--teal); }
-    .logo-sub { font-size: 9px; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
+    .logo-sub { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
     .header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .btn-icon { background: transparent; border: none; font-size: 16px; color: var(--text-secondary); cursor: pointer; padding: 4px 6px; border-radius: 30px; transition: 0.2s; }
     .btn-icon:hover { background: var(--border-color); }
@@ -342,6 +342,27 @@
       gap: 4px;
     }
     .event-card .place i { color: var(--teal); }
+    /* Noticias */
+    .noticias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .noticia-card {
+      background: var(--bg-body);
+      border-radius: var(--radius);
+      padding: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .noticia-card a {
+      color: var(--teal);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .noticia-card a:hover { text-decoration: underline; }
+    .noticia-card .fecha { font-size: 11px; color: var(--text-secondary); }
+    .noticia-card .admin-actions { margin-top: 4px; display: flex; gap: 4px; }
     .verse-day {
       background: var(--teal-light);
       border-radius: var(--radius);
@@ -397,8 +418,8 @@
 
     /* Resto de estilos existentes */
     .carousel-container { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #1a1a2e; box-shadow: var(--shadow); }
-    .carousel-slide { display: none; width: 100%; height: 260px; object-fit: cover; }
-    .carousel-slide.active { display: block; }
+    .carousel-slide { display: none; width: 100%; height: 260px; object-fit: cover; transition: opacity 0.5s ease; }
+    .carousel-slide.active { display: block; opacity: 1; }
     .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
     .carousel-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; text-align: left; }
     .carousel-caption h5 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
@@ -549,9 +570,18 @@
     .chat-input button:hover { background: var(--teal-dark); }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 999; }
     .modal-overlay.show { display: flex; }
-    .modal-box { background: white; border-radius: var(--radius); padding: 20px 24px; max-width: 700px; width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); }
+    .modal-box {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+    }
     body.dark .modal-box { background: #1a1a2e; }
-    .modal-box h3 { font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 18px; }
+    .modal-box h3 { font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; font-size: 20px; }
     .modal-box h5 { font-size: 16px; font-weight: 600; margin: 10px 0 6px; }
     .modal-box label { display: block; font-weight: 500; font-size: 13px; margin: 8px 0 3px; }
     .modal-box input, .modal-box textarea, .modal-box select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-size: 13px; font-family: inherit; }
@@ -564,6 +594,9 @@
     .modal-actions .btn-cancel { background: var(--border-color); color: var(--text-secondary); }
     .modal-actions .btn-confirm { background: var(--teal); color: white; }
     .modal-actions .btn-confirm:hover { background: var(--teal-dark); }
+    @media (max-width: 600px) {
+      .modal-box { padding: 16px; max-width: 98%; }
+    }
     .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px,1fr)); gap: 8px; margin-bottom: 12px; }
     .admin-stat { background: var(--bg-body); padding: 8px 6px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
     .admin-stat .num { font-size: 22px; font-weight: 700; color: var(--teal); }
@@ -616,8 +649,8 @@
     .galeria-item .delete-btn:hover { background: #c0392b; }
     @media (max-width: 600px) {
       .header { padding: 8px 10px; }
-      .logo-icon { width: 30px; height: 30px; font-size: 14px; }
-      .logo-text { font-size: 14px; }
+      .logo-icon { width: 40px; height: 40px; font-size: 22px; }
+      .logo-text { font-size: 16px; }
       .logo-sub { font-size: 8px; }
       .user-badge { font-size: 11px; padding: 1px 8px 1px 4px; }
       .btn-primary { font-size: 11px; padding: 3px 10px; }
@@ -779,6 +812,40 @@
     }
     .perfil-foto-item img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 4px; }
     .perfil-foto-item .foto-desc { font-size: 13px; color: var(--text-secondary); margin: 4px 0; }
+    /* Navegación de capítulos en Biblia */
+    .biblia-nav {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      margin: 8px 0;
+    }
+    .biblia-nav button {
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 4px 16px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .biblia-nav button:hover { background: var(--teal-dark); }
+    .biblia-nav span { font-weight: 600; }
+    .fuente-control {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin: 4px 0;
+    }
+    .fuente-control button {
+      background: var(--bg-body);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 2px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .fuente-control button:hover { background: var(--border-color); }
   </style>
 </head>
 <body>
@@ -884,6 +951,17 @@
         <p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando eventos...</p>
       </div>
     </div>
+    <!-- Sección de Noticias -->
+    <div class="card">
+      <h3><i class="fas fa-newspaper"></i> Noticias 
+        <span style="font-size:0.8rem; font-weight:400; margin-left:10px;">
+          <button class="btn-primary" id="btnAgregarNoticia" style="display:none; font-size:11px; padding:2px 12px;"><i class="fas fa-plus"></i> Agregar</button>
+        </span>
+      </h3>
+      <div id="noticiasContainer" class="noticias-grid">
+        <p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando noticias...</p>
+      </div>
+    </div>
     <div class="verse-day" id="verseDay">
       <blockquote id="verseText">"Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna."</blockquote>
       <footer>Juan 3:16</footer>
@@ -897,6 +975,16 @@
       <div class="biblia-selectores">
         <div class="grupo"><label for="libro"><i class="fas fa-book"></i> Libro</label><select id="libro"><option value="">Selecciona</option></select></div>
         <div class="grupo"><label for="capitulo"><i class="fas fa-chapter"></i> Capítulo</label><select id="capitulo"><option value="">Selecciona</option></select></div>
+      </div>
+      <div class="biblia-nav">
+        <button id="btnCapAnterior"><i class="fas fa-chevron-left"></i> Anterior</button>
+        <span id="capInfo">Capítulo 1</span>
+        <button id="btnCapSiguiente">Siguiente <i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div class="fuente-control">
+        <button id="btnDisminuirFuente">A-</button>
+        <span id="fuenteInfo">Tamaño: 14px</span>
+        <button id="btnAumentarFuente">A+</button>
       </div>
       <div class="versiculos" id="versiculoContainer"><p style="text-align:center; color:var(--text-secondary); padding:16px 0;">Selecciona un libro y capítulo para ver los versículos.</p></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
@@ -1467,6 +1555,24 @@
     </div>
   </div>
 
+  <!-- NOTICIAS - modal para agregar -->
+  <div class="modal-overlay" id="noticiaModal">
+    <div class="modal-box">
+      <h3><i class="fas fa-newspaper"></i> <span id="noticiaModalTitle">Agregar Noticia</span></h3>
+      <input type="hidden" id="editNoticiaId">
+      <label>Título *</label>
+      <input type="text" id="noticiaTitulo" placeholder="Título de la noticia">
+      <label>Enlace *</label>
+      <input type="url" id="noticiaLink" placeholder="https://ejemplo.com/noticia">
+      <label>Descripción (opcional)</label>
+      <textarea id="noticiaDesc" placeholder="Breve descripción..." rows="2"></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="noticiaCancel">Cancelar</button>
+        <button class="btn-confirm" id="noticiaGuardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- GRUPO -->
   <div class="modal-overlay" id="grupoModal">
     <div class="modal-box">
@@ -1711,6 +1817,7 @@ const CONFIG_IA = db.collection('config_ia').doc('config');
 const APP_CONFIG = db.collection('appConfig').doc('config');
 const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 const EVENTOS = db.collection('eventos');
+const NOTICIAS = db.collection('noticias');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -1729,11 +1836,15 @@ let mapboxMarkers = [];
 let mapboxToken = '';
 const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
-  theme: 'iglesia_theme'
+  theme: 'iglesia_theme',
+  bibliaFuente: 'iglesia_biblia_fuente'
 };
 
 let viewerImages = [];
 let viewerIndex = 0;
+let bibliaFuenteSize = parseInt(localStorage.getItem(STORAGE_KEYS.bibliaFuente)) || 14;
+let capitulosCache = {};
+let capitulosActual = [];
 
 // ================================================================
 // 3. FUNCIONES DE UTILIDAD
@@ -1934,6 +2045,7 @@ async function cargarUsuarioActual(user) {
     cargarMapboxToken();
     cargarConfigIA();
     renderEventos();
+    renderNoticias();
   } catch (error) {
     console.error('Error cargando perfil:', error);
   }
@@ -1964,6 +2076,7 @@ window.logoutUser = async function() {
     renderIglesiasMapa();
     renderServiciosMapa();
     renderEventos();
+    renderNoticias();
     actualizarBotonesPorRol();
     actualizarTabs();
     if (mapboxMap) {
@@ -2055,16 +2168,19 @@ function actualizarUIUsuario() {
   const gestionarCarruselBtn = document.getElementById('gestionarCarruselBtn');
   const btnEditarVersos = document.getElementById('btnEditarVersos');
   const btnGestionarEventos = document.getElementById('btnGestionarEventos');
+  const btnAgregarNoticia = document.getElementById('btnAgregarNoticia');
   if (isAdmin) {
     adminTab.style.display = 'inline-block';
     gestionarCarruselBtn.style.display = 'inline-block';
     btnEditarVersos.style.display = 'inline-block';
     btnGestionarEventos.style.display = 'inline-block';
+    btnAgregarNoticia.style.display = 'inline-block';
   } else {
     adminTab.style.display = 'none';
     gestionarCarruselBtn.style.display = 'none';
     btnEditarVersos.style.display = 'none';
     btnGestionarEventos.style.display = 'none';
+    btnAgregarNoticia.style.display = 'none';
   }
 
   const isConfigAllowed = isSuperAdmin;
@@ -2132,7 +2248,7 @@ function switchPanel(name) {
     case 'chatequipo': renderChatEquipo(); break;
     case 'mapa': if (currentUser) { renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); renderEventosMapa(); initMapboxMap(); } break;
     case 'biblia': cargarHistorial(); break;
-    case 'inicio': renderCarrusel(); renderEventos(); break;
+    case 'inicio': renderCarrusel(); renderEventos(); renderNoticias(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
   }
 }
@@ -2155,7 +2271,7 @@ function renderCarrusel() {
     let html = '', indHtml = '';
     slides.forEach((item, index) => {
       const active = index === 0 ? 'active' : '';
-      html += `<div class="carousel-slide ${active}">
+      html += `<div class="carousel-slide ${active}" style="transition: opacity 0.5s ease;">
         <img src="${item.url}" alt="${item.title || 'Imagen'}">
         <div class="carousel-caption">
           ${item.title ? `<h5>${item.title}</h5>` : ''}
@@ -2167,7 +2283,7 @@ function renderCarrusel() {
     container.innerHTML = html;
     indicators.innerHTML = indHtml;
     if (carruselInterval) clearInterval(carruselInterval);
-    carruselInterval = setInterval(cambiarSlide, 5000);
+    carruselInterval = setInterval(() => { cambiarSlide(1); }, 5000);
   });
 }
 
@@ -2292,10 +2408,8 @@ function renderPosts(snapshot, container) {
     };
     const categoriaHtml = post.categoria ? categoriaLabels[post.categoria] || categoriaLabels.otro : '';
 
-    // Determinar si el usuario actual puede ver el perfil completo (solo si está autenticado)
-    const puedeVerPerfilCompleto = currentUser !== null;
-
     const avatar = post.autorFoto || '';
+    const puedeVerPerfilCompleto = currentUser !== null;
 
     html += '<div class="post">' +
       '<div class="post-header" onclick="' + (puedeVerPerfilCompleto ? "verPerfil('" + post.uid + "')" : "") + '" style="cursor:' + (puedeVerPerfilCompleto ? 'pointer' : 'default') + ';">' +
@@ -2307,7 +2421,6 @@ function renderPosts(snapshot, container) {
       categoriaHtml +
       '<div class="post-content">' + post.texto + '</div>';
 
-    // Mostrar encuesta si existe
     if (post.categoria === 'encuesta' && post.opciones) {
       html += '<div class="encuesta-item">';
       post.opciones.forEach((op, idx) => {
@@ -2317,7 +2430,6 @@ function renderPosts(snapshot, container) {
       html += '</div>';
     }
 
-    // Mostrar campaña
     if (post.categoria === 'campania') {
       html += `<div class="campania-item">
         <p><strong>Beneficiario:</strong> ${post.beneficiario || 'No especificado'}</p>
@@ -2337,7 +2449,6 @@ function renderPosts(snapshot, container) {
       '<button onclick="toggleComentarios(\'' + post.id + '\')"><i class="fas fa-comment"></i> ' + (post.comentarios ? post.comentarios.length : 0) + '</button>' +
       '<button onclick="compartirPost(\'' + post.id + '\')"><i class="fas fa-share"></i> Compartir</button>';
 
-    // Solo el autor o admin pueden eliminar
     if (currentUser && (currentUser.uid === post.uid || isAdmin)) {
       html += '<button class="btn-danger" onclick="eliminarPublicacionAdmin(\'' + post.id + '\')"><i class="fas fa-trash"></i> Eliminar</button>';
     }
@@ -2527,7 +2638,6 @@ function compartirPost(id) {
   }
 }
 
-// Funciones para encuestas y campañas
 function votarEncuesta(postId, opcion) {
   if (!currentUser) { alert('Inicia sesión.'); return; }
   POSTS.doc(postId).get().then(doc => {
@@ -2536,7 +2646,6 @@ function votarEncuesta(postId, opcion) {
     const votos = post.votos || {};
     if (!votos[opcion]) votos[opcion] = [];
     if (votos[opcion].includes(currentUser.uid)) return;
-    // Remover voto anterior
     Object.keys(votos).forEach(key => {
       votos[key] = votos[key].filter(uid => uid !== currentUser.uid);
     });
@@ -2734,7 +2843,6 @@ function renderDiscipulados() {
     snapshot.forEach(doc => {
       const d = { id: doc.id, ...doc.data() };
       const inscrito = d.inscritos && d.inscritos.includes(currentUser ? currentUser.uid : null);
-      // Solo admin o superadmin pueden eliminar
       const puedeEliminar = isAdmin;
       html += '<div class="disc-card">' +
         '<h4>' + d.titulo + '</h4>' +
@@ -2922,7 +3030,6 @@ function initMapboxMap() {
   });
   mapboxMap.addControl(new mapboxgl.NavigationControl());
 
-  // Agregar ubicación del usuario actual si está disponible
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
       const { latitude, longitude } = pos.coords;
@@ -2943,7 +3050,6 @@ function cargarMarcadoresMapbox() {
   mapboxMarkers.forEach(m => m.remove());
   mapboxMarkers = [];
 
-  // Misioneros (rojo) - sin enlace a perfil
   MISIONEROS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
@@ -2959,7 +3065,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Iglesias (verde)
   IGLESIAS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const i = doc.data();
@@ -2975,7 +3080,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Grupos (azul)
   GRUPOS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const g = doc.data();
@@ -2991,7 +3095,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Servicios (naranja)
   getServiciosRef().orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const s = doc.data();
@@ -3007,7 +3110,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Eventos (morado)
   EVENTOS.orderBy('fecha', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const e = doc.data();
@@ -3627,7 +3729,6 @@ function renderConsejos() {
         '<button onclick="orarConsejo(\'' + c.id + '\')" class="' + (yaOro ? 'orado' : '') + '"><i class="fas fa-hands-praying"></i> ' + (yaOro ? 'Oré' : 'Orar') + ' (' + numOraciones + ')</button>' +
         '</div>' +
         '<div class="consejo-respuestas">';
-      // Mostrar respuestas solo si es autor, consejero o admin
       if (esAutor || esConsejero || isAdmin) {
         if (c.respuestas && c.respuestas.length) {
           c.respuestas.forEach(r => {
@@ -3678,7 +3779,6 @@ function responderConsejo(id) {
   CONSEJOS.doc(id).get().then(doc => {
     if (!doc.exists) return;
     const c = doc.data();
-    // Solo autor, consejero o admin pueden responder
     if (c.uid !== currentUser.uid && !tieneRol('consejero') && !isAdmin) {
       alert('No tienes permiso para responder.');
       return;
@@ -3850,7 +3950,6 @@ function eliminarReporte(id) {
 function getChatAdminRef() { return db.collection('chat_admin'); }
 function getChatEquipoRef() { return db.collection('chat_equipo'); }
 
-// Asignar color según uid
 function getColorForUser(uid) {
   let hash = 0;
   for (let i = 0; i < uid.length; i++) {
@@ -3979,7 +4078,6 @@ function enviarChatEquipo() {
   }
 }
 
-// Previsualización de archivos en chats con opción de eliminar
 function setupFilePreview(fileInputId, previewContainerId) {
   const input = document.getElementById(fileInputId);
   const container = document.getElementById(previewContainerId);
@@ -4315,6 +4413,87 @@ function renderEventos() {
 }
 
 // ================================================================
+// 18B. NOTICIAS
+// ================================================================
+function renderNoticias() {
+  if (listeners.noticias) listeners.noticias();
+  const container = document.getElementById('noticiasContainer');
+  container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando noticias...</p>';
+  listeners.noticias = NOTICIAS.orderBy('fecha', 'desc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">No hay noticias aún.</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const n = doc.data();
+      html += `<div class="noticia-card">
+        <a href="${n.link}" target="_blank" rel="noopener"><strong>${n.titulo}</strong></a>
+        ${n.desc ? `<p style="font-size:13px; margin:4px 0;">${n.desc}</p>` : ''}
+        <div class="fecha">${n.fecha ? new Date(n.fecha.seconds * 1000).toLocaleDateString() : ''}</div>
+        ${isAdmin ? `<div class="admin-actions"><button class="btn-danger" onclick="eliminarNoticia('${doc.id}')" style="font-size:10px;">Eliminar</button></div>` : ''}
+      </div>`;
+    });
+    container.innerHTML = html;
+  });
+}
+
+function abrirModalNoticia(noticiaId) {
+  if (!isAdmin) return;
+  if (noticiaId) {
+    document.getElementById('noticiaModalTitle').textContent = 'Editar Noticia';
+    NOTICIAS.doc(noticiaId).get().then(doc => {
+      if (!doc.exists) return;
+      const n = doc.data();
+      document.getElementById('editNoticiaId').value = noticiaId;
+      document.getElementById('noticiaTitulo').value = n.titulo || '';
+      document.getElementById('noticiaLink').value = n.link || '';
+      document.getElementById('noticiaDesc').value = n.desc || '';
+      abrirModal('noticiaModal');
+    });
+  } else {
+    document.getElementById('noticiaModalTitle').textContent = 'Agregar Noticia';
+    document.getElementById('editNoticiaId').value = '';
+    document.getElementById('noticiaTitulo').value = '';
+    document.getElementById('noticiaLink').value = '';
+    document.getElementById('noticiaDesc').value = '';
+    abrirModal('noticiaModal');
+  }
+}
+
+function guardarNoticia() {
+  if (!isAdmin) return;
+  const id = document.getElementById('editNoticiaId').value;
+  const titulo = document.getElementById('noticiaTitulo').value.trim();
+  const link = document.getElementById('noticiaLink').value.trim();
+  const desc = document.getElementById('noticiaDesc').value.trim();
+  if (!titulo || !link) { alert('Título y enlace son obligatorios.'); return; }
+  const data = { titulo, link, desc, actualizado: firebase.firestore.FieldValue.serverTimestamp() };
+  if (id) {
+    NOTICIAS.doc(id).update(data).then(() => {
+      alert('Noticia actualizada.');
+      cerrarModal('noticiaModal');
+      renderNoticias();
+    });
+  } else {
+    data.fecha = firebase.firestore.FieldValue.serverTimestamp();
+    data.creadoPor = currentUser.uid;
+    data.creadoPorNombre = currentUser.displayName;
+    NOTICIAS.add(data).then(() => {
+      alert('Noticia agregada.');
+      cerrarModal('noticiaModal');
+      renderNoticias();
+    });
+  }
+}
+
+function eliminarNoticia(id) {
+  if (!isAdmin) return;
+  if (!confirm('¿Eliminar esta noticia?')) return;
+  NOTICIAS.doc(id).delete().then(() => renderNoticias());
+}
+
+// ================================================================
 // 19. PERFIL PROFESIONAL - con galería, interacciones y fotos con descripción
 // ================================================================
 function verPerfil(uid) {
@@ -4433,28 +4612,31 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }
   });
 
-  // Obtener fotos de la galería del usuario (subcolección "fotos")
   const fotosRef = USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc');
   let fotos = [];
   let fotosHtml = '';
 
-  // Función para renderizar fotos con interacciones
+  fotosRef.get().then(snapshot => {
+    fotos = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data.likes) data.likes = [];
+      if (!data.comentarios) data.comentarios = [];
+      fotos.push({ id: doc.id, ...data });
+    });
+    const galeriaContainer = document.getElementById('galeriaFotosContainer');
+    if (galeriaContainer) {
+      galeriaContainer.innerHTML = renderFotosGaleria(fotos);
+    }
+  });
+
   function renderFotosGaleria(fotosArray) {
-    if (!fotosArray || fotosArray.length === 0) return '';
+    if (!fotosArray || fotosArray.length === 0) return '<p style="color:var(--text-secondary);">No hay fotos en la galería.</p>';
     let html = '<div style="margin:10px 0;"><h4>📸 Galería de fotos</h4>';
     fotosArray.forEach(foto => {
       const fotoId = foto.id;
       const url = foto.url;
       const desc = foto.desc || '';
-      // Obtener likes y comentarios de la foto (guardados en la misma subcolección o en un documento aparte)
-      // Para simplificar, usaremos el documento de la foto para almacenar likes y comentarios
-      // pero como no tenemos esos campos, los añadimos al documento
-      // Para que funcione, al subir foto se debe crear el documento con likes y comentarios vacíos.
-      // Aquí asumimos que el documento de la foto tiene campos "likes" y "comentarios"
-      // Para no romper, si no existen los inicializamos.
-      // En la función subirMedia, debemos añadir esos campos.
-      // Modificaremos subirMedia más adelante.
-      // Por ahora, mostramos la foto con botones de interacción que llamarán a funciones específicas.
       html += `<div class="perfil-foto-item" data-fotoid="${fotoId}">
         <img src="${url}" alt="foto" onclick="abrirVisor(['${url}'],0)">
         ${desc ? `<div class="foto-desc">${desc}</div>` : ''}
@@ -4473,25 +4655,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     return html;
   }
 
-  // Obtener fotos de la galería y mostrarlas
-  fotosRef.get().then(snapshot => {
-    fotos = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      // Asegurar campos de interacción
-      if (!data.likes) data.likes = [];
-      if (!data.comentarios) data.comentarios = [];
-      fotos.push({ id: doc.id, ...data });
-    });
-    // Re-renderizar el modal con las fotos
-    // Como el modal ya está abierto, actualizamos la sección
-    const galeriaContainer = document.getElementById('galeriaFotosContainer');
-    if (galeriaContainer) {
-      galeriaContainer.innerHTML = renderFotosGaleria(fotos);
-    }
-  });
-
-  // Construir HTML del perfil (sección de fotos se actualizará después)
+  // Construir HTML del perfil
   let html = `
   <div class="perfil-facebook">
     <div class="portada" style="background-image:url('${user.portada || ''}'); height:200px; background-size:cover; background-position:center; position:relative; border-radius:8px 8px 0 0;">
@@ -4515,7 +4679,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
         <div class="perfil-badges" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;">
             ${user.apoyos && user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('')}
         </div>
-        <!-- Galería de fotos con interacciones -->
         <div id="galeriaFotosContainer">
           <p style="color:var(--text-secondary);">Cargando fotos...</p>
         </div>
@@ -4539,7 +4702,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   modalContent.innerHTML = html;
   abrirModal('perfilModal');
 
-  // Evento para subir foto a galería desde el perfil
   const subirFotoInput = document.getElementById('subirFotoGaleriaPerfil');
   if (subirFotoInput) {
     subirFotoInput.addEventListener('change', function(e) {
@@ -4550,7 +4712,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
           this.value = '';
           return;
         }
-        // Pedir descripción
         const desc = prompt('Descripción de la foto (opcional):') || '';
         subirMediaConDesc(uid, file, desc);
         this.value = '';
@@ -4558,12 +4719,9 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     });
   }
 
-  // Cargar publicaciones del usuario
   cargarPublicacionesUsuario(uid);
-  // Cargar seguidores y seguidos
   cargarSeguidores(uid);
 
-  // Función para subir foto con descripción (sobrescribe la anterior)
   window.subirMediaConDesc = function(uid, file, desc) {
     if (!currentUser) { alert('Inicia sesión.'); return; }
     if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
@@ -4587,7 +4745,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   };
 }
 
-// Funciones para interacciones en fotos de galería
 function likeFoto(uid, fotoId) {
   if (!currentUser) { alert('Inicia sesión.'); return; }
   const ref = USERS.doc(uid).collection('fotos').doc(fotoId);
@@ -4637,8 +4794,6 @@ function compartirFoto(uid, fotoId) {
   }
 }
 
-// Actualizar contadores de likes y comentarios en tiempo real (se puede hacer con listeners, pero por simplicidad se actualizará al recargar)
-
 // ================================================================
 // 20. ELIMINAR CUENTA (con sus datos)
 // ================================================================
@@ -4681,10 +4836,6 @@ function compartirPerfil(uid) {
     navigator.clipboard.writeText(url).then(() => alert('Enlace copiado al portapapeles.'));
   }
 }
-
-// ================================================================
-// 22. GALERÍA DE FOTOS Y VIDEOS (adicional) - ya integrado en perfil
-// ================================================================
 
 // ================================================================
 // FUNCIONES DE PERFIL EXTENDIDO (edición)
@@ -4751,7 +4902,6 @@ function guardarPerfilExtendido() {
   if (promesas.length > 0) {
     Promise.all(promesas).then(results => {
       fotosUrls = results.filter(url => url).slice(0, 5);
-      // Guardar cada foto con su descripción en la subcolección "fotos" del usuario
       const promesasFotos = fotosUrls.map(url => {
         return USERS.doc(currentUser.uid).collection('fotos').add({
           url: url,
@@ -4910,7 +5060,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// BIBLIA - con Concordancia y búsqueda por versículo
+// BIBLIA - con Concordancia, búsqueda por versículo, navegación de capítulos y ajuste de fuente
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -4918,7 +5068,9 @@ const versiculoContainer = document.getElementById('versiculoContainer');
 let textosBiblicos = {};
 let libroActual = '';
 let capituloActual = '';
+let capituloKeys = [];
 
+// Cargar índice de libros
 fetch('textos-biblicos.json')
   .then(function(response) { return response.json(); })
   .then(function(data) {
@@ -4962,6 +5114,7 @@ capituloSelect.addEventListener('change', function() {
   capituloActual = capitulo;
   mostrarVersiculos(libroActual, capitulo);
   if (libroActual) guardarHistorial(libroActual + ' ' + capitulo);
+  actualizarInfoCap();
 });
 
 function guardarHistorial(texto) {
@@ -4980,13 +5133,22 @@ function cargarCapitulos(libro) {
   if (!testamento) { capituloSelect.innerHTML = '<option value="">No disponible</option>'; return; }
   const ruta = textosBiblicos[testamento][libro];
   fetch(ruta).then(function(res) { return res.json(); }).then(function(data) {
+    capitulosCache[libro] = data;
+    const keys = Object.keys(data).sort((a,b) => parseInt(a)-parseInt(b));
+    capituloKeys = keys;
     capituloSelect.innerHTML = '<option value="">Selecciona capítulo</option>';
-    Object.keys(data).forEach(function(cap) {
+    keys.forEach(function(cap) {
       const option = document.createElement('option');
       option.value = cap;
       option.textContent = 'Capítulo ' + cap;
       capituloSelect.appendChild(option);
     });
+    if (keys.length > 0) {
+      capituloSelect.value = keys[0];
+      capituloActual = keys[0];
+      mostrarVersiculos(libro, keys[0]);
+      actualizarInfoCap();
+    }
   }).catch(function() { capituloSelect.innerHTML = '<option value="">Error</option>'; });
 }
 
@@ -5005,11 +5167,12 @@ function mostrarVersiculos(libro, capitulo) {
       try { const parsed = JSON.parse(editado); if (typeof parsed === 'object' && !Array.isArray(parsed)) versiculosData = parsed; } catch(e) {}
     }
     renderVersiculos(versiculosData, libro, capitulo);
+    actualizarInfoCap();
   }).catch(function() { versiculoContainer.innerHTML = '<p>Error al cargar.</p>'; });
 }
 
 function renderVersiculos(versiculosObj, libro, capitulo) {
-  const editMode = editModeActivo && isSuperAdmin; // Solo superadmin puede editar
+  const editMode = editModeActivo && isSuperAdmin;
   let html = '';
   const keys = Object.keys(versiculosObj);
   if (keys.length === 0) { html = '<p>No hay versículos.</p>'; }
@@ -5028,6 +5191,9 @@ function renderVersiculos(versiculosObj, libro, capitulo) {
     });
   }
   versiculoContainer.innerHTML = html;
+  // Aplicar tamaño de fuente
+  versiculoContainer.style.fontSize = bibliaFuenteSize + 'px';
+  document.getElementById('fuenteInfo').textContent = 'Tamaño: ' + bibliaFuenteSize + 'px';
 
   const btnEditar = document.getElementById('btnEditarVersos');
   const btnGuardar = document.getElementById('btnGuardarVersos');
@@ -5079,6 +5245,38 @@ function guardarTodosVersos() {
   editModeActivo = false;
   document.getElementById('btnEditarVersos').textContent = 'Editar versículos';
   document.getElementById('btnGuardarVersos').classList.remove('show');
+}
+
+function actualizarInfoCap() {
+  const capInfo = document.getElementById('capInfo');
+  if (libroActual && capituloActual) {
+    capInfo.textContent = libroActual + ' ' + capituloActual;
+  } else {
+    capInfo.textContent = 'Capítulo';
+  }
+}
+
+function navegarCapitulo(dir) {
+  if (!libroActual || capituloKeys.length === 0) return;
+  let idx = capituloKeys.indexOf(capituloActual);
+  if (idx === -1) idx = 0;
+  let newIdx = idx + dir;
+  if (newIdx < 0) newIdx = capituloKeys.length - 1;
+  if (newIdx >= capituloKeys.length) newIdx = 0;
+  const newCap = capituloKeys[newIdx];
+  capituloSelect.value = newCap;
+  capituloActual = newCap;
+  mostrarVersiculos(libroActual, newCap);
+  guardarHistorial(libroActual + ' ' + newCap);
+}
+
+function ajustarFuente(delta) {
+  bibliaFuenteSize = Math.max(10, Math.min(30, bibliaFuenteSize + delta));
+  localStorage.setItem(STORAGE_KEYS.bibliaFuente, bibliaFuenteSize);
+  document.getElementById('fuenteInfo').textContent = 'Tamaño: ' + bibliaFuenteSize + 'px';
+  if (versiculoContainer) {
+    versiculoContainer.style.fontSize = bibliaFuenteSize + 'px';
+  }
 }
 
 function buscarBiblia() {
@@ -5398,14 +5596,14 @@ function cargarLogoConfig() {
     if (doc.exists && doc.data().logoUrl) {
       const logoUrl = doc.data().logoUrl;
       const logoIcon = document.getElementById('logoIcon');
-      logoIcon.innerHTML = `<img src="${logoUrl}" alt="Logo">`;
+      logoIcon.innerHTML = `<img src="${logoUrl}" alt="Logo" style="background:transparent;">`;
       const preview = document.getElementById('logoPreview');
       if (preview) {
         preview.innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain;">`;
       }
     } else {
       const logoIcon = document.getElementById('logoIcon');
-      logoIcon.innerHTML = `<i class="fas fa-church"></i>`;
+      logoIcon.innerHTML = `<i class="fas fa-church" style="background:transparent;"></i>`;
       const preview = document.getElementById('logoPreview');
       if (preview) {
         preview.innerHTML = `<i class="fas fa-image" style="font-size:24px; color:var(--text-secondary);"></i>`;
@@ -5594,7 +5792,6 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnSubirVideo').addEventListener('click', function() { document.getElementById('postVideo').click(); });
   document.getElementById('feedFiltro').addEventListener('change', renderFeed);
 
-  // Mostrar opciones de encuesta y campaña según categoría
   document.getElementById('postCategoria').addEventListener('change', function() {
     const val = this.value;
     document.getElementById('encuestaOpciones').style.display = val === 'encuesta' ? 'block' : 'none';
@@ -5668,6 +5865,10 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('bibliaSearchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') buscarBiblia(); });
   document.getElementById('btnReiniciarBusqueda').addEventListener('click', reiniciarBusqueda);
   document.getElementById('btnBuscarVersiculo').addEventListener('click', buscarVersiculo);
+  document.getElementById('btnCapAnterior').addEventListener('click', function() { navegarCapitulo(-1); });
+  document.getElementById('btnCapSiguiente').addEventListener('click', function() { navegarCapitulo(1); });
+  document.getElementById('btnDisminuirFuente').addEventListener('click', function() { ajustarFuente(-2); });
+  document.getElementById('btnAumentarFuente').addEventListener('click', function() { ajustarFuente(2); });
 
   // IA
   document.getElementById('btnPreguntarIA').addEventListener('click', preguntarIA);
@@ -5685,6 +5886,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('eventoCancel').addEventListener('click', function() { cerrarModal('eventoModal'); });
   document.getElementById('eventoGuardar').addEventListener('click', guardarEvento);
   document.getElementById('btnBuscarEventoMap').addEventListener('click', function() { buscarEnMapa('eventoMap'); });
+
+  // Noticias
+  document.getElementById('btnAgregarNoticia').addEventListener('click', function() { abrirModalNoticia(); });
+  document.getElementById('noticiaCancel').addEventListener('click', function() { cerrarModal('noticiaModal'); });
+  document.getElementById('noticiaGuardar').addEventListener('click', guardarNoticia);
 
   // Editar versículos (solo superadmin)
   document.getElementById('btnEditarVersos').addEventListener('click', function() {
@@ -5729,6 +5935,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderEventosMapa();
   renderCarrusel();
   renderEventos();
+  renderNoticias();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
@@ -5741,7 +5948,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
   }
 
-  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox, IA mejorada, galería con interacciones.');
+  console.log('✅ SAL Y LUZ con todas las mejoras: perfil Facebook completo, mapa ordenado, eliminación de cuenta, concordancia, encuestas, campañas, colores en chats, eventos con Mapbox, IA mejorada, galería con interacciones, noticias, navegación de capítulos y ajuste de fuente.');
 });
 
 // ================================================================
@@ -6038,6 +6245,12 @@ window.likeFoto = likeFoto;
 window.toggleComentariosFoto = toggleComentariosFoto;
 window.comentarFoto = comentarFoto;
 window.compartirFoto = compartirFoto;
+window.abrirModalNoticia = abrirModalNoticia;
+window.guardarNoticia = guardarNoticia;
+window.eliminarNoticia = eliminarNoticia;
+window.renderNoticias = renderNoticias;
+window.navegarCapitulo = navegarCapitulo;
+window.ajustarFuente = ajustarFuente;
 </script>
 </body>
 </html>
