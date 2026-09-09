@@ -107,7 +107,7 @@
       align-items: center;
       flex-wrap: wrap;
     }
-    .menu-toggle {
+    #menuToggle {
       display: none;
       background: transparent;
       border: none;
@@ -117,35 +117,12 @@
       padding: 4px 8px;
       border-radius: 8px;
     }
-    .menu-toggle:hover { background: var(--border-color); }
+    #menuToggle:hover { background: var(--border-color); }
     @media (max-width: 768px) {
-      .menu-toggle { display: block; }
-      .tabs {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border-bottom: 1px solid var(--border-color);
-        box-shadow: var(--shadow);
-        z-index: 99;
-        padding: 8px 0;
-        max-height: 70vh;
-        overflow-y: auto;
-      }
-      .tabs.open {
-        display: flex;
-      }
-      .tab {
-        padding: 10px 16px;
-        border-bottom: 1px solid var(--border-color);
-        width: 100%;
-        justify-content: flex-start;
-        font-size: 14px;
-      }
-      .tab span { display: inline !important; }
+      #menuToggle { display: block; }
+    }
+    body.force-hamburger #menuToggle {
+      display: block;
     }
     .btn-icon { background: transparent; border: none; font-size: 16px; color: var(--text-secondary); cursor: pointer; padding: 4px 6px; border-radius: 30px; transition: 0.2s; }
     .btn-icon:hover { background: var(--border-color); }
@@ -207,8 +184,8 @@
       cursor: pointer;
       display: inline-block;
     }
-    /* ========== TABS (ahora manejado por JS) ========== */
-    .tabs {
+    /* ========== TABS (menú) ========== */
+    #mainTabs {
       display: flex;
       overflow-x: auto;
       gap: 2px;
@@ -219,8 +196,8 @@
       -webkit-overflow-scrolling: touch;
       transition: all 0.3s ease;
     }
-    body.dark .tabs { background: #1a1a2e; }
-    .tabs::-webkit-scrollbar { display: none; }
+    body.dark #mainTabs { background: #1a1a2e; }
+    #mainTabs::-webkit-scrollbar { display: none; }
     .tab {
       padding: 8px 10px;
       font-size: 12px;
@@ -240,6 +217,65 @@
     .tab i { font-size: 14px; }
     .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
     .tab:hover { color: var(--text-primary); }
+
+    /* Hamburguesa por defecto en móvil */
+    @media (max-width: 768px) {
+      #mainTabs {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        z-index: 99;
+        padding: 8px 0;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      #mainTabs.open {
+        display: flex;
+      }
+      #mainTabs .tab {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border-color);
+        width: 100%;
+        justify-content: flex-start;
+        font-size: 14px;
+      }
+      #mainTabs .tab span { display: inline !important; }
+    }
+
+    /* Forzar hamburguesa en PC (activado por SuperAdmin) */
+    body.force-hamburger #mainTabs {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      z-index: 99;
+      padding: 8px 0;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    body.force-hamburger #mainTabs.open {
+      display: flex;
+    }
+    body.force-hamburger #mainTabs .tab {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-color);
+      width: 100%;
+      justify-content: flex-start;
+      font-size: 14px;
+    }
+    body.force-hamburger #mainTabs .tab span { display: inline !important; }
+
     /* ========== PANELES ========== */
     .panel { display: none; padding: 12px 10px; animation: fadeUp 0.25s ease; }
     .panel.active { display: block; }
@@ -1013,14 +1049,11 @@
     <div id="feedContainer"></div>
   </div>
 
-  <!-- ===== PANEL REELS ===== -->
+  <!-- ===== PANEL REELS (con botón + y modal) ===== -->
   <div class="panel" id="panel-reels">
-    <div class="card" id="reelsPublicarCard" style="display:none;">
-      <h3><i class="fas fa-video"></i> Subir Reel (video corto)</h3>
-      <input type="file" id="reelFile" accept="video/*" style="width:100%; margin-bottom:6px;">
-      <textarea id="reelDesc" placeholder="Descripción del reel..." rows="2" style="width:100%; border-radius:10px; border:1px solid var(--border-color); padding:8px; background:var(--bg-body); color:var(--text-primary); resize:vertical; font-size:13px;"></textarea>
-      <button class="btn-primary" id="btnPublicarReel"><i class="fas fa-upload"></i> Publicar Reel</button>
-      <div id="reelPreviewContainer" class="preview-container"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3><i class="fas fa-video"></i> Reels</h3>
+      <button class="btn-primary" id="btnAbrirReelModal" style="display:none;"><i class="fas fa-plus"></i> Subir Reel</button>
     </div>
     <div id="reelsContainer" class="reels-grid"><p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando reels...</p></div>
   </div>
@@ -1247,6 +1280,19 @@
       </div>
     </div>
     <div class="config-msg" id="msgLogoConfig"><p>⚠️ Solo el SuperAdmin puede modificar el logo.</p></div>
+
+    <!-- Configuración del menú hamburguesa -->
+    <div class="card config-solo-admin" id="cardMenuConfig">
+      <h3><i class="fas fa-bars"></i> Configuración de menú</h3>
+      <div class="admin-ia-config">
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="forceHamburgerCheck"> Forzar menú hamburguesa en PC
+        </label>
+        <button class="btn-primary" id="btnGuardarMenuConfig" style="margin-top:6px;">Guardar configuración</button>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Activa esta opción para que el menú se muestre como hamburguesa también en pantallas grandes.</p>
+      </div>
+    </div>
+    <div class="config-msg" id="msgMenuConfig"><p>⚠️ Solo el SuperAdmin puede configurar el menú.</p></div>
 
     <div class="card"><h3><i class="fas fa-users"></i> Usuarios registrados</h3><div id="adminUserList"></div></div>
     <div class="card"><h3><i class="fas fa-newspaper"></i> Publicaciones del muro</h3><div id="adminPostList"></div></div>
@@ -1748,6 +1794,22 @@
     <div class="modal-box" id="perfilModalContent"></div>
   </div>
 
+  <!-- Reel Modal (subir video) -->
+  <div class="modal-overlay" id="reelModal">
+    <div class="modal-box">
+      <h3><i class="fas fa-video"></i> Subir Reel</h3>
+      <label>Selecciona un video (MP4, WebM, etc.)</label>
+      <input type="file" id="reelFile" accept="video/*" style="width:100%; margin-bottom:6px;">
+      <label>Descripción (opcional)</label>
+      <textarea id="reelDesc" placeholder="Descripción del reel..." rows="2" style="width:100%; border-radius:10px; border:1px solid var(--border-color); padding:8px; background:var(--bg-body); color:var(--text-primary); resize:vertical; font-size:13px;"></textarea>
+      <div id="reelPreviewContainer" class="preview-container"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="reelModalCancel">Cancelar</button>
+        <button class="btn-confirm" id="reelModalPublicar">Publicar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Visor multimedia (imágenes y videos) -->
   <div class="media-viewer" id="mediaViewer" onclick="cerrarMediaViewer()">
     <span class="close-viewer" onclick="cerrarMediaViewer()">&times;</span>
@@ -1978,6 +2040,7 @@ async function cargarUsuarioActual(user) {
     cargarLogoConfig();
     cargarMapboxToken();
     cargarConfigIA();
+    cargarConfigMenu();
     renderEventos();
     renderNoticias();
     renderReels();
@@ -2069,6 +2132,7 @@ function actualizarUIUsuario() {
   const btnGestionarEventos = document.getElementById('btnGestionarEventos');
   const btnAgregarNoticiaInicio = document.getElementById('btnAgregarNoticiaInicio');
   const btnAgregarNoticiaAdmin = document.getElementById('btnAgregarNoticiaAdmin');
+  const btnAbrirReel = document.getElementById('btnAbrirReelModal');
   if (isAdmin) {
     adminTab.style.display = 'inline-block';
     gestionarCarruselBtn.style.display = 'inline-block';
@@ -2084,21 +2148,22 @@ function actualizarUIUsuario() {
     btnAgregarNoticiaInicio.style.display = 'none';
     btnAgregarNoticiaAdmin.style.display = 'none';
   }
+  if (btnAbrirReel) btnAbrirReel.style.display = currentUser ? 'inline-block' : 'none';
 
   const isConfigAllowed = isSuperAdmin;
-  ['cardLogoConfig', 'cardIAConfig', 'cardMapboxConfig'].forEach(id => {
-    document.getElementById(id).style.display = isConfigAllowed ? 'block' : 'none';
+  ['cardLogoConfig', 'cardIAConfig', 'cardMapboxConfig', 'cardMenuConfig'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isConfigAllowed ? 'block' : 'none';
   });
-  ['msgLogoConfig', 'msgIAConfig', 'msgMapboxConfig'].forEach(id => {
-    document.getElementById(id).style.display = isConfigAllowed ? 'none' : 'block';
+  ['msgLogoConfig', 'msgIAConfig', 'msgMapboxConfig', 'msgMenuConfig'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isConfigAllowed ? 'none' : 'block';
   });
 
   actualizarBotonesPorRol();
   actualizarTabs();
   const muroPublicar = document.getElementById('muroPublicarCard');
   muroPublicar.style.display = currentUser ? 'block' : 'none';
-  const reelsPublicar = document.getElementById('reelsPublicarCard');
-  reelsPublicar.style.display = currentUser ? 'block' : 'none';
 }
 
 // ================================================================
@@ -2158,7 +2223,7 @@ document.addEventListener('click', function(e) {
   }
 });
 // Cerrar menú al seleccionar una pestaña
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('#mainTabs .tab').forEach(tab => {
   tab.addEventListener('click', function() {
     document.getElementById('mainTabs').classList.remove('open');
   });
@@ -2526,7 +2591,7 @@ function donarCampania(postId) {
 }
 
 // ================================================================
-// 7.1 REELS
+// 7.1 REELS (con modal y botón +)
 // ================================================================
 function renderReels() {
   if (listeners.reels) listeners.reels();
@@ -2590,6 +2655,7 @@ function publicarReel() {
     document.getElementById('reelFile').value = '';
     document.getElementById('reelDesc').value = '';
     document.getElementById('reelPreviewContainer').innerHTML = '';
+    cerrarModal('reelModal');
     alert('Reel publicado correctamente.');
   }).catch(err => { console.error(err); alert('Error: ' + err.message); });
 }
@@ -4386,8 +4452,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }
   });
 
-  // Galería de fotos
-  let fotosHtml = '';
+  // Galería de fotos - ahora con data attributes para el visor
   const fotosRef = USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc');
   fotosRef.get().then(snapshot => {
     const fotos = [];
@@ -4406,6 +4471,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   function renderFotosGaleria(fotosArray, uid) {
     if (!fotosArray || fotosArray.length === 0) return '<p style="color:var(--text-secondary);">No hay fotos en la galería.</p>';
     let html = '<div style="margin:10px 0;"><h4>📸 Galería de fotos</h4><div class="galeria-grid">';
+    const allUrls = fotosArray.map(f => f.url);
     fotosArray.forEach((foto, idx) => {
       const fotoId = foto.id;
       const url = foto.url;
@@ -4413,9 +4479,8 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
       const likesCount = foto.likes ? foto.likes.length : 0;
       const commentsCount = foto.comentarios ? foto.comentarios.length : 0;
       const fecha = foto.fecha ? new Date(foto.fecha.seconds * 1000).toLocaleDateString() : '';
-      // Para abrir el visor con todas las fotos
-      const allUrls = fotosArray.map(f => f.url);
-      html += `<div class="galeria-item" onclick="abrirMediaViewer(${JSON.stringify(allUrls)}, ${idx}, 'image')">
+      // Usamos data attributes en lugar de onclick inline
+      html += `<div class="galeria-item" data-urls='${JSON.stringify(allUrls)}' data-index="${idx}">
         <img src="${url}" alt="foto">
         <div class="foto-overlay">
           <span><i class="fas fa-heart"></i> ${likesCount}</span>
@@ -5305,6 +5370,34 @@ function eliminarLogo() {
 }
 
 // ================================================================
+// 28B. CONFIGURACIÓN DE MENÚ HAMBURGUESA
+// ================================================================
+function cargarConfigMenu() {
+  APP_CONFIG.get().then(doc => {
+    if (doc.exists && doc.data().forceHamburger) {
+      document.body.classList.add('force-hamburger');
+      document.getElementById('forceHamburgerCheck').checked = true;
+    } else {
+      document.body.classList.remove('force-hamburger');
+      document.getElementById('forceHamburgerCheck').checked = false;
+    }
+  }).catch(console.error);
+}
+
+function guardarConfigMenu() {
+  if (!isSuperAdmin) { alert('Solo el SuperAdmin puede configurar el menú.'); return; }
+  const force = document.getElementById('forceHamburgerCheck').checked;
+  APP_CONFIG.set({ forceHamburger: force }, { merge: true }).then(() => {
+    if (force) {
+      document.body.classList.add('force-hamburger');
+    } else {
+      document.body.classList.remove('force-hamburger');
+    }
+    alert('Configuración de menú guardada.');
+  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+}
+
+// ================================================================
 // 29. MODO NOCTURNO
 // ================================================================
 document.getElementById('themeToggle').addEventListener('click', function() {
@@ -5560,7 +5653,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('loginCancelBtn').addEventListener('click', function() { cerrarModal('loginModal'); });
 
   // Tabs
-  document.querySelectorAll('.tab').forEach(tab => {
+  document.querySelectorAll('#mainTabs .tab').forEach(tab => {
     tab.addEventListener('click', function() { const panel = this.dataset.panel; if (panel) switchPanel(panel); });
   });
 
@@ -5591,7 +5684,14 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Reels
-  document.getElementById('btnPublicarReel').addEventListener('click', publicarReel);
+  document.getElementById('btnAbrirReelModal').addEventListener('click', function() {
+    document.getElementById('reelFile').value = '';
+    document.getElementById('reelDesc').value = '';
+    document.getElementById('reelPreviewContainer').innerHTML = '';
+    abrirModal('reelModal');
+  });
+  document.getElementById('reelModalCancel').addEventListener('click', function() { cerrarModal('reelModal'); });
+  document.getElementById('reelModalPublicar').addEventListener('click', publicarReel);
   setupFilePreview('reelFile', 'reelPreviewContainer');
 
   // Grupos
@@ -5706,6 +5806,20 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnSubirLogo').addEventListener('click', subirLogo);
   document.getElementById('btnEliminarLogo').addEventListener('click', eliminarLogo);
 
+  // Configuración de menú
+  document.getElementById('btnGuardarMenuConfig').addEventListener('click', guardarConfigMenu);
+
+  // Delegado para la galería de perfil (visor)
+  document.getElementById('perfilModal').addEventListener('click', function(e) {
+    const item = e.target.closest('.galeria-item');
+    if (item) {
+      const urls = JSON.parse(item.dataset.urls);
+      const index = parseInt(item.dataset.index);
+      e.stopPropagation(); // evitar que se cierre el modal
+      abrirMediaViewer(urls, index, 'image');
+    }
+  });
+
   // Versículo del día
   actualizarVersiculoDia();
 
@@ -5734,12 +5848,13 @@ document.addEventListener('DOMContentLoaded', function() {
   cargarHistorial();
   cargarLogoConfig();
   cargarMapboxToken();
+  cargarConfigMenu();
 
   if (document.getElementById('panel-servicio').classList.contains('active') && puedeOfrecerServicio()) {
     setTimeout(() => { initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng'); }, 500);
   }
 
-  console.log('✅ SAL Y LUZ actualizado con todas las mejoras: galería más grande, visor mejorado, menú hamburguesa, solicitud de cambio de contraseña, y Reels.');
+  console.log('✅ SAL Y LUZ actualizado con todas las mejoras: galería ampliable, menú hamburguesa configurable, reels con modal y botón +, y visor mejorado.');
 });
 
 // Exposición de funciones globales
@@ -5868,6 +5983,8 @@ window.ajustarFuente = ajustarFuente;
 window.aprobarSolicitudPassword = aprobarSolicitudPassword;
 window.rechazarSolicitudPassword = rechazarSolicitudPassword;
 window.renderSolicitudesPassword = renderSolicitudesPassword;
+window.guardarConfigMenu = guardarConfigMenu;
+window.cargarConfigMenu = cargarConfigMenu;
 </script>
 </body>
 </html>
