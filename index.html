@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    /* ===== ESTILOS COMPLETOS (sin cambios) ===== */
+    /* Estilos (se mantienen igual que antes) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --teal: #1D9E75;
@@ -552,7 +552,7 @@
     .consejo-titulo { font-weight: 600; font-size: 15px; }
     .consejo-respuestas { margin-top: 8px; padding-left: 16px; border-left: 2px solid var(--teal-light); }
     .consejo-respuesta { padding: 4px 0; font-size: 13px; }
-    .consejo-respuesta .autor { font-weight: 500; color: var(--teal); }
+    .consejo-respuesta .autor { font-weight: 500; color: var(--teal); cursor: pointer; }
     .consejo-actions { display: flex; gap: 12px; margin: 6px 0; }
     .consejo-actions button { background: none; border: none; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-secondary); font-size: 12px; padding: 2px 8px; border-radius: 30px; }
     .consejo-actions button.orado { color: var(--teal); }
@@ -569,6 +569,7 @@
     .estado-confirmado { background: #27ae60; color: white; }
     .estado-cancelado { background: #e74c3c; color: white; }
     .solicitante-item { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; font-size: 13px; border-bottom: 1px dashed var(--border-color); }
+    .solicitante-item .nombre { cursor: pointer; }
     .versiculos p { margin-bottom: 3px; font-size: 14px; line-height: 1.6; text-align: justify; padding: 4px 0; border-bottom: 1px dashed var(--border-color); }
     .versiculos p:last-child { border-bottom: none; }
     .versiculos .num { font-weight: 600; color: var(--teal-dark); margin-right: 3px; }
@@ -618,7 +619,7 @@
     .chat-mensajes-container { max-height: 350px; overflow-y: auto; background: var(--bg-body); border-radius: var(--radius); padding: 10px; margin-bottom: 8px; border: 1px solid var(--border-color); }
     .chat-mensajes-container .msg { margin-bottom: 6px; font-size: 13px; padding: 4px 8px; border-radius: 8px; background: white; border: 1px solid var(--border-color); }
     body.dark .chat-mensajes-container .msg { background: #1a1a2e; }
-    .chat-mensajes-container .msg .autor { font-weight: 600; color: var(--teal); }
+    .chat-mensajes-container .msg .autor { font-weight: 600; color: var(--teal); cursor: pointer; }
     .chat-mensajes-container .msg .hora { font-size: 10px; color: var(--text-secondary); }
     .chat-input { display: flex; gap: 6px; }
     .chat-input input { flex: 1; padding: 8px 12px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); font-size: 13px; }
@@ -2199,7 +2200,7 @@ function renderPosts(snapshot, container) {
     }
     html += '</div>' +
       '<div class="comments" id="comments-' + post.id + '" style="display:none;">' +
-      (post.comentarios ? post.comentarios.map(c => '<div><strong>' + c.autor + '</strong>: ' + c.texto + ' <small style="color:var(--text-secondary);">' + new Date(c.fecha).toLocaleString() + '</small></div>').join('') : '') +
+      (post.comentarios ? post.comentarios.map(c => '<div><span class="autor" onclick="verPerfil(\'' + c.uid + '\')" style="cursor:pointer;font-weight:600;">' + c.autor + '</span>: ' + c.texto + ' <small style="color:var(--text-secondary);">' + new Date(c.fecha).toLocaleString() + '</small></div>').join('') : '') +
       (currentUser ? '<div class="comment-box"><input type="text" id="commentInput-' + post.id + '" placeholder="Escribe un comentario..."><button onclick="comentarPost(\'' + post.id + '\')"><i class="fas fa-paper-plane"></i></button></div>' : '<p style="font-size:12px;color:var(--text-secondary);">Inicia sesión para comentar.</p>') +
       '</div></div>';
   });
@@ -2483,7 +2484,7 @@ function renderChatMensajes(grupoId) {
       const msg = doc.data();
       const esPropio = msg.remitente === currentUser.uid;
       html += '<div class="msg" style="' + (esPropio ? 'text-align:right;' : '') + '">' +
-        '<span class="autor">' + (msg.remitenteNombre || 'Anónimo') + '</span> ' +
+        '<span class="autor" onclick="verPerfil(\'' + msg.remitente + '\')" style="cursor:pointer;">' + msg.remitenteNombre + '</span> ' +
         '<span style="font-size:13px;">' + msg.texto + '</span> ' +
         '<span class="hora">' + new Date(msg.timestamp.seconds * 1000).toLocaleString() + '</span>' +
         '</div>';
@@ -2603,7 +2604,7 @@ function renderOraciones() {
       const numOraciones = o.orado ? o.orado.length : 0;
       html += '<div class="oracion-item">' +
         '<div class="oracion-header">' +
-        '<div class="oracion-avatar" style="background-image:url(' + (o.autorFoto || '') + ');background-size:cover;background-position:center;">' +
+        '<div class="oracion-avatar" style="background-image:url(' + (o.autorFoto || '') + ');background-size:cover;background-position:center;cursor:pointer;" onclick="verPerfil(\'' + o.uid + '\')">' +
         (o.autorFoto ? '' : o.autorNombre.charAt(0).toUpperCase()) +
         '</div>' +
         '<div><span class="oracion-autor" onclick="verPerfil(\'' + o.uid + '\')" style="cursor:pointer;">' + o.autorNombre + '</span><span class="oracion-time"> · ' + new Date(o.fecha.seconds * 1000).toLocaleString() + '</span></div>' +
@@ -2820,11 +2821,23 @@ function renderMisionerosMapa() {
         ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${m.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
       const puedeEliminar = (currentUser && currentUser.uid === m.uidCreador) || isAdmin;
+      // Obtener nombre del creador
+      let creadorNombre = 'desconocido';
+      if (m.uidCreador) {
+        USERS.doc(m.uidCreador).get().then(docUser => {
+          if (docUser.exists) {
+            const u = docUser.data();
+            creadorNombre = u.displayName || 'desconocido';
+            // Actualizar el elemento si existe
+          }
+        });
+      }
       html += `<div class="misionero-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
           <strong>${m.nombre}</strong> (${m.ciudad || 'Ubicación no especificada'})
           ${m.whatsapp ? ` · <i class="fab fa-whatsapp"></i> <a href="https://wa.me/${m.whatsapp.replace(/\s/g, '')}" target="_blank" style="color:var(--teal);">${m.whatsapp}</a>` : ''}
           ${ubicacionDisplay ? ` · ${ubicacionDisplay}` : ''}
+          ${m.uidCreador ? ` · <span onclick="verPerfil('${m.uidCreador}')" style="cursor:pointer;color:var(--teal);">${creadorNombre}</span>` : ''}
           ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarMisionero('${m.id}')" style="margin-left:8px; font-size:10px;">Eliminar</button>` : ''}
         </div>
       </div>`;
@@ -2853,12 +2866,22 @@ function renderIglesiasMapa() {
         ubicacionDisplay = `<a href="#" onclick="verEnMapa(null,null,'${i.nombre}')" style="color:var(--teal);">Ver en mapa</a>`;
       }
       const puedeEliminar = (currentUser && currentUser.uid === i.uidCreador) || isAdmin;
+      let creadorNombre = 'desconocido';
+      if (i.uidCreador) {
+        USERS.doc(i.uidCreador).get().then(docUser => {
+          if (docUser.exists) {
+            const u = docUser.data();
+            creadorNombre = u.displayName || 'desconocido';
+          }
+        });
+      }
       html += `<div class="iglesia-item" style="padding:6px 0; border-bottom:1px solid var(--border-color);">
         <div>
           <strong>${i.nombre}</strong> (${i.direccion || ''})
           ${i.telefono ? ` · 📞 ${i.telefono}` : ''}
           ${i.horarios ? ` · ⏰ ${i.horarios}` : ''}
           ${ubicacionDisplay ? ` · ${ubicacionDisplay}` : ''}
+          ${i.uidCreador ? ` · <span onclick="verPerfil('${i.uidCreador}')" style="cursor:pointer;color:var(--teal);">${creadorNombre}</span>` : ''}
           ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarIglesia('${i.id}')" style="margin-left:8px; font-size:10px;">Eliminar</button>` : ''}
         </div>
       </div>`;
@@ -3008,7 +3031,8 @@ function renderNecesidades() {
       html += '<div class="need-item">' +
         '<div><span class="need-cat">' + n.categoria + '</span> <span style="font-size:11px; color:var(--text-secondary);">' + new Date(n.fecha.seconds * 1000).toLocaleString() + '</span></div>' +
         '<p style="font-size:14px;">' + n.desc + '</p>' +
-        '<p style="font-size:12px;"><i class="fas fa-phone"></i> ' + n.telefono + '</p>';
+        '<p style="font-size:12px;"><i class="fas fa-phone"></i> ' + n.telefono + '</p>' +
+        '<p style="font-size:12px;">Publicado por: <span onclick="verPerfil(\'' + n.uid + '\')" style="cursor:pointer;color:var(--teal);">' + n.usuarioNombre + '</span></p>';
       if (n.fotos && n.fotos.length) {
         html += '<div class="need-fotos">' + n.fotos.map(f => '<img src="' + f + '" alt="foto" onclick="abrirVisor([\'' + f + '\'], 0)">').join('') + '</div>';
       }
@@ -3172,7 +3196,7 @@ function renderServicios() {
       const badgeFinalizado = finalizado ? '<span class="badge-finalizado">Finalizado</span>' : '';
 
       html += `<div class="serv-item ${claseFinalizado}">
-        <strong>${s.nombre}</strong> ${badgeFinalizado} <span style="font-size:12px; color:var(--text-secondary);">(${s.usuario})</span>
+        <strong>${s.nombre}</strong> ${badgeFinalizado} <span style="font-size:12px; color:var(--text-secondary);">(<span onclick="verPerfil('${s.uid}')" style="cursor:pointer;color:var(--teal);">${s.usuario}</span>)</span>
         <p><i class="fas fa-calendar-day"></i> ${s.fecha} · <i class="fas fa-clock"></i> ${s.horario}</p>
         <p><i class="fas fa-map-pin"></i> ${s.direccion} ${ubicacionLink ? '· ' + ubicacionLink : ''}</p>
         <p><i class="fas fa-utensils"></i> ${s.comidas} · <i class="fas fa-users"></i> ${s.personas} personas</p>
@@ -3196,7 +3220,7 @@ function renderServicios() {
             html += `<div style="margin-top:6px;"><strong>Solicitudes:</strong>`;
             s.solicitantes.forEach(sol => {
               html += `<div class="solicitante-item">
-                <span>${sol.nombre} (📞 ${sol.telefono || 'N/A'})</span>
+                <span class="nombre" onclick="verPerfil('${sol.uid}')" style="cursor:pointer;color:var(--teal);">${sol.nombre}</span> (📞 ${sol.telefono || 'N/A'})
                 <span style="display:flex; gap:4px;">
                   <span class="estado-solicitud estado-${sol.estado}">${sol.estado.toUpperCase()}</span>
                   ${sol.estado === 'pendiente' ? `<button class="btn-primary" onclick="actualizarSolicitud('${s.id}', '${sol.uid}', 'confirmado')" style="font-size:10px; padding:0 6px;">Confirmar</button><button class="btn-danger" onclick="actualizarSolicitud('${s.id}', '${sol.uid}', 'cancelado')" style="font-size:10px; padding:0 6px;">Cancelar</button>` : ''}
@@ -3246,7 +3270,7 @@ function renderMisServicios() {
       if (s.solicitantes && s.solicitantes.length) {
         s.solicitantes.forEach(sol => {
           html += `<div class="solicitante-item">
-            <span>${sol.nombre} (📞 ${sol.telefono || 'N/A'})</span>
+            <span class="nombre" onclick="verPerfil('${sol.uid}')" style="cursor:pointer;color:var(--teal);">${sol.nombre}</span> (📞 ${sol.telefono || 'N/A'})
             <span style="display:flex; gap:4px;">
               <span class="estado-solicitud estado-${sol.estado}">${sol.estado.toUpperCase()}</span>
               ${sol.estado === 'pendiente' ? `<button class="btn-primary" onclick="actualizarSolicitud('${s.id}', '${sol.uid}', 'confirmado')" style="font-size:10px; padding:0 6px;">Confirmar</button><button class="btn-danger" onclick="actualizarSolicitud('${s.id}', '${sol.uid}', 'cancelado')" style="font-size:10px; padding:0 6px;">Cancelar</button>` : ''}
@@ -3328,7 +3352,7 @@ function renderConsejos() {
 
       html += '<div class="consejo-item">' +
         '<div class="consejo-titulo">' + c.titulo + '</div>' +
-        '<small style="color:var(--text-secondary);">Publicado por ' + c.autorNombre + ' · ' + new Date(c.fecha.seconds * 1000).toLocaleString() + '</small>' +
+        '<small style="color:var(--text-secondary);">Publicado por <span onclick="verPerfil(\'' + c.uid + '\')" style="cursor:pointer;color:var(--teal);">' + c.autorNombre + '</span> · ' + new Date(c.fecha.seconds * 1000).toLocaleString() + '</small>' +
         '<p style="margin:4px 0;">' + c.descripcion + '</p>' +
         '<div class="consejo-actions">' +
         '<button onclick="orarConsejo(\'' + c.id + '\')" class="' + (yaOro ? 'orado' : '') + '"><i class="fas fa-hands-praying"></i> ' + (yaOro ? 'Oré' : 'Orar') + ' (' + numOraciones + ')</button>' +
@@ -3336,7 +3360,7 @@ function renderConsejos() {
         '<div class="consejo-respuestas">';
       if (c.respuestas && c.respuestas.length) {
         c.respuestas.forEach(r => {
-          html += '<div class="consejo-respuesta"><span class="autor">' + r.autor + '</span>: ' + r.texto + ' <small style="color:var(--text-secondary);">' + new Date(r.fecha).toLocaleString() + '</small></div>';
+          html += '<div class="consejo-respuesta"><span class="autor" onclick="verPerfil(\'' + r.uid + '\')" style="cursor:pointer;">' + r.autor + '</span>: ' + r.texto + ' <small style="color:var(--text-secondary);">' + new Date(r.fecha).toLocaleString() + '</small></div>';
         });
       } else {
         html += '<p style="color:var(--text-secondary); font-size:12px;">Aún no hay respuestas.</p>';
@@ -3430,7 +3454,7 @@ function renderReportes() {
         </div>
         ${r.rol ? `<span style="font-size:12px; background:var(--teal-light); padding:1px 10px; border-radius:20px;">${r.rol}</span>` : ''}
         <div class="reporte-desc">${r.descripcion}</div>
-        <div style="font-size:12px; color:var(--text-secondary); margin:4px 0;">Publicado por: ${r.usuario || 'Anónimo'}</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin:4px 0;">Publicado por: <span onclick="verPerfil('${r.uid}')" style="cursor:pointer;color:var(--teal);">${r.usuario || 'Anónimo'}</span></div>
         <div class="reporte-actions">
           <button class="btn-primary" onclick="compartirReporte('${r.id}')"><i class="fas fa-share-alt"></i> Compartir</button>
           ${esPropio || isAdmin ? `<button class="btn-primary" onclick="abrirEditarReporte('${r.id}')"><i class="fas fa-edit"></i> Editar</button>` : ''}
@@ -3556,7 +3580,7 @@ function renderChatAdmin() {
       const msg = doc.data();
       const esPropio = msg.uid === (currentUser ? currentUser.uid : null);
       html += `<div class="msg" style="${esPropio ? 'text-align:right;' : ''}">
-        <span class="autor">${msg.remitente}</span> 
+        <span class="autor" onclick="verPerfil('${msg.uid}')" style="cursor:pointer;">${msg.remitente}</span> 
         <span style="font-size:13px;">${msg.texto}</span> 
         <span class="hora">${new Date(msg.timestamp.seconds * 1000).toLocaleString()}</span>
       </div>`;
@@ -3594,7 +3618,7 @@ function renderChatEquipo() {
       const msg = doc.data();
       const esPropio = msg.uid === (currentUser ? currentUser.uid : null);
       html += `<div class="msg" style="${esPropio ? 'text-align:right;' : ''}">
-        <span class="autor">${msg.remitente}</span> 
+        <span class="autor" onclick="verPerfil('${msg.uid}')" style="cursor:pointer;">${msg.remitente}</span> 
         <span style="font-size:13px;">${msg.texto}</span> 
         <span class="hora">${new Date(msg.timestamp.seconds * 1000).toLocaleString()}</span>
       </div>`;
@@ -3829,59 +3853,29 @@ function eliminarReporteAdmin(id) {
 }
 
 // ================================================================
-// 18. PERFIL PROFESIONAL - ACTUALIZADO CON MEJOR MANEJO DE ERRORES
+// 18. PERFIL PROFESIONAL
 // ================================================================
 function verPerfil(uid) {
-  if (!uid) {
-    console.error('❌ ID de usuario no válido');
-    alert('ID de usuario no válido.');
-    return;
-  }
-
-  // Verificar autenticación
-  if (!currentUser) {
-    alert('🔒 Debes iniciar sesión para ver los perfiles de los usuarios.');
-    return;
-  }
-
-  console.log(`🔍 Cargando perfil del usuario: ${uid}`);
-
-  // Cargar datos del perfil
-  USERS.doc(uid).get()
-    .then(doc => {
-      if (!doc.exists) {
-        alert('Usuario no encontrado.');
-        return;
-      }
-      const user = doc.data();
-      console.log('✅ Datos del perfil cargados:', user);
-      
-      // Verificar seguimiento
-      SEGUIDORES.where('seguidorUid', '==', currentUser.uid)
-        .where('seguidoUid', '==', uid)
-        .get()
-        .then(snap => {
-          const seguido = !snap.empty;
-          mostrarPerfilConPrivacidad(user, seguido, uid);
-        })
-        .catch(err => {
-          console.error('⚠️ Error verificando seguimiento:', err);
-          // Mostrar perfil sin estado de seguimiento
-          mostrarPerfilConPrivacidad(user, false, uid);
-        });
-    })
-    .catch(err => {
-      console.error('❌ Error al cargar perfil:', err);
-      alert('Error al cargar el perfil. Intenta de nuevo más tarde.\n' + err.message);
-    });
+  if (!uid) return;
+  USERS.doc(uid).get().then(doc => {
+    if (!doc.exists) { alert('Usuario no encontrado.'); return; }
+    const user = doc.data();
+    const modalContent = document.getElementById('perfilModalContent');
+    let seguido = false;
+    if (currentUser) {
+      SEGUIDORES.where('seguidorUid', '==', currentUser.uid).where('seguidoUid', '==', uid).get().then(snap => {
+        seguido = !snap.empty;
+        mostrarPerfilProfesional(user, seguido, uid);
+      });
+    } else {
+      mostrarPerfilProfesional(user, false, uid);
+    }
+  }).catch(console.error);
 }
 
-function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
+function mostrarPerfilProfesional(user, esSeguidor, uid) {
   const privacidad = user.privacidad || {};
   const modalContent = document.getElementById('perfilModalContent');
-  
-  // Limpiar contenido anterior
-  modalContent.innerHTML = '';
 
   function campoVisible(campo, valor) {
     if (!valor) return null;
@@ -3909,11 +3903,9 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   const fotos = user.fotosPerfil || [];
   let fotosHtml = '';
   if (fotos.length > 0) {
-    // Escapar las comillas para evitar problemas con JSON
-    const fotosJson = JSON.stringify(fotos).replace(/"/g, '&quot;');
     fotosHtml = `
       <div class="perfil-carrusel" id="perfilCarrusel">
-        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${fotosJson}, ${i})">`).join('')}
+        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${JSON.stringify(fotos)}, ${i})">`).join('')}
         <button class="carousel-control prev" onclick="event.stopPropagation(); cambiarFotoPerfil(-1)">❮</button>
         <button class="carousel-control next" onclick="event.stopPropagation(); cambiarFotoPerfil(1)">❯</button>
         <div class="indicators">
@@ -3923,14 +3915,11 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
     `;
   }
 
-  const fotoPerfil = user.fotoPerfil || '';
-  const fotoPerfilEscapada = fotoPerfil.replace(/"/g, '&quot;');
-
   let html = `
   <div class="perfil-profesional">
     <div class="perfil-header text-center">
-      <img src="${fotoPerfil}" class="avatar" onclick="abrirVisor(['${fotoPerfilEscapada}'], 0)" onerror="this.style.display='none'">
-      <h2 class="nombre">${user.displayName || 'Usuario'}</h2>
+      <img src="${user.fotoPerfil || ''}" class="avatar" onclick="abrirVisor(['${user.fotoPerfil || ''}'], 0)" onerror="this.style.display='none'">
+      <h2 class="nombre">${user.displayName}</h2>
       ${user.iglesia ? `<div class="subtitulo"><i class="fas fa-church"></i> ${user.iglesia}</div>` : ''}
       ${user.ministerio ? `<div class="subtitulo"><i class="fas fa-users"></i> ${user.ministerio}</div>` : ''}
     </div>
@@ -3964,7 +3953,7 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
       </div>
       ${user.biografia ? `<div class="perfil-bio"><i class="fas fa-quote-left" style="color:var(--orange);margin-right:6px;"></i>${user.biografia}</div>` : ''}
       <div class="perfil-badges">
-        ${user.apoyos && user.apoyos.length ? user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('') : ''}
+        ${user.apoyos && user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('')}
       </div>
       <div class="perfil-actions">
         ${currentUser && currentUser.uid === uid ? `
@@ -3975,7 +3964,7 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
             ${esSeguidor ? '<i class="fas fa-user-minus"></i> Dejar de seguir' : '<i class="fas fa-user-plus"></i> Seguir'}
           </button>
         ` : ''}
-        ${currentUser ? `<button class="btn btn-outline" onclick="verGaleria('${uid}')"><i class="fas fa-images"></i> Galería</button>` : ''}
+        <button class="btn btn-outline" onclick="verGaleria('${uid}')"><i class="fas fa-images"></i> Galería</button>
       </div>
     </div>
   </div>
@@ -3983,17 +3972,11 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
     <button class="btn-cancel" onclick="cerrarModal('perfilModal')">Cerrar</button>
   </div>
   `;
-  
   modalContent.innerHTML = html;
-  console.log('✅ Perfil renderizado correctamente');
-  
-  // Asegurar que el modal se abra
   abrirModal('perfilModal');
 }
 
-// ================================================================
 // Control del carrusel de fotos en perfil
-// ================================================================
 let fotoPerfilIndex = 0;
 function cambiarFotoPerfil(dir) {
   const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
@@ -4013,7 +3996,7 @@ function irFotoPerfil(index) {
 }
 
 // ================================================================
-// 19. VISOR DE IMÁGENES (pantalla completa)
+// 19. VISOR DE IMÁGENES
 // ================================================================
 function abrirVisor(imagenes, indice) {
   if (!imagenes || imagenes.length === 0) return;
