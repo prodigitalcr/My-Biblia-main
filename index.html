@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>SAL Y LUZ · Comunidad Cristiana</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -101,7 +101,52 @@
     .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
     .logo-text span { color: var(--teal); }
     .logo-sub { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
-    .header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .menu-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    .menu-toggle:hover { background: var(--border-color); }
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      .tabs {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        z-index: 99;
+        padding: 8px 0;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      .tabs.open {
+        display: flex;
+      }
+      .tab {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border-color);
+        width: 100%;
+        justify-content: flex-start;
+        font-size: 14px;
+      }
+      .tab span { display: inline !important; }
+    }
     .btn-icon { background: transparent; border: none; font-size: 16px; color: var(--text-secondary); cursor: pointer; padding: 4px 6px; border-radius: 30px; transition: 0.2s; }
     .btn-icon:hover { background: var(--border-color); }
     .user-badge {
@@ -162,7 +207,7 @@
       cursor: pointer;
       display: inline-block;
     }
-    /* ========== TABS ========== */
+    /* ========== TABS (ahora manejado por JS) ========== */
     .tabs {
       display: flex;
       overflow-x: auto;
@@ -172,6 +217,7 @@
       border-bottom: 1px solid var(--border-color);
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
+      transition: all 0.3s ease;
     }
     body.dark .tabs { background: #1a1a2e; }
     .tabs::-webkit-scrollbar { display: none; }
@@ -194,12 +240,6 @@
     .tab i { font-size: 14px; }
     .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
     .tab:hover { color: var(--text-primary); }
-    @media (max-width: 480px) {
-      .tab { font-size: 11px; padding: 6px 8px; }
-      .tab i { font-size: 16px; }
-      .tab span { display: none; }
-      .tab.active span { display: inline; }
-    }
     /* ========== PANELES ========== */
     .panel { display: none; padding: 12px 10px; animation: fadeUp 0.25s ease; }
     .panel.active { display: block; }
@@ -567,42 +607,45 @@
     /* ========== GALERÍA DE FOTOS (PERFIL) ========== */
     .galeria-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       margin-top: 10px;
     }
-    @media (max-width: 600px) { .galeria-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 768px) {
+      .galeria-grid { grid-template-columns: repeat(4, 1fr); }
+    }
     .galeria-item {
       position: relative;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       cursor: pointer;
       aspect-ratio: 1/1;
       background: var(--bg-body);
+      transition: transform 0.2s;
     }
+    .galeria-item:hover { transform: scale(1.02); }
     .galeria-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.2s;
     }
-    .galeria-item:hover img { transform: scale(1.05); }
     .galeria-item .delete-btn {
       position: absolute;
-      top: 4px;
-      right: 4px;
-      background: rgba(231, 76, 60, 0.8);
+      top: 6px;
+      right: 6px;
+      background: rgba(231, 76, 60, 0.85);
       color: white;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 2;
     }
     .galeria-item .delete-btn:hover { background: #c0392b; }
     .galeria-item .foto-overlay {
@@ -610,16 +653,74 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 4px 6px;
-      background: rgba(0,0,0,0.5);
+      padding: 6px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
       color: white;
-      font-size: 11px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .galeria-item .foto-overlay span { display: flex; align-items: center; gap: 4px; }
+    .galeria-item .foto-overlay i { font-size: 13px; }
+    /* ========== REELS ========== */
+    .reels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .reel-item {
+      background: var(--bg-body);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      position: relative;
+      aspect-ratio: 9/16;
+      cursor: pointer;
+    }
+    .reel-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .reel-item .reel-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      color: white;
+      font-size: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .galeria-item .foto-overlay span { display: flex; align-items: center; gap: 4px; }
-    .galeria-item .foto-overlay i { font-size: 12px; }
+    .reel-item .reel-overlay span { display: flex; align-items: center; gap: 4px; }
+    .reel-item .reel-overlay i { font-size: 14px; }
+    .reel-actions {
+      display: flex;
+      gap: 12px;
+      margin: 4px 0;
+    }
+    .reel-actions button {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
+    .reel-actions button:hover { background: var(--border-color); }
+    .reel-actions button.liked { color: var(--teal); }
     /* ========== VISTA PREVIA ARCHIVOS ========== */
     .preview-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; position: relative; }
     .preview-container img, .preview-container video { max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid var(--border-color); }
@@ -640,21 +741,38 @@
       align-items: center;
       justify-content: center;
     }
-    /* ========== IMAGE VIEWER ========== */
-    .image-viewer {
+    /* ========== IMAGE / VIDEO VIEWER ========== */
+    .media-viewer {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       z-index: 9999;
       align-items: center;
       justify-content: center;
       padding: 20px;
       cursor: pointer;
+      flex-direction: column;
     }
-    .image-viewer.show { display: flex; }
-    .image-viewer img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5); cursor: default; }
-    .image-viewer .close-viewer {
+    .media-viewer.show { display: flex; }
+    .media-viewer .media-container {
+      max-width: 98%;
+      max-height: 85vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .media-viewer .media-container img,
+    .media-viewer .media-container video {
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+      cursor: default;
+    }
+    .media-viewer .close-viewer {
       position: absolute;
       top: 20px;
       right: 30px;
@@ -663,7 +781,7 @@
       cursor: pointer;
       z-index: 10;
     }
-    .image-viewer .nav-btn {
+    .media-viewer .nav-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
@@ -677,9 +795,17 @@
       z-index: 10;
       transition: 0.2s;
     }
-    .image-viewer .nav-btn:hover { background: rgba(255,255,255,0.4); }
-    .image-viewer .nav-btn.prev { left: 20px; }
-    .image-viewer .nav-btn.next { right: 20px; }
+    .media-viewer .nav-btn:hover { background: rgba(255,255,255,0.4); }
+    .media-viewer .nav-btn.prev { left: 10px; }
+    .media-viewer .nav-btn.next { right: 10px; }
+    .media-viewer .media-info {
+      color: white;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+    }
     /* ========== OTROS ========== */
     .footer { text-align: center; padding: 16px 12px; border-top: 1px solid var(--border-color); font-size: 13px; color: var(--text-secondary); background: var(--bg-body); margin-top: 20px; }
     .footer span { font-weight: 600; color: var(--teal); }
@@ -688,6 +814,8 @@
     body.dark .config-solo-admin { background: #1a1a2e; }
     .superadmin-no-config .config-solo-admin { display: none !important; }
     .superadmin-no-config .config-msg { display: block !important; color: var(--text-secondary); font-style: italic; padding: 8px 0; }
+    .solicitud-item { padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+    .solicitud-item:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -701,6 +829,7 @@
       <div><div class="logo-text">SAL <span>Y</span> LUZ</div><div class="logo-sub">Comunidad Cristiana</div></div>
     </div>
     <div class="header-actions">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menú"><i class="fas fa-bars"></i></button>
       <button class="btn-icon" id="themeToggle" title="Modo nocturno"><i class="fas fa-moon"></i></button>
       <span class="user-badge" id="userBadge"><i class="fas fa-user"></i> <span id="userNameDisplay">Invitado</span></span>
       <button class="btn-icon" id="miPerfilBtn" title="Mi Perfil" style="display:none;"><i class="fas fa-user-circle"></i></button>
@@ -718,6 +847,7 @@
     <button class="tab active" data-panel="inicio"><i class="fas fa-home"></i><span> Inicio</span></button>
     <button class="tab" data-panel="biblia"><i class="fas fa-bible"></i><span> Biblia</span></button>
     <button class="tab" data-panel="muro"><i class="fas fa-newspaper"></i><span> Muro</span></button>
+    <button class="tab" data-panel="reels"><i class="fas fa-video"></i><span> Reels</span></button>
     <button class="tab" data-panel="grupos"><i class="fas fa-users"></i><span> Grupos</span></button>
     <button class="tab" data-panel="discipulado"><i class="fas fa-user-friends"></i><span> Discipulado</span></button>
     <button class="tab" data-panel="oracion"><i class="fas fa-pray"></i><span> Oración</span></button>
@@ -881,6 +1011,18 @@
       </select>
     </div>
     <div id="feedContainer"></div>
+  </div>
+
+  <!-- ===== PANEL REELS ===== -->
+  <div class="panel" id="panel-reels">
+    <div class="card" id="reelsPublicarCard" style="display:none;">
+      <h3><i class="fas fa-video"></i> Subir Reel (video corto)</h3>
+      <input type="file" id="reelFile" accept="video/*" style="width:100%; margin-bottom:6px;">
+      <textarea id="reelDesc" placeholder="Descripción del reel..." rows="2" style="width:100%; border-radius:10px; border:1px solid var(--border-color); padding:8px; background:var(--bg-body); color:var(--text-primary); resize:vertical; font-size:13px;"></textarea>
+      <button class="btn-primary" id="btnPublicarReel"><i class="fas fa-upload"></i> Publicar Reel</button>
+      <div id="reelPreviewContainer" class="preview-container"></div>
+    </div>
+    <div id="reelsContainer" class="reels-grid"><p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando reels...</p></div>
   </div>
 
   <!-- ===== PANEL GRUPOS ===== -->
@@ -1075,7 +1217,15 @@
         <div class="admin-stat"><div class="num" id="statConsejos">0</div><div class="label">Consejos</div></div>
         <div class="admin-stat"><div class="num" id="statReportes">0</div><div class="label">Reportes</div></div>
         <div class="admin-stat"><div class="num" id="statEventos">0</div><div class="label">Eventos</div></div>
+        <div class="admin-stat"><div class="num" id="statReels">0</div><div class="label">Reels</div></div>
+        <div class="admin-stat"><div class="num" id="statSolicitudesPass">0</div><div class="label">Solicitudes</div></div>
       </div>
+    </div>
+
+    <!-- Solicitudes de cambio de contraseña -->
+    <div class="card">
+      <h3><i class="fas fa-key"></i> Solicitudes de cambio de contraseña</h3>
+      <div id="solicitudesPasswordList"><p style="color:var(--text-secondary);">No hay solicitudes pendientes.</p></div>
     </div>
 
     <!-- Logo -->
@@ -1278,6 +1428,11 @@
         <label><input type="checkbox" data-campo="iglesia" checked> Iglesia</label>
         <label><input type="checkbox" data-campo="caracter" checked> Carácter</label>
         <label><input type="checkbox" data-campo="experiencia" checked> Experiencia</label>
+      </div>
+      <!-- Botón para solicitar cambio de contraseña -->
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-color);">
+        <button class="btn-outline" id="btnSolicitarCambioPassword" style="width:100%;"><i class="fas fa-key"></i> Solicitar cambio de contraseña al SuperAdmin</button>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Si deseas cambiar tu contraseña, envía una solicitud al SuperAdmin.</p>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" id="editarPerfilCancel">Cancelar</button>
@@ -1593,12 +1748,16 @@
     <div class="modal-box" id="perfilModalContent"></div>
   </div>
 
-  <!-- Visor de imágenes -->
-  <div class="image-viewer" id="imageViewer" onclick="cerrarVisor()">
-    <span class="close-viewer" onclick="cerrarVisor()">&times;</span>
-    <button class="nav-btn prev" onclick="event.stopPropagation(); navegarVisor(-1)">❮</button>
-    <img id="viewerImage" src="" alt="Visor">
-    <button class="nav-btn next" onclick="event.stopPropagation(); navegarVisor(1)">❯</button>
+  <!-- Visor multimedia (imágenes y videos) -->
+  <div class="media-viewer" id="mediaViewer" onclick="cerrarMediaViewer()">
+    <span class="close-viewer" onclick="cerrarMediaViewer()">&times;</span>
+    <button class="nav-btn prev" onclick="event.stopPropagation(); navegarMediaViewer(-1)">❮</button>
+    <div class="media-container" id="mediaViewerContainer">
+      <img id="mediaViewerImage" src="" alt="Visor" style="display:none;">
+      <video id="mediaViewerVideo" controls style="display:none; max-width:100%; max-height:85vh;"></video>
+    </div>
+    <button class="nav-btn next" onclick="event.stopPropagation(); navegarMediaViewer(1)">❯</button>
+    <div class="media-info" id="mediaViewerInfo"></div>
   </div>
 
 </div><!-- /app -->
@@ -1649,6 +1808,8 @@ const APP_CONFIG = db.collection('appConfig').doc('config');
 const CONFIG_MAPBOX = db.collection('config_mapbox').doc('config');
 const EVENTOS = db.collection('eventos');
 const NOTICIAS = db.collection('noticias');
+const REELS = db.collection('reels');
+const SOLICITUDES_PASSWORD = db.collection('solicitudes_password');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -1671,8 +1832,8 @@ const STORAGE_KEYS = {
   bibliaFuente: 'iglesia_biblia_fuente'
 };
 
-let viewerImages = [];
-let viewerIndex = 0;
+let mediaViewerItems = [];
+let mediaViewerIndex = 0;
 let bibliaFuenteSize = parseInt(localStorage.getItem(STORAGE_KEYS.bibliaFuente)) || 14;
 let capitulosCache = {};
 let capitulosKeys = [];
@@ -1819,6 +1980,8 @@ async function cargarUsuarioActual(user) {
     cargarConfigIA();
     renderEventos();
     renderNoticias();
+    renderReels();
+    if (isSuperAdmin) renderSolicitudesPassword();
   } catch (error) { console.error('Error cargando perfil:', error); }
 }
 
@@ -1832,7 +1995,7 @@ window.logoutUser = async function() {
     renderFeed(); renderGrupos(); renderDiscipulados(); renderOraciones();
     renderNecesidades(); renderConsejos(); renderReportes(); renderChatAdmin();
     renderChatEquipo(); renderMisionerosMapa(); renderIglesiasMapa();
-    renderServiciosMapa(); renderEventos(); renderNoticias();
+    renderServiciosMapa(); renderEventos(); renderNoticias(); renderReels();
     actualizarBotonesPorRol(); actualizarTabs();
     if (mapboxMap) { mapboxMarkers.forEach(m => m.remove()); mapboxMarkers = []; }
   } catch (error) { console.error('Error al cerrar sesión:', error); }
@@ -1934,6 +2097,8 @@ function actualizarUIUsuario() {
   actualizarTabs();
   const muroPublicar = document.getElementById('muroPublicarCard');
   muroPublicar.style.display = currentUser ? 'block' : 'none';
+  const reelsPublicar = document.getElementById('reelsPublicarCard');
+  reelsPublicar.style.display = currentUser ? 'block' : 'none';
 }
 
 // ================================================================
@@ -1952,11 +2117,16 @@ function switchPanel(name) {
   const tab = document.querySelector('.tab[data-panel="' + name + '"]');
   if (tab) tab.classList.add('active');
 
+  // Cerrar menú hamburguesa en móvil
+  const tabs = document.getElementById('mainTabs');
+  if (tabs.classList.contains('open')) tabs.classList.remove('open');
+
   if (name === 'servicio' && puedeOfrecerServicio()) {
     setTimeout(() => initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng'), 500);
   }
   switch (name) {
     case 'muro': renderFeed(); break;
+    case 'reels': renderReels(); break;
     case 'grupos': renderGrupos(); break;
     case 'discipulado': renderDiscipulados(); break;
     case 'oracion': renderOraciones(); break;
@@ -1974,7 +2144,28 @@ function switchPanel(name) {
 }
 
 // ================================================================
-// 6. CARRUSEL
+// 6. MENÚ HAMBURGUESA
+// ================================================================
+document.getElementById('menuToggle').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('mainTabs').classList.toggle('open');
+});
+document.addEventListener('click', function(e) {
+  const tabs = document.getElementById('mainTabs');
+  const toggle = document.getElementById('menuToggle');
+  if (!tabs.contains(e.target) && !toggle.contains(e.target)) {
+    tabs.classList.remove('open');
+  }
+});
+// Cerrar menú al seleccionar una pestaña
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.getElementById('mainTabs').classList.remove('open');
+  });
+});
+
+// ================================================================
+// 6.1 CARRUSEL
 // ================================================================
 function renderCarrusel() {
   if (listeners.carrusel) listeners.carrusel();
@@ -2065,7 +2256,7 @@ function eliminarElementoCarrusel(id) {
 }
 
 // ================================================================
-// 7. MURO (POSTS) - con reacciones, comentarios y compartidos guardados correctamente
+// 7. MURO (POSTS)
 // ================================================================
 function renderFeed() {
   if (listeners.feed) listeners.feed();
@@ -2121,7 +2312,6 @@ function renderPosts(snapshot, container) {
     html += categoriaHtml;
     html += `<div class="post-content">${post.texto}</div>`;
 
-    // Encuesta
     if (post.categoria === 'encuesta' && post.opciones) {
       html += '<div class="encuesta-item">';
       post.opciones.forEach((op, idx) => {
@@ -2131,7 +2321,6 @@ function renderPosts(snapshot, container) {
       html += '</div>';
     }
 
-    // Campaña
     if (post.categoria === 'campania') {
       html += `<div class="campania-item">
         <p><strong>Beneficiario:</strong> ${post.beneficiario || 'No especificado'}</p>
@@ -2141,8 +2330,11 @@ function renderPosts(snapshot, container) {
     }
 
     if (post.media) {
-      if (post.media.type === 'image') html += `<img src="${post.media.data}" class="post-media" alt="imagen" onclick="abrirVisor(['${post.media.data}'], 0)">`;
-      else if (post.media.type === 'video') html += `<video controls class="post-media" src="${post.media.data}"></video>`;
+      if (post.media.type === 'image') {
+        html += `<img src="${post.media.data}" class="post-media" alt="imagen" onclick="event.stopPropagation(); abrirMediaViewer(['${post.media.data}'], 0, 'image')">`;
+      } else if (post.media.type === 'video') {
+        html += `<video controls class="post-media" src="${post.media.data}"></video>`;
+      }
     }
     if (post.link) html += `<div style="margin:4px 0;"><a href="${post.link}" target="_blank" style="color:var(--teal);">${post.link}</a></div>`;
 
@@ -2156,7 +2348,6 @@ function renderPosts(snapshot, container) {
     }
     html += `</div>`;
 
-    // Comentarios
     html += `<div class="comments" id="comments-${post.id}" style="display:none;">`;
     if (post.comentarios) {
       post.comentarios.forEach(c => {
@@ -2299,7 +2490,6 @@ function comentarPost(id) {
 function compartirPost(id) {
   if (!currentUser) { alert('Inicia sesión.'); return; }
   const url = window.location.href + '?post=' + id;
-  // Incrementar contador de compartidos
   POSTS.doc(id).update({ compartidos: firebase.firestore.FieldValue.increment(1) }).catch(console.error);
   if (navigator.share) {
     navigator.share({ title: 'Publicación', text: 'Mira esta publicación', url: url });
@@ -2336,7 +2526,124 @@ function donarCampania(postId) {
 }
 
 // ================================================================
-// 8. GRUPOS (con día de reunión)
+// 7.1 REELS
+// ================================================================
+function renderReels() {
+  if (listeners.reels) listeners.reels();
+  const container = document.getElementById('reelsContainer');
+  container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">Cargando reels...</p>';
+  listeners.reels = REELS.orderBy('fecha', 'desc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1; text-align:center;">No hay reels aún. ¡Sé el primero en subir uno!</p>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const reel = { id: doc.id, ...doc.data() };
+      const liked = reel.likes && reel.likes.includes(currentUser ? currentUser.uid : null);
+      const avatar = reel.autorFoto || '';
+      const puedeVerPerfil = currentUser !== null;
+      html += `<div class="reel-item">
+        <video src="${reel.url}" controls preload="metadata" playsinline></video>
+        <div class="reel-overlay">
+          <span><strong>${reel.autorNombre}</strong></span>
+          <span><i class="fas fa-heart"></i> ${reel.likes ? reel.likes.length : 0}</span>
+        </div>
+        <div style="padding:8px;">
+          <p style="font-size:13px; margin:2px 0;">${reel.desc || ''}</p>
+          <div class="reel-actions">
+            <button onclick="likeReel('${reel.id}')" class="${liked ? 'liked' : ''}"><i class="fas fa-heart"></i> ${reel.likes ? reel.likes.length : 0}</button>
+            <button onclick="toggleComentariosReel('${reel.id}')"><i class="fas fa-comment"></i> ${reel.comentarios ? reel.comentarios.length : 0}</button>
+            <button onclick="compartirReel('${reel.id}')"><i class="fas fa-share"></i> Compartir</button>
+          </div>
+          <div class="comments" id="comments-reel-${reel.id}" style="display:none;">
+            ${reel.comentarios ? reel.comentarios.map(c => `<div><span class="autor" onclick="verPerfil('${c.uid}')" style="cursor:pointer;font-weight:600;">${c.autor}</span>: ${c.texto} <small style="color:var(--text-secondary);">${new Date(c.fecha).toLocaleString()}</small></div>`).join('') : ''}
+            ${currentUser ? `<div class="comment-box"><input type="text" id="commentInput-reel-${reel.id}" placeholder="Comentar..."><button onclick="comentarReel('${reel.id}')"><i class="fas fa-paper-plane"></i></button></div>` : '<p style="font-size:12px;color:var(--text-secondary);">Inicia sesión para comentar.</p>'}
+          </div>
+          ${isAdmin ? `<button class="btn-danger" onclick="eliminarReel('${reel.id}')" style="font-size:10px; margin-top:4px;">Eliminar</button>` : ''}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  });
+}
+
+function publicarReel() {
+  if (!currentUser) { alert('Debes iniciar sesión.'); return; }
+  const file = document.getElementById('reelFile').files[0];
+  const desc = document.getElementById('reelDesc').value.trim();
+  if (!file) { alert('Selecciona un video.'); return; }
+  if (!file.type.startsWith('video/')) { alert('El archivo debe ser un video.'); return; }
+  const path = `reels/${currentUser.uid}/${Date.now()}_${file.name}`;
+  subirArchivoStorage(file, path).then(url => {
+    return REELS.add({
+      uid: currentUser.uid,
+      autorNombre: currentUser.displayName,
+      autorFoto: currentUser.fotoPerfil || '',
+      url: url,
+      desc: desc || '',
+      fecha: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: [],
+      comentarios: []
+    });
+  }).then(() => {
+    document.getElementById('reelFile').value = '';
+    document.getElementById('reelDesc').value = '';
+    document.getElementById('reelPreviewContainer').innerHTML = '';
+    alert('Reel publicado correctamente.');
+  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+}
+
+function likeReel(id) {
+  if (!currentUser) { alert('Inicia sesión.'); return; }
+  REELS.doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const reel = doc.data();
+    const likes = reel.likes || [];
+    const idx = likes.indexOf(currentUser.uid);
+    if (idx > -1) likes.splice(idx, 1);
+    else likes.push(currentUser.uid);
+    REELS.doc(id).update({ likes });
+  }).catch(console.error);
+}
+
+function toggleComentariosReel(id) {
+  const div = document.getElementById('comments-reel-' + id);
+  if (div) div.style.display = div.style.display === 'none' ? 'block' : 'none';
+}
+
+function comentarReel(id) {
+  if (!currentUser) { alert('Inicia sesión.'); return; }
+  const input = document.getElementById('commentInput-reel-' + id);
+  const texto = input.value.trim();
+  if (!texto) return;
+  REELS.doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const reel = doc.data();
+    const comentarios = reel.comentarios || [];
+    comentarios.push({ uid: currentUser.uid, autor: currentUser.displayName, texto, fecha: new Date().toISOString() });
+    REELS.doc(id).update({ comentarios });
+    input.value = '';
+  }).catch(console.error);
+}
+
+function compartirReel(id) {
+  const url = window.location.href + '?reel=' + id;
+  if (navigator.share) {
+    navigator.share({ title: 'Reel', text: 'Mira este reel', url: url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => alert('Enlace copiado.'));
+  }
+}
+
+function eliminarReel(id) {
+  if (!isAdmin) return;
+  if (!confirm('¿Eliminar este reel?')) return;
+  REELS.doc(id).delete().catch(console.error);
+}
+
+// ================================================================
+// 8. GRUPOS
 // ================================================================
 function puedeCrearGrupo() { return isAdmin || tieneRol('facilitador'); }
 
@@ -2600,7 +2907,7 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA (Mapbox) - sin enlaces a perfiles
+// 11. MAPA (Mapbox)
 // ================================================================
 function cargarMapboxToken() {
   CONFIG_MAPBOX.get().then(doc => {
@@ -2678,7 +2985,6 @@ function cargarMarcadoresMapbox() {
   mapboxMarkers.forEach(m => m.remove());
   mapboxMarkers = [];
 
-  // Misioneros (rojo) - sin enlace a perfil
   MISIONEROS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const m = doc.data();
@@ -2694,7 +3000,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Iglesias (verde)
   IGLESIAS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const i = doc.data();
@@ -2710,7 +3015,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Grupos (azul)
   GRUPOS.orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const g = doc.data();
@@ -2726,7 +3030,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Servicios (naranja)
   getServiciosRef().orderBy('nombre', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const s = doc.data();
@@ -2742,7 +3045,6 @@ function cargarMarcadoresMapbox() {
     });
   });
 
-  // Eventos (morado)
   EVENTOS.orderBy('fecha', 'asc').get().then(snapshot => {
     snapshot.forEach(doc => {
       const e = doc.data();
@@ -2992,14 +3294,14 @@ function renderNecesidades() {
         <p style="font-size:12px;"><i class="fas fa-phone"></i> ${n.telefono}</p>
         <p style="font-size:12px;">Publicado por: <span onclick="verPerfil('${n.uid}')" style="cursor:pointer;color:var(--teal);">${n.usuarioNombre}</span></p>`;
       if (n.fotos && n.fotos.length) {
-        html += '<div class="need-fotos">' + n.fotos.map(f => `<img src="${f}" alt="foto" onclick="abrirVisor(['${f}'], 0)">`).join('') + '</div>';
+        html += '<div class="need-fotos">' + n.fotos.map(f => `<img src="${f}" alt="foto" onclick="event.stopPropagation(); abrirMediaViewer(['${f}'], 0, 'image')">`).join('') + '</div>';
       }
       if (isAdmin) {
         html += `<div style="margin-top:4px;">
           <label style="font-size:11px;">Subir foto de ayuda recibida:</label>
           <input type="file" accept="image/*" onchange="subirAyuda('${n.id}', this)">`;
         if (n.ayudas && n.ayudas.length) {
-          html += '<div class="need-fotos">' + n.ayudas.map(f => `<img src="${f}" alt="ayuda" onclick="abrirVisor(['${f}'], 0)">`).join('') + '</div>';
+          html += '<div class="need-fotos">' + n.ayudas.map(f => `<img src="${f}" alt="ayuda" onclick="event.stopPropagation(); abrirMediaViewer(['${f}'], 0, 'image')">`).join('') + '</div>';
         }
         html += '</div>';
       }
@@ -3601,6 +3903,7 @@ setupFilePreview('chatAdminFile', 'chatAdminPreview');
 setupFilePreview('chatEquipoFile', 'chatEquipoPreview');
 setupFilePreview('postImage', 'postPreviewContainer');
 setupFilePreview('postVideo', 'postPreviewContainer');
+setupFilePreview('reelFile', 'reelPreviewContainer');
 
 // ================================================================
 // 17. ADMIN PANEL
@@ -3608,9 +3911,10 @@ setupFilePreview('postVideo', 'postPreviewContainer');
 function renderAdminPanel() {
   if (!isAdmin) return;
   cargarConfigIA();
+  if (isSuperAdmin) renderSolicitudesPassword();
 
   const stats = { users:0, posts:0, oraciones:0, necesidades:0, grupos:0, discipulados:0,
-    misioneros:0, consejos:0, servicios:0, reportes:0, eventos:0 };
+    misioneros:0, consejos:0, servicios:0, reportes:0, eventos:0, reels:0 };
   Promise.all([
     USERS.get().then(snap => stats.users = snap.size),
     POSTS.get().then(snap => stats.posts = snap.size),
@@ -3622,7 +3926,8 @@ function renderAdminPanel() {
     CONSEJOS.get().then(snap => stats.consejos = snap.size),
     getServiciosRef().get().then(snap => stats.servicios = snap.size),
     getReportesRef().get().then(snap => stats.reportes = snap.size),
-    EVENTOS.get().then(snap => stats.eventos = snap.size)
+    EVENTOS.get().then(snap => stats.eventos = snap.size),
+    REELS.get().then(snap => stats.reels = snap.size)
   ]).then(() => {
     document.getElementById('statUsers').textContent = stats.users;
     document.getElementById('statPosts').textContent = stats.posts;
@@ -3635,6 +3940,8 @@ function renderAdminPanel() {
     document.getElementById('statServicios').textContent = stats.servicios;
     document.getElementById('statReportes').textContent = stats.reportes;
     document.getElementById('statEventos').textContent = stats.eventos;
+    document.getElementById('statReels').textContent = stats.reels;
+    // Las solicitudes se actualizan en renderSolicitudesPassword
   });
 
   USERS.get().then(snapshot => {
@@ -3727,6 +4034,50 @@ function renderAdminPanel() {
 
   renderAdminEventos();
   renderAdminNoticias();
+}
+
+function renderSolicitudesPassword() {
+  if (!isSuperAdmin) return;
+  SOLICITUDES_PASSWORD.where('estado', '==', 'pendiente').orderBy('fecha', 'desc').get().then(snapshot => {
+    const container = document.getElementById('solicitudesPasswordList');
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="color:var(--text-secondary);">No hay solicitudes pendientes.</p>';
+      document.getElementById('statSolicitudesPass').textContent = '0';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const s = doc.data();
+      html += `<div class="solicitud-item">
+        <div><strong>${s.nombre}</strong> (${s.email})</div>
+        <div style="font-size:12px; color:var(--text-secondary);">Solicitado: ${new Date(s.fecha.seconds * 1000).toLocaleString()}</div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button class="btn-primary" onclick="aprobarSolicitudPassword('${doc.id}')" style="font-size:10px;">Aprobar</button>
+          <button class="btn-danger" onclick="rechazarSolicitudPassword('${doc.id}')" style="font-size:10px;">Rechazar</button>
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+    document.getElementById('statSolicitudesPass').textContent = snapshot.size;
+  }).catch(console.error);
+}
+
+function aprobarSolicitudPassword(id) {
+  if (!isSuperAdmin) return;
+  if (!confirm('¿Marcar esta solicitud como aprobada? (El usuario será notificado por correo)')) return;
+  SOLICITUDES_PASSWORD.doc(id).update({ estado: 'aprobado' }).then(() => {
+    renderSolicitudesPassword();
+    alert('Solicitud aprobada. El usuario ha sido notificado.');
+  }).catch(console.error);
+}
+
+function rechazarSolicitudPassword(id) {
+  if (!isSuperAdmin) return;
+  if (!confirm('¿Rechazar esta solicitud?')) return;
+  SOLICITUDES_PASSWORD.doc(id).update({ estado: 'rechazado' }).then(() => {
+    renderSolicitudesPassword();
+    alert('Solicitud rechazada.');
+  }).catch(console.error);
 }
 
 function renderAdminEventos() {
@@ -4062,8 +4413,9 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
       const likesCount = foto.likes ? foto.likes.length : 0;
       const commentsCount = foto.comentarios ? foto.comentarios.length : 0;
       const fecha = foto.fecha ? new Date(foto.fecha.seconds * 1000).toLocaleDateString() : '';
-      // Usamos el índice para el visor
-      html += `<div class="galeria-item" data-fotoid="${fotoId}" onclick="abrirVisorDesdeGaleria(${JSON.stringify(fotosArray.map(f => f.url))}, ${idx})">
+      // Para abrir el visor con todas las fotos
+      const allUrls = fotosArray.map(f => f.url);
+      html += `<div class="galeria-item" onclick="abrirMediaViewer(${JSON.stringify(allUrls)}, ${idx}, 'image')">
         <img src="${url}" alt="foto">
         <div class="foto-overlay">
           <span><i class="fas fa-heart"></i> ${likesCount}</span>
@@ -4081,7 +4433,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   // Construir HTML del perfil
   let html = `<div class="perfil-facebook">
     <div class="portada" style="background-image:url('${user.portada || ''}'); height:200px; background-size:cover; background-position:center; position:relative; border-radius:8px 8px 0 0;">
-      <div class="foto-perfil" style="position:absolute; top:20px; left:20px; width:120px; height:120px; border-radius:50%; border:4px solid white; background-image:url('${user.fotoPerfil || ''}'); background-size:cover; background-position:center; cursor:pointer;" onclick="abrirVisor(['${user.fotoPerfil || ''}'],0)"></div>
+      <div class="foto-perfil" style="position:absolute; top:20px; left:20px; width:120px; height:120px; border-radius:50%; border:4px solid white; background-image:url('${user.fotoPerfil || ''}'); background-size:cover; background-position:center; cursor:pointer;" onclick="abrirMediaViewer(['${user.fotoPerfil || ''}'], 0, 'image')"></div>
       <div style="position:absolute; bottom:10px; right:20px; display:flex; gap:8px; flex-wrap:wrap;">
         ${esPropio ? `<button class="btn-primary" onclick="abrirEditarPerfil()"><i class="fas fa-edit"></i> Editar</button>` : ''}
         ${esPropio ? `<button class="btn-danger" onclick="eliminarCuenta()"><i class="fas fa-user-slash"></i> Eliminar cuenta</button>` : ''}
@@ -4130,18 +4482,6 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   cargarSeguidores(uid);
 }
 
-// Función especial para abrir el visor desde la galería con todas las fotos
-function abrirVisorDesdeGaleria(imgs, index) {
-  if (!imgs || imgs.length === 0) return;
-  viewerImages = imgs;
-  viewerIndex = index;
-  const viewer = document.getElementById('imageViewer');
-  const img = document.getElementById('viewerImage');
-  img.src = viewerImages[viewerIndex];
-  viewer.classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
 function subirMediaConDesc(uid, file, desc) {
   if (!currentUser) { alert('Inicia sesión.'); return; }
   if (currentUser.uid !== uid && !isAdmin) { alert('No tienes permiso.'); return; }
@@ -4174,7 +4514,7 @@ function cargarPublicacionesUsuario(uid) {
       const orando = post.orando && post.orando.includes(currentUser ? currentUser.uid : null);
       html += `<div class="post">
         <div class="post-content">${post.texto}</div>
-        ${post.media && post.media.type === 'image' ? `<img src="${post.media.data}" class="post-media" onclick="abrirVisor(['${post.media.data}'],0)">` : ''}
+        ${post.media && post.media.type === 'image' ? `<img src="${post.media.data}" class="post-media" onclick="event.stopPropagation(); abrirMediaViewer(['${post.media.data}'], 0, 'image')">` : ''}
         ${post.media && post.media.type === 'video' ? `<video controls src="${post.media.data}" class="post-media"></video>` : ''}
         <div class="post-actions">
           <button onclick="likePost('${post.id}')" class="${liked ? 'liked' : ''}"><i class="fas fa-heart"></i> ${post.likes ? post.likes.length : 0}</button>
@@ -4218,6 +4558,7 @@ function eliminarCuenta() {
     GRUPOS.where('uidCreador', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     DISCIPULADOS.where('uidCreador', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     MISIONEROS.where('uidCreador', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
+    REELS.where('uid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     SEGUIDORES.where('seguidorUid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     SEGUIDORES.where('seguidoUid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     USERS.doc(uid).delete(),
@@ -4267,7 +4608,6 @@ function cargarPerfilExtendido() {
     cb.checked = privacidad[campo] !== undefined ? privacidad[campo] : true;
   });
 
-  // Mostrar previsualización de imágenes actuales
   if (currentUser.fotoPerfil) {
     document.getElementById('editFotoPerfilImg').src = currentUser.fotoPerfil;
     document.getElementById('editFotoPerfilImg').style.display = 'block';
@@ -4276,7 +4616,6 @@ function cargarPerfilExtendido() {
     document.getElementById('editPortadaImg').src = currentUser.portada;
     document.getElementById('editPortadaImg').style.display = 'block';
   }
-  // Limpiar campos de archivo
   document.getElementById('editFotoPerfilFile').value = '';
   document.getElementById('editPortadaFile').value = '';
   document.getElementById('editFotosPerfil').value = '';
@@ -4369,7 +4708,34 @@ function abrirEditarPerfil() {
 window.guardarEdicionPerfil = guardarPerfilExtendido;
 
 // ================================================================
-// 23. NOTIFICACIONES
+// 23. SOLICITUD DE CAMBIO DE CONTRASEÑA
+// ================================================================
+document.getElementById('btnSolicitarCambioPassword').addEventListener('click', function() {
+  if (!currentUser) { alert('Inicia sesión.'); return; }
+  if (isSuperAdmin) { alert('El SuperAdmin no necesita solicitar cambio de contraseña.'); return; }
+  // Verificar si ya tiene una solicitud pendiente
+  SOLICITUDES_PASSWORD.where('uid', '==', currentUser.uid).where('estado', '==', 'pendiente').get().then(snap => {
+    if (!snap.empty) {
+      alert('Ya tienes una solicitud pendiente. Espera la respuesta del SuperAdmin.');
+      return;
+    }
+    if (confirm('¿Deseas enviar una solicitud de cambio de contraseña al SuperAdmin? Te contactará para ayudarte.')) {
+      SOLICITUDES_PASSWORD.add({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        nombre: currentUser.displayName,
+        estado: 'pendiente',
+        fecha: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert('Solicitud enviada. El SuperAdmin la revisará pronto.');
+        // Notificar al SuperAdmin (se mostrará en el panel de admin)
+      }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+    }
+  }).catch(console.error);
+});
+
+// ================================================================
+// 24. NOTIFICACIONES
 // ================================================================
 function cargarContadorNotificaciones() {
   if (!currentUser) return;
@@ -4400,7 +4766,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// 24. BIBLIA (con navegación de capítulos y control de fuente en tiempo real)
+// 25. BIBLIA (con navegación de capítulos y control de fuente en tiempo real)
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -4530,7 +4896,6 @@ function renderVersiculos(versiculosObj, libro, capitulo) {
     });
   }
   versiculoContainer.innerHTML = html;
-  // Aplicar tamaño de fuente almacenado
   versiculoContainer.style.fontSize = bibliaFuenteSize + 'px';
   document.getElementById('fuenteInfo').textContent = 'Tamaño: ' + bibliaFuenteSize + 'px';
 
@@ -4607,7 +4972,6 @@ function navegarCapitulo(dir) {
   guardarHistorial(libroActual + ' ' + newCap);
 }
 
-// Ajuste de fuente en tiempo real y guardado
 function ajustarFuente(delta) {
   bibliaFuenteSize = Math.max(10, Math.min(30, bibliaFuenteSize + delta));
   localStorage.setItem(STORAGE_KEYS.bibliaFuente, bibliaFuenteSize);
@@ -4717,7 +5081,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 25. IA
+// 26. IA
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -4832,7 +5196,7 @@ document.getElementById('openrouterModelSelect').addEventListener('change', func
 });
 
 // ================================================================
-// 26. MAPA (Leaflet)
+// 27. MAPA (Leaflet)
 // ================================================================
 function initMap(mapId, searchId, latId, lngId) {
   if (mapInstances[mapId]) { mapInstances[mapId].remove(); delete mapInstances[mapId]; }
@@ -4897,7 +5261,7 @@ function buscarEnMapa(mapId) {
 }
 
 // ================================================================
-// 27. LOGO
+// 28. LOGO
 // ================================================================
 function cargarLogoConfig() {
   APP_CONFIG.get().then(doc => {
@@ -4941,7 +5305,7 @@ function eliminarLogo() {
 }
 
 // ================================================================
-// 28. MODO NOCTURNO
+// 29. MODO NOCTURNO
 // ================================================================
 document.getElementById('themeToggle').addEventListener('click', function() {
   document.body.classList.toggle('dark');
@@ -4956,7 +5320,7 @@ if (localStorage.getItem(STORAGE_KEYS.theme) === 'dark') {
 }
 
 // ================================================================
-// 29. VERSÍCULO DEL DÍA
+// 30. VERSÍCULO DEL DÍA
 // ================================================================
 const versiculosDia = [
   { texto: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna.", ref: "Juan 3:16" },
@@ -4980,31 +5344,72 @@ function actualizarVersiculoDia() {
 }
 
 // ================================================================
-// 30. VISOR DE IMÁGENES
+// 31. VISOR MULTIMEDIA (para imágenes y videos)
 // ================================================================
-function abrirVisor(imgs, index) {
-  if (!imgs || imgs.length === 0) return;
-  viewerImages = imgs;
-  viewerIndex = index;
-  const viewer = document.getElementById('imageViewer');
-  const img = document.getElementById('viewerImage');
-  img.src = viewerImages[viewerIndex];
+function abrirMediaViewer(items, index, type) {
+  if (!items || items.length === 0) return;
+  mediaViewerItems = items.map(item => ({ url: item, type: type || (item.match(/\.(mp4|webm|ogg)$/i) ? 'video' : 'image') }));
+  mediaViewerIndex = index;
+  const viewer = document.getElementById('mediaViewer');
+  const img = document.getElementById('mediaViewerImage');
+  const video = document.getElementById('mediaViewerVideo');
+  const info = document.getElementById('mediaViewerInfo');
+  // Mostrar el elemento actual
+  const current = mediaViewerItems[mediaViewerIndex];
+  if (current.type === 'image') {
+    img.style.display = 'block';
+    video.style.display = 'none';
+    img.src = current.url;
+    info.textContent = '';
+  } else {
+    img.style.display = 'none';
+    video.style.display = 'block';
+    video.src = current.url;
+    video.load();
+    video.play();
+    info.textContent = '';
+  }
   viewer.classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 
-function cerrarVisor() {
-  document.getElementById('imageViewer').classList.remove('show');
+function cerrarMediaViewer() {
+  const viewer = document.getElementById('mediaViewer');
+  const video = document.getElementById('mediaViewerVideo');
+  video.pause();
+  viewer.classList.remove('show');
   document.body.style.overflow = '';
 }
 
-function navegarVisor(dir) {
-  viewerIndex = (viewerIndex + dir + viewerImages.length) % viewerImages.length;
-  document.getElementById('viewerImage').src = viewerImages[viewerIndex];
+function navegarMediaViewer(dir) {
+  if (mediaViewerItems.length === 0) return;
+  mediaViewerIndex = (mediaViewerIndex + dir + mediaViewerItems.length) % mediaViewerItems.length;
+  const current = mediaViewerItems[mediaViewerIndex];
+  const img = document.getElementById('mediaViewerImage');
+  const video = document.getElementById('mediaViewerVideo');
+  const info = document.getElementById('mediaViewerInfo');
+  if (current.type === 'image') {
+    img.style.display = 'block';
+    video.style.display = 'none';
+    img.src = current.url;
+    info.textContent = '';
+  } else {
+    img.style.display = 'none';
+    video.style.display = 'block';
+    video.src = current.url;
+    video.load();
+    video.play();
+    info.textContent = '';
+  }
 }
 
+// Cerrar visor con tecla Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') cerrarMediaViewer();
+});
+
 // ================================================================
-// 31. FUNCIONES AUXILIARES FINALES
+// 32. FUNCIONES AUXILIARES FINALES
 // ================================================================
 function actualizarBotonesPorRol() {
   const btnGrupo = document.getElementById('btnCrearGrupo');
@@ -5104,7 +5509,7 @@ function guardarEditarUsuario() {
 }
 
 // ================================================================
-// 32. EVENTOS DE CARGA INICIAL
+// 33. EVENTOS DE CARGA INICIAL
 // ================================================================
 document.addEventListener('DOMContentLoaded', function() {
   // Login
@@ -5184,6 +5589,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('encuestaOpciones').style.display = val === 'encuesta' ? 'block' : 'none';
     document.getElementById('campaniaMonto').style.display = val === 'campania' ? 'block' : 'none';
   });
+
+  // Reels
+  document.getElementById('btnPublicarReel').addEventListener('click', publicarReel);
+  setupFilePreview('reelFile', 'reelPreviewContainer');
 
   // Grupos
   document.getElementById('btnCrearGrupo').addEventListener('click', abrirModalGrupo);
@@ -5319,6 +5728,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderCarrusel();
   renderEventos();
   renderNoticias();
+  renderReels();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
@@ -5329,7 +5739,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => { initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng'); }, 500);
   }
 
-  console.log('✅ SAL Y LUZ actualizado con todas las correcciones: reacciones guardadas, visor funcional, ajuste de fuente en tiempo real, edición de perfil sin URL, galería en mosaico.');
+  console.log('✅ SAL Y LUZ actualizado con todas las mejoras: galería más grande, visor mejorado, menú hamburguesa, solicitud de cambio de contraseña, y Reels.');
 });
 
 // Exposición de funciones globales
@@ -5350,6 +5760,13 @@ window.comentarPost = comentarPost;
 window.compartirPost = compartirPost;
 window.votarEncuesta = votarEncuesta;
 window.donarCampania = donarCampania;
+window.renderReels = renderReels;
+window.publicarReel = publicarReel;
+window.likeReel = likeReel;
+window.toggleComentariosReel = toggleComentariosReel;
+window.comentarReel = comentarReel;
+window.compartirReel = compartirReel;
+window.eliminarReel = eliminarReel;
 window.renderGrupos = renderGrupos;
 window.unirseGrupo = unirseGrupo;
 window.abrirModalGrupo = abrirModalGrupo;
@@ -5428,9 +5845,9 @@ window.eliminarLogo = eliminarLogo;
 window.cargarLogoConfig = cargarLogoConfig;
 window.cargarMapboxToken = cargarMapboxToken;
 window.initMapboxMap = initMapboxMap;
-window.abrirVisor = abrirVisor;
-window.cerrarVisor = cerrarVisor;
-window.navegarVisor = navegarVisor;
+window.abrirMediaViewer = abrirMediaViewer;
+window.cerrarMediaViewer = cerrarMediaViewer;
+window.navegarMediaViewer = navegarMediaViewer;
 window.verEnMapa = verEnMapa;
 window.abrirModalEvento = abrirModalEvento;
 window.guardarEvento = guardarEvento;
@@ -5448,7 +5865,9 @@ window.eliminarNoticia = eliminarNoticia;
 window.renderNoticias = renderNoticias;
 window.navegarCapitulo = navegarCapitulo;
 window.ajustarFuente = ajustarFuente;
-window.abrirVisorDesdeGaleria = abrirVisorDesdeGaleria;
+window.aprobarSolicitudPassword = aprobarSolicitudPassword;
+window.rechazarSolicitudPassword = rechazarSolicitudPassword;
+window.renderSolicitudesPassword = renderSolicitudesPassword;
 </script>
 </body>
 </html>
