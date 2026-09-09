@@ -3833,7 +3833,7 @@ function eliminarReporteAdmin(id) {
 // ================================================================
 function verPerfil(uid) {
   if (!uid) {
-    console.error('ID de usuario no válido');
+    console.error('❌ ID de usuario no válido');
     alert('ID de usuario no válido.');
     return;
   }
@@ -3844,7 +3844,7 @@ function verPerfil(uid) {
     return;
   }
 
-  console.log(`Cargando perfil del usuario: ${uid}`);
+  console.log(`🔍 Cargando perfil del usuario: ${uid}`);
 
   // Cargar datos del perfil
   USERS.doc(uid).get()
@@ -3854,7 +3854,7 @@ function verPerfil(uid) {
         return;
       }
       const user = doc.data();
-      console.log('Datos del perfil cargados:', user);
+      console.log('✅ Datos del perfil cargados:', user);
       
       // Verificar seguimiento
       SEGUIDORES.where('seguidorUid', '==', currentUser.uid)
@@ -3865,13 +3865,13 @@ function verPerfil(uid) {
           mostrarPerfilConPrivacidad(user, seguido, uid);
         })
         .catch(err => {
-          console.error('Error verificando seguimiento:', err);
+          console.error('⚠️ Error verificando seguimiento:', err);
           // Mostrar perfil sin estado de seguimiento
           mostrarPerfilConPrivacidad(user, false, uid);
         });
     })
     .catch(err => {
-      console.error('Error al cargar perfil:', err);
+      console.error('❌ Error al cargar perfil:', err);
       alert('Error al cargar el perfil. Intenta de nuevo más tarde.\n' + err.message);
     });
 }
@@ -3879,11 +3879,13 @@ function verPerfil(uid) {
 function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   const privacidad = user.privacidad || {};
   const modalContent = document.getElementById('perfilModalContent');
+  
+  // Limpiar contenido anterior
+  modalContent.innerHTML = '';
 
   function campoVisible(campo, valor) {
     if (!valor) return null;
     const esPublico = privacidad[campo] !== undefined ? privacidad[campo] : true;
-    // Si es público o es el propio usuario, mostrar
     if (esPublico || (currentUser && currentUser.uid === uid)) {
       const etiquetas = {
         biografia: 'Biografía',
@@ -3907,7 +3909,8 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   const fotos = user.fotosPerfil || [];
   let fotosHtml = '';
   if (fotos.length > 0) {
-    const fotosJson = JSON.stringify(fotos);
+    // Escapar las comillas para evitar problemas con JSON
+    const fotosJson = JSON.stringify(fotos).replace(/"/g, '&quot;');
     fotosHtml = `
       <div class="perfil-carrusel" id="perfilCarrusel">
         ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${fotosJson}, ${i})">`).join('')}
@@ -3920,10 +3923,13 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
     `;
   }
 
+  const fotoPerfil = user.fotoPerfil || '';
+  const fotoPerfilEscapada = fotoPerfil.replace(/"/g, '&quot;');
+
   let html = `
   <div class="perfil-profesional">
     <div class="perfil-header text-center">
-      <img src="${user.fotoPerfil || ''}" class="avatar" onclick="abrirVisor(['${user.fotoPerfil || ''}'], 0)" onerror="this.style.display='none'">
+      <img src="${fotoPerfil}" class="avatar" onclick="abrirVisor(['${fotoPerfilEscapada}'], 0)" onerror="this.style.display='none'">
       <h2 class="nombre">${user.displayName || 'Usuario'}</h2>
       ${user.iglesia ? `<div class="subtitulo"><i class="fas fa-church"></i> ${user.iglesia}</div>` : ''}
       ${user.ministerio ? `<div class="subtitulo"><i class="fas fa-users"></i> ${user.ministerio}</div>` : ''}
@@ -3977,7 +3983,11 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
     <button class="btn-cancel" onclick="cerrarModal('perfilModal')">Cerrar</button>
   </div>
   `;
+  
   modalContent.innerHTML = html;
+  console.log('✅ Perfil renderizado correctamente');
+  
+  // Asegurar que el modal se abra
   abrirModal('perfilModal');
 }
 
