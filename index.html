@@ -480,7 +480,7 @@
       font-size: 14px;
     }
     .fuente-control button:hover { background: var(--border-color); }
-    .versiculos p { margin-bottom: 3px; font-size: 14px; line-height: 1.6; text-align: justify; padding: 4px 0; border-bottom: 1px dashed var(--border-color); }
+    .versiculos p { margin-bottom: 3px; line-height: 1.6; text-align: justify; padding: 4px 0; border-bottom: 1px dashed var(--border-color); }
     .versiculos p:last-child { border-bottom: none; }
     .versiculos .num { font-weight: 600; color: var(--teal-dark); margin-right: 3px; }
     .versiculos .edit-mode textarea { width: 100%; border-radius: 6px; border: 1px solid var(--teal); padding: 4px 8px; font-size: 13px; resize: vertical; }
@@ -803,7 +803,7 @@
           <button id="btnAumentarFuente">A+</button>
         </div>
       </div>
-      <div class="versiculos" id="versiculoContainer"><p style="text-align:center; color:var(--text-secondary); padding:16px 0;">Selecciona un libro y capítulo para ver los versículos.</p></div>
+      <div class="versiculos" id="versiculoContainer" style="font-size:14px;"><p style="text-align:center; color:var(--text-secondary); padding:16px 0;">Selecciona un libro y capítulo para ver los versículos.</p></div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
         <button class="btn-editar" id="btnEditarVersos" style="display:none;"><i class="fas fa-edit"></i> Editar versículos</button>
         <button class="btn-guardar-todo" id="btnGuardarVersos"><i class="fas fa-save"></i> Guardar cambios</button>
@@ -1197,7 +1197,7 @@
     </div>
   </div>
 
-  <!-- Editar Perfil -->
+  <!-- Editar Perfil (SIN URL, solo archivos) -->
   <div class="modal-overlay" id="editarPerfilModal">
     <div class="modal-box">
       <h3><i class="fas fa-user-edit"></i> Editar Perfil</h3>
@@ -1208,28 +1208,21 @@
       <label>Edad *</label>
       <input type="number" id="editEdad" placeholder="Edad">
 
-      <!-- Foto de perfil (archivo) -->
       <label>Foto de perfil (subir imagen)</label>
       <input type="file" id="editFotoPerfilFile" accept="image/jpeg,image/png" style="margin:4px 0;">
       <div id="editFotoPerfilPreview" style="max-width:100px; max-height:100px; overflow:hidden; border-radius:8px; margin:4px 0;">
         <img id="editFotoPerfilImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
       </div>
-      <!-- O mantener URL manual -->
-      <label>O ingresa URL de foto de perfil (opcional)</label>
-      <input type="url" id="editFotoPerfil" placeholder="https://ejemplo.com/foto.jpg" style="margin-bottom:6px;">
 
-      <!-- Foto de portada (archivo) -->
       <label>Foto de portada (subir imagen)</label>
       <input type="file" id="editPortadaFile" accept="image/jpeg,image/png" style="margin:4px 0;">
       <div id="editPortadaPreview" style="max-width:200px; max-height:100px; overflow:hidden; border-radius:8px; margin:4px 0;">
         <img id="editPortadaImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
       </div>
-      <label>O ingresa URL de portada (opcional)</label>
-      <input type="url" id="editPortada" placeholder="https://ejemplo.com/portada.jpg" style="margin-bottom:6px;">
 
       <hr style="border-color:var(--border-color); margin:12px 0;">
-      <h5 style="font-size:15px; margin-bottom:8px;">Fotos de perfil (máximo 5)</h5>
-      <label>Selecciona hasta 5 imágenes JPG o PNG</label>
+      <h5 style="font-size:15px; margin-bottom:8px;">Galería de fotos (subir nuevas)</h5>
+      <label>Selecciona imágenes JPG o PNG (máximo 5)</label>
       <input type="file" id="editFotosPerfil" accept="image/jpeg,image/png" multiple style="margin:4px 0;">
       <label>Descripción para las fotos (opcional)</label>
       <input type="text" id="editFotosDesc" placeholder="Descripción de las fotos..." style="margin-bottom:6px;">
@@ -2072,7 +2065,7 @@ function eliminarElementoCarrusel(id) {
 }
 
 // ================================================================
-// 7. MURO (POSTS)
+// 7. MURO (POSTS) - con reacciones, comentarios y compartidos guardados correctamente
 // ================================================================
 function renderFeed() {
   if (listeners.feed) listeners.feed();
@@ -2343,7 +2336,7 @@ function donarCampania(postId) {
 }
 
 // ================================================================
-// 8. GRUPOS
+// 8. GRUPOS (con día de reunión)
 // ================================================================
 function puedeCrearGrupo() { return isAdmin || tieneRol('facilitador'); }
 
@@ -2607,7 +2600,7 @@ function orarOracion(id) {
 }
 
 // ================================================================
-// 11. MAPA (Mapbox)
+// 11. MAPA (Mapbox) - sin enlaces a perfiles
 // ================================================================
 function cargarMapboxToken() {
   CONFIG_MAPBOX.get().then(doc => {
@@ -3893,7 +3886,7 @@ function renderEventos() {
 }
 
 // ================================================================
-// 18B. NOTICIAS (desde Admin y desde Inicio)
+// 18B. NOTICIAS
 // ================================================================
 function renderNoticias() {
   if (listeners.noticias) listeners.noticias();
@@ -3916,7 +3909,6 @@ function renderNoticias() {
     });
     container.innerHTML = html;
   });
-  // También actualizar la lista en Admin si está visible
   if (document.getElementById('adminNoticiasList')) {
     renderAdminNoticias();
   }
@@ -3974,7 +3966,7 @@ function eliminarNoticia(id) {
 }
 
 // ================================================================
-// 19. PERFIL PROFESIONAL
+// 19. PERFIL PROFESIONAL (con galería en mosaico y visor)
 // ================================================================
 function verPerfil(uid) {
   if (!uid) { alert('ID de usuario no válido.'); return; }
@@ -4043,7 +4035,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
     }
   });
 
-  // Galería de fotos de la subcolección "fotos"
+  // Galería de fotos
   let fotosHtml = '';
   const fotosRef = USERS.doc(uid).collection('fotos').orderBy('fecha', 'desc');
   fotosRef.get().then(snapshot => {
@@ -4063,18 +4055,20 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   function renderFotosGaleria(fotosArray, uid) {
     if (!fotosArray || fotosArray.length === 0) return '<p style="color:var(--text-secondary);">No hay fotos en la galería.</p>';
     let html = '<div style="margin:10px 0;"><h4>📸 Galería de fotos</h4><div class="galeria-grid">';
-    fotosArray.forEach(foto => {
+    fotosArray.forEach((foto, idx) => {
       const fotoId = foto.id;
       const url = foto.url;
       const desc = foto.desc || '';
       const likesCount = foto.likes ? foto.likes.length : 0;
       const commentsCount = foto.comentarios ? foto.comentarios.length : 0;
-      html += `<div class="galeria-item" data-fotoid="${fotoId}" onclick="abrirVisor(${JSON.stringify(fotosArray.map(f => f.url))}, ${fotosArray.indexOf(foto)})">
+      const fecha = foto.fecha ? new Date(foto.fecha.seconds * 1000).toLocaleDateString() : '';
+      // Usamos el índice para el visor
+      html += `<div class="galeria-item" data-fotoid="${fotoId}" onclick="abrirVisorDesdeGaleria(${JSON.stringify(fotosArray.map(f => f.url))}, ${idx})">
         <img src="${url}" alt="foto">
         <div class="foto-overlay">
           <span><i class="fas fa-heart"></i> ${likesCount}</span>
           <span><i class="fas fa-comment"></i> ${commentsCount}</span>
-          <span><i class="fas fa-calendar-alt"></i> ${foto.fecha ? new Date(foto.fecha.seconds * 1000).toLocaleDateString() : ''}</span>
+          <span><i class="fas fa-calendar-alt"></i> ${fecha}</span>
         </div>
         ${currentUser && (currentUser.uid === uid || isAdmin) ? `<button class="delete-btn" onclick="event.stopPropagation(); eliminarFoto('${uid}','${fotoId}')">✕</button>` : ''}
         ${desc ? `<div style="padding:4px; font-size:12px; color:var(--text-secondary);">${desc}</div>` : ''}
@@ -4134,6 +4128,18 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   }
   cargarPublicacionesUsuario(uid);
   cargarSeguidores(uid);
+}
+
+// Función especial para abrir el visor desde la galería con todas las fotos
+function abrirVisorDesdeGaleria(imgs, index) {
+  if (!imgs || imgs.length === 0) return;
+  viewerImages = imgs;
+  viewerIndex = index;
+  const viewer = document.getElementById('imageViewer');
+  const img = document.getElementById('viewerImage');
+  img.src = viewerImages[viewerIndex];
+  viewer.classList.add('show');
+  document.body.style.overflow = 'hidden';
 }
 
 function subirMediaConDesc(uid, file, desc) {
@@ -4233,10 +4239,15 @@ function compartirPerfil(uid) {
 }
 
 // ================================================================
-// 22. FUNCIONES DE PERFIL EXTENDIDO (edición)
+// 22. FUNCIONES DE PERFIL EXTENDIDO (edición) - SIN URL, solo archivos
 // ================================================================
 function cargarPerfilExtendido() {
   if (!currentUser) return;
+  document.getElementById('editNombre').value = currentUser.displayName || '';
+  document.getElementById('editTelefono').value = currentUser.telefono || '';
+  document.getElementById('editEdad').value = currentUser.edad || '';
+  document.getElementById('editBiografia').value = currentUser.biografia || '';
+  document.getElementById('editIglesia').value = currentUser.iglesia || '';
   document.getElementById('editSituacionLaboral').value = currentUser.situacionLaboral || '';
   document.getElementById('editSituacionSentimental').value = currentUser.situacionSentimental || '';
   document.getElementById('editNacionalidad').value = currentUser.nacionalidad || '';
@@ -4245,9 +4256,18 @@ function cargarPerfilExtendido() {
   document.getElementById('editTalentos').value = currentUser.talentos || '';
   document.getElementById('editCaracter').value = currentUser.caracter || '';
   document.getElementById('editExperiencia').value = currentUser.experiencia || '';
-  document.getElementById('editFotoPerfil').value = currentUser.fotoPerfil || '';
-  document.getElementById('editPortada').value = currentUser.portada || '';
-  // Mostrar previsualización de las imágenes actuales
+
+  const apoyos = currentUser.apoyos || [];
+  document.querySelectorAll('#editApoyosContainer input[type="checkbox"]').forEach(cb => {
+    cb.checked = apoyos.includes(cb.value);
+  });
+  const privacidad = currentUser.privacidad || {};
+  document.querySelectorAll('#editPrivacidadContainer input[type="checkbox"]').forEach(cb => {
+    const campo = cb.dataset.campo;
+    cb.checked = privacidad[campo] !== undefined ? privacidad[campo] : true;
+  });
+
+  // Mostrar previsualización de imágenes actuales
   if (currentUser.fotoPerfil) {
     document.getElementById('editFotoPerfilImg').src = currentUser.fotoPerfil;
     document.getElementById('editFotoPerfilImg').style.display = 'block';
@@ -4256,11 +4276,11 @@ function cargarPerfilExtendido() {
     document.getElementById('editPortadaImg').src = currentUser.portada;
     document.getElementById('editPortadaImg').style.display = 'block';
   }
-  const privacidad = currentUser.privacidad || {};
-  document.querySelectorAll('#editPrivacidadContainer input[type="checkbox"]').forEach(cb => {
-    const campo = cb.dataset.campo;
-    cb.checked = privacidad[campo] !== undefined ? privacidad[campo] : true;
-  });
+  // Limpiar campos de archivo
+  document.getElementById('editFotoPerfilFile').value = '';
+  document.getElementById('editPortadaFile').value = '';
+  document.getElementById('editFotosPerfil').value = '';
+  document.getElementById('editFotosDesc').value = '';
 }
 
 function guardarPerfilExtendido() {
@@ -4290,18 +4310,18 @@ function guardarPerfilExtendido() {
     return;
   }
 
-  let fotoPerfil = document.getElementById('editFotoPerfil').value.trim();
-  let portada = document.getElementById('editPortada').value.trim();
+  let fotoPerfil = currentUser.fotoPerfil || '';
+  let portada = currentUser.portada || '';
   const fotoPerfilFile = document.getElementById('editFotoPerfilFile').files[0];
   const portadaFile = document.getElementById('editPortadaFile').files[0];
   const promesasSubida = [];
 
   if (fotoPerfilFile) {
-    const path = `perfil/${currentUser.uid}/fotoPerfil_${Date.now()}_${fotoPerfilFile.name}`;
+    const path = `profile_pictures/${currentUser.uid}/${Date.now()}_${fotoPerfilFile.name}`;
     promesasSubida.push(subirArchivoStorage(fotoPerfilFile, path).then(url => { fotoPerfil = url; }));
   }
   if (portadaFile) {
-    const path = `perfil/${currentUser.uid}/portada_${Date.now()}_${portadaFile.name}`;
+    const path = `cover_pictures/${currentUser.uid}/${Date.now()}_${portadaFile.name}`;
     promesasSubida.push(subirArchivoStorage(portadaFile, path).then(url => { portada = url; }));
   }
 
@@ -4311,7 +4331,7 @@ function guardarPerfilExtendido() {
   if (fotosFiles.length > 0) {
     const filesArray = Array.from(fotosFiles).slice(0, 5);
     promesasFotos = filesArray.map(file => {
-      const path = `perfil_fotos/${currentUser.uid}/${Date.now()}_${file.name}`;
+      const path = `galeria/${currentUser.uid}/fotos/${Date.now()}_${file.name}`;
       return subirArchivoStorage(file, path).then(url => {
         return USERS.doc(currentUser.uid).collection('fotos').add({
           url, desc: descFotos || '',
@@ -4338,26 +4358,12 @@ function guardarPerfilExtendido() {
     actualizarUIUsuario();
     cerrarModal('editarPerfilModal');
     alert('Perfil actualizado correctamente.');
-  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+  }).catch(err => { console.error(err); alert('Error al guardar: ' + err.message); });
 }
 
 function abrirEditarPerfil() {
   if (!currentUser) { alert('Primero debes iniciar sesión.'); return; }
-  document.getElementById('editNombre').value = currentUser.displayName || '';
-  document.getElementById('editTelefono').value = currentUser.telefono || '';
-  document.getElementById('editEdad').value = currentUser.edad || '';
-  document.getElementById('editBiografia').value = currentUser.biografia || '';
-  document.getElementById('editIglesia').value = currentUser.iglesia || '';
-  const apoyos = currentUser.apoyos || [];
-  document.querySelectorAll('#editApoyosContainer input[type="checkbox"]').forEach(cb => {
-    cb.checked = apoyos.includes(cb.value);
-  });
   cargarPerfilExtendido();
-  // Limpiar previsualizaciones de archivos previos
-  document.getElementById('editFotoPerfilFile').value = '';
-  document.getElementById('editPortadaFile').value = '';
-  document.getElementById('editFotosPerfil').value = '';
-  document.getElementById('editFotosDesc').value = '';
   abrirModal('editarPerfilModal');
 }
 window.guardarEdicionPerfil = guardarPerfilExtendido;
@@ -4394,7 +4400,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// 24. BIBLIA (con navegación de capítulos y control de fuente)
+// 24. BIBLIA (con navegación de capítulos y control de fuente en tiempo real)
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -4524,6 +4530,7 @@ function renderVersiculos(versiculosObj, libro, capitulo) {
     });
   }
   versiculoContainer.innerHTML = html;
+  // Aplicar tamaño de fuente almacenado
   versiculoContainer.style.fontSize = bibliaFuenteSize + 'px';
   document.getElementById('fuenteInfo').textContent = 'Tamaño: ' + bibliaFuenteSize + 'px';
 
@@ -4600,11 +4607,14 @@ function navegarCapitulo(dir) {
   guardarHistorial(libroActual + ' ' + newCap);
 }
 
+// Ajuste de fuente en tiempo real y guardado
 function ajustarFuente(delta) {
   bibliaFuenteSize = Math.max(10, Math.min(30, bibliaFuenteSize + delta));
   localStorage.setItem(STORAGE_KEYS.bibliaFuente, bibliaFuenteSize);
   document.getElementById('fuenteInfo').textContent = 'Tamaño: ' + bibliaFuenteSize + 'px';
-  if (versiculoContainer) { versiculoContainer.style.fontSize = bibliaFuenteSize + 'px'; }
+  if (versiculoContainer) {
+    versiculoContainer.style.fontSize = bibliaFuenteSize + 'px';
+  }
 }
 
 function buscarBiblia() {
@@ -5319,12 +5329,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => { initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng'); }, 500);
   }
 
-  console.log('✅ SAL Y LUZ actualizado con todas las mejoras: reacciones, comentarios, compartidos, galería en mosaico, foto/portada por archivo, grupos con día de reunión, noticias desde Admin, navegación de capítulos y ajuste de fuente.');
+  console.log('✅ SAL Y LUZ actualizado con todas las correcciones: reacciones guardadas, visor funcional, ajuste de fuente en tiempo real, edición de perfil sin URL, galería en mosaico.');
 });
 
-// ================================================================
-// 33. EXPOSICIÓN DE FUNCIONES GLOBALES
-// ================================================================
+// Exposición de funciones globales
 window.switchPanel = switchPanel;
 window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
@@ -5440,6 +5448,7 @@ window.eliminarNoticia = eliminarNoticia;
 window.renderNoticias = renderNoticias;
 window.navegarCapitulo = navegarCapitulo;
 window.ajustarFuente = ajustarFuente;
+window.abrirVisorDesdeGaleria = abrirVisorDesdeGaleria;
 </script>
 </body>
 </html>
