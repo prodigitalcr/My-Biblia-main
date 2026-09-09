@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    /* Estilos (se mantienen igual que antes) */
+    /* ===== ESTILOS COMPLETOS (sin cambios) ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --teal: #1D9E75;
@@ -3829,27 +3829,46 @@ function eliminarReporteAdmin(id) {
 }
 
 // ================================================================
-// 18. PERFIL PROFESIONAL
+// 18. PERFIL PROFESIONAL - ACTUALIZADO
 // ================================================================
 function verPerfil(uid) {
-  if (!uid) return;
-  USERS.doc(uid).get().then(doc => {
-    if (!doc.exists) { alert('Usuario no encontrado.'); return; }
-    const user = doc.data();
-    const modalContent = document.getElementById('perfilModalContent');
-    let seguido = false;
-    if (currentUser) {
-      SEGUIDORES.where('seguidorUid', '==', currentUser.uid).where('seguidoUid', '==', uid).get().then(snap => {
-        seguido = !snap.empty;
-        mostrarPerfilProfesional(user, seguido, uid);
-      });
-    } else {
-      mostrarPerfilProfesional(user, false, uid);
-    }
-  }).catch(console.error);
+  if (!uid) {
+    alert('ID de usuario no válido.');
+    return;
+  }
+  // Verificar autenticación
+  if (!currentUser) {
+    alert('🔒 Debes iniciar sesión para ver los perfiles de los usuarios.');
+    return;
+  }
+  // Cargar datos del perfil
+  USERS.doc(uid).get()
+    .then(doc => {
+      if (!doc.exists) {
+        alert('Usuario no encontrado.');
+        return;
+      }
+      const user = doc.data();
+      let seguido = false;
+      SEGUIDORES.where('seguidorUid', '==', currentUser.uid)
+        .where('seguidoUid', '==', uid)
+        .get()
+        .then(snap => {
+          seguido = !snap.empty;
+          mostrarPerfilConPrivacidad(user, seguido, uid);
+        })
+        .catch(err => {
+          console.error('Error verificando seguimiento:', err);
+          mostrarPerfilConPrivacidad(user, false, uid);
+        });
+    })
+    .catch(err => {
+      console.error('Error al cargar perfil:', err);
+      alert('Error al cargar el perfil. Intenta de nuevo más tarde.');
+    });
 }
 
-function mostrarPerfilProfesional(user, esSeguidor, uid) {
+function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   const privacidad = user.privacidad || {};
   const modalContent = document.getElementById('perfilModalContent');
 
@@ -3895,7 +3914,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   <div class="perfil-profesional">
     <div class="perfil-header text-center">
       <img src="${user.fotoPerfil || ''}" class="avatar" onclick="abrirVisor(['${user.fotoPerfil || ''}'], 0)" onerror="this.style.display='none'">
-      <h2 class="nombre">${user.displayName}</h2>
+      <h2 class="nombre">${user.displayName || 'Usuario'}</h2>
       ${user.iglesia ? `<div class="subtitulo"><i class="fas fa-church"></i> ${user.iglesia}</div>` : ''}
       ${user.ministerio ? `<div class="subtitulo"><i class="fas fa-users"></i> ${user.ministerio}</div>` : ''}
     </div>
@@ -3940,7 +3959,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
             ${esSeguidor ? '<i class="fas fa-user-minus"></i> Dejar de seguir' : '<i class="fas fa-user-plus"></i> Seguir'}
           </button>
         ` : ''}
-        <button class="btn btn-outline" onclick="verGaleria('${uid}')"><i class="fas fa-images"></i> Galería</button>
+        ${currentUser ? `<button class="btn btn-outline" onclick="verGaleria('${uid}')"><i class="fas fa-images"></i> Galería</button>` : ''}
       </div>
     </div>
   </div>
@@ -3952,7 +3971,9 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
   abrirModal('perfilModal');
 }
 
+// ================================================================
 // Control del carrusel de fotos en perfil
+// ================================================================
 let fotoPerfilIndex = 0;
 function cambiarFotoPerfil(dir) {
   const slides = document.querySelectorAll('#perfilCarrusel .foto-slide');
@@ -3972,7 +3993,7 @@ function irFotoPerfil(index) {
 }
 
 // ================================================================
-// 19. VISOR DE IMÁGENES
+// 19. VISOR DE IMÁGENES (pantalla completa)
 // ================================================================
 function abrirVisor(imagenes, indice) {
   if (!imagenes || imagenes.length === 0) return;
