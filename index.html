@@ -3829,18 +3829,23 @@ function eliminarReporteAdmin(id) {
 }
 
 // ================================================================
-// 18. PERFIL PROFESIONAL - ACTUALIZADO
+// 18. PERFIL PROFESIONAL - ACTUALIZADO CON MEJOR MANEJO DE ERRORES
 // ================================================================
 function verPerfil(uid) {
   if (!uid) {
+    console.error('ID de usuario no válido');
     alert('ID de usuario no válido.');
     return;
   }
+
   // Verificar autenticación
   if (!currentUser) {
     alert('🔒 Debes iniciar sesión para ver los perfiles de los usuarios.');
     return;
   }
+
+  console.log(`Cargando perfil del usuario: ${uid}`);
+
   // Cargar datos del perfil
   USERS.doc(uid).get()
     .then(doc => {
@@ -3849,22 +3854,25 @@ function verPerfil(uid) {
         return;
       }
       const user = doc.data();
-      let seguido = false;
+      console.log('Datos del perfil cargados:', user);
+      
+      // Verificar seguimiento
       SEGUIDORES.where('seguidorUid', '==', currentUser.uid)
         .where('seguidoUid', '==', uid)
         .get()
         .then(snap => {
-          seguido = !snap.empty;
+          const seguido = !snap.empty;
           mostrarPerfilConPrivacidad(user, seguido, uid);
         })
         .catch(err => {
           console.error('Error verificando seguimiento:', err);
+          // Mostrar perfil sin estado de seguimiento
           mostrarPerfilConPrivacidad(user, false, uid);
         });
     })
     .catch(err => {
       console.error('Error al cargar perfil:', err);
-      alert('Error al cargar el perfil. Intenta de nuevo más tarde.');
+      alert('Error al cargar el perfil. Intenta de nuevo más tarde.\n' + err.message);
     });
 }
 
@@ -3875,6 +3883,7 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   function campoVisible(campo, valor) {
     if (!valor) return null;
     const esPublico = privacidad[campo] !== undefined ? privacidad[campo] : true;
+    // Si es público o es el propio usuario, mostrar
     if (esPublico || (currentUser && currentUser.uid === uid)) {
       const etiquetas = {
         biografia: 'Biografía',
@@ -3898,9 +3907,10 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
   const fotos = user.fotosPerfil || [];
   let fotosHtml = '';
   if (fotos.length > 0) {
+    const fotosJson = JSON.stringify(fotos);
     fotosHtml = `
       <div class="perfil-carrusel" id="perfilCarrusel">
-        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${JSON.stringify(fotos)}, ${i})">`).join('')}
+        ${fotos.map((f, i) => `<img src="${f}" class="foto-slide ${i===0?'active':''}" alt="foto perfil" onclick="abrirVisor(${fotosJson}, ${i})">`).join('')}
         <button class="carousel-control prev" onclick="event.stopPropagation(); cambiarFotoPerfil(-1)">❮</button>
         <button class="carousel-control next" onclick="event.stopPropagation(); cambiarFotoPerfil(1)">❯</button>
         <div class="indicators">
@@ -3948,7 +3958,7 @@ function mostrarPerfilConPrivacidad(user, esSeguidor, uid) {
       </div>
       ${user.biografia ? `<div class="perfil-bio"><i class="fas fa-quote-left" style="color:var(--orange);margin-right:6px;"></i>${user.biografia}</div>` : ''}
       <div class="perfil-badges">
-        ${user.apoyos && user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('')}
+        ${user.apoyos && user.apoyos.length ? user.apoyos.map(rol => `<span class="perfil-badge"><i class="fas fa-check-circle"></i> ${rol}</span>`).join('') : ''}
       </div>
       <div class="perfil-actions">
         ${currentUser && currentUser.uid === uid ? `
