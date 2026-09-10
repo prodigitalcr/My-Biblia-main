@@ -283,21 +283,7 @@
     }
     .foto-tag:hover { background: var(--teal); color: white; }
 
-    /* ===== CENTER TABS ON PC ===== */
-    @media (min-width: 769px) {
-      #mainTabs {
-        justify-content: center;
-      }
-    }
-    @media (max-width: 768px) {
-      #mainTabs .tab {
-        justify-content: flex-start;
-      }
-    }
-    body.force-hamburger #mainTabs .tab {
-      justify-content: flex-start;
-    }
-
+    /* ===== TABS ===== */
     #mainTabs {
       display: flex;
       overflow-x: auto;
@@ -331,6 +317,27 @@
     .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
     .tab:hover { color: var(--text-primary); }
 
+    /* CENTRADO SOLO CUANDO NO ES HAMBURGUESA (PC normal) */
+    @media (min-width: 769px) {
+      #mainTabs:not(.open) {
+        justify-content: center;
+      }
+    }
+
+    /* TODOS LOS TABS ALINEADOS A LA IZQUIERDA CUANDO EL MENÚ HAMBURGUESA ESTÁ ABIERTO */
+    #mainTabs.open,
+    body.force-hamburger #mainTabs,
+    body.force-hamburger #mainTabs.open {
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+    }
+    #mainTabs.open .tab,
+    body.force-hamburger #mainTabs .tab,
+    body.force-hamburger #mainTabs.open .tab {
+      justify-content: flex-start !important;
+      text-align: left !important;
+    }
+
     @media (max-width: 768px) {
       #mainTabs {
         display: none;
@@ -346,13 +353,16 @@
         padding: 8px 0;
         max-height: 70vh;
         overflow-y: auto;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
       }
       #mainTabs.open { display: flex; }
       #mainTabs .tab {
         padding: 12px 18px;
         border-bottom: 1px solid var(--border-color);
         width: 100%;
-        justify-content: flex-start;
+        justify-content: flex-start !important;
+        text-align: left !important;
         font-size: 14px;
       }
       #mainTabs .tab:last-child { border-bottom: none; }
@@ -380,7 +390,8 @@
       padding: 12px 18px;
       border-bottom: 1px solid var(--border-color);
       width: 100%;
-      justify-content: flex-start;
+      justify-content: flex-start !important;
+      text-align: left !important;
       font-size: 14px;
     }
     body.force-hamburger #mainTabs .tab span { display: inline !important; }
@@ -1028,6 +1039,85 @@
     .superadmin-no-config .config-msg { display: block !important; color: var(--text-secondary); font-style: italic; padding: 8px 0; }
     .solicitud-item { padding: 8px 0; border-bottom: 1px solid var(--border-color); }
     .solicitud-item:last-child { border-bottom: none; }
+
+    /* ===== DEVOCIONALES ===== */
+    .devocional-card {
+      background: var(--bg-body);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-color);
+      transition: all 0.25s ease;
+    }
+    .devocional-card:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+    .devocional-card .dev-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .devocional-card .dev-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 22px; flex-shrink: 0;
+    }
+    .devocional-card h5 { font-weight: 600; font-size: 15px; margin: 0; }
+    .devocional-card .dev-meta { font-size: 12px; color: var(--text-secondary); }
+    .devocional-card .dev-desc { font-size: 13px; margin: 6px 0; color: var(--text-primary); line-height: 1.5; }
+    .devocional-card .dev-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .pdf-viewer {
+      width: 100%;
+      height: 75vh;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: #525659;
+      margin-top: 10px;
+    }
+    .pdf-viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    /* ===== QR MODAL ===== */
+    #qrModal .modal-box {
+      max-width: 420px;
+      text-align: center;
+      padding: 24px;
+    }
+    .qr-foto-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      margin: 16px 0;
+      padding: 12px;
+      background: var(--bg-body);
+      border-radius: 12px;
+    }
+    .qr-foto-wrap img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--teal);
+      background: #fff;
+    }
+    .qr-img-wrap {
+      background: white;
+      padding: 12px;
+      border-radius: 12px;
+      display: inline-block;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .qr-img-wrap img {
+      width: 240px;
+      height: 240px;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -1056,6 +1146,7 @@
     <nav class="tabs" id="mainTabs">
       <button class="tab active" data-panel="inicio"><i class="fas fa-home"></i><span> Inicio</span></button>
       <button class="tab" data-panel="biblia"><i class="fas fa-bible"></i><span> Biblia</span></button>
+      <button class="tab" data-panel="devocionales"><i class="fas fa-book-bible"></i><span> Devocionales</span></button>
       <button class="tab" data-panel="muro"><i class="fas fa-newspaper"></i><span> Muro</span></button>
       <button class="tab" data-panel="reels"><i class="fas fa-video"></i><span> Reels</span></button>
       <button class="tab" data-panel="grupos"><i class="fas fa-users"></i><span> Grupos</span></button>
@@ -1179,6 +1270,25 @@
     </div>
   </div>
 
+  <!-- ===== PANEL DEVOCIONALES ===== -->
+  <div class="panel" id="panel-devocionales">
+    <div class="card" id="devocionalSubirCard" style="display:none;">
+      <h3><i class="fas fa-book-bible"></i> Subir Devocional</h3>
+      <label>Título *</label>
+      <input type="text" id="devocionalTitulo" placeholder="Ej: Devocional matutino - La fe que mueve montañas">
+      <label>Descripción breve (opcional)</label>
+      <textarea id="devocionalDesc" placeholder="Breve descripción o versículo clave..." rows="2"></textarea>
+      <label>Archivo PDF *</label>
+      <input type="file" id="devocionalPdf" accept="application/pdf">
+      <div id="devocionalPreview" class="preview-container"></div>
+      <button class="btn-primary" id="btnSubirDevocional" style="margin-top:8px;"><i class="fas fa-upload"></i> Publicar Devocional</button>
+      <p style="font-size:11px; color:var(--text-secondary); margin-top:6px;">Solo facilitadores, consejeros y administradores pueden subir devocionales.</p>
+    </div>
+    <div id="devocionalesContainer">
+      <p style="color:var(--text-secondary); text-align:center; padding:20px;">Cargando devocionales...</p>
+    </div>
+  </div>
+
   <!-- ===== PANEL MURO ===== -->
   <div class="panel" id="panel-muro">
     <div class="card" id="muroPublicarCard" style="display:none;">
@@ -1275,7 +1385,7 @@
           <span><span style="display:inline-block; width:12px; height:12px; background:#3498db; border-radius:50%;"></span> Grupos</span>
           <span><span style="display:inline-block; width:12px; height:12px; background:#f39c12; border-radius:50%;"></span> Servicios</span>
           <span><span style="display:inline-block; width:12px; height:12px; background:#9b59b6; border-radius:50%;"></span> Eventos</span>
-          <span><span style="display:inline-block; width:12px; height:12px; background:#1abc9c; border-radius:50%;"></span> Mi ubicación</span>
+          <span><i class="fas fa-lightbulb" style="color:#FFD700; text-shadow:0 0 6px #FFA500;"></i> Mi ubicación (tiempo real)</span>
         </div>
         <div id="misionerosMapaList" style="margin-top:10px;"></div>
         <div id="iglesiasMapaList" style="margin-top:6px;"></div>
@@ -1476,6 +1586,11 @@
       <h3><i class="fas fa-newspaper"></i> Gestionar Noticias</h3>
       <button class="btn-primary" id="btnAgregarNoticiaAdmin"><i class="fas fa-plus"></i> Agregar Noticia</button>
       <div id="adminNoticiasList" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-book-bible"></i> Gestionar Devocionales</h3>
+      <div id="adminDevocionalesList" style="margin-top:10px;"></div>
     </div>
 
     <div class="card config-solo-admin" id="cardIAConfig">
@@ -1950,6 +2065,40 @@
     <div class="modal-box" id="perfilModalContent"></div>
   </div>
 
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal-box">
+      <h3 style="justify-content:center;"><i class="fas fa-qrcode"></i> Compartir Perfil</h3>
+      <div class="qr-img-wrap">
+        <img id="qrImagen" src="" alt="QR">
+      </div>
+      <div class="qr-foto-wrap">
+        <img id="qrFotoPerfil" src="" alt="Foto de perfil">
+        <div style="text-align:left;">
+          <div id="qrNombre" style="font-weight:600; font-size:15px;"></div>
+          <div style="font-size:12px; color:var(--text-secondary);">Escanea este código para ver mi perfil</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+        <button class="btn-primary" onclick="descargarQR()"><i class="fas fa-download"></i> Descargar QR</button>
+        <button class="btn-outline" onclick="cerrarModal('qrModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="devocionalViewerModal">
+    <div class="modal-box" style="max-width:1000px; width:96%;">
+      <h3><i class="fas fa-book-bible"></i> <span id="devViewerTitulo">Devocional</span></h3>
+      <div id="devViewerMeta" style="font-size:12px; color:var(--text-secondary); margin-bottom:6px;"></div>
+      <div id="devViewerDesc" style="font-size:13px; margin-bottom:10px;"></div>
+      <div class="pdf-viewer">
+        <iframe id="devViewerIframe" src="" title="Visor de PDF"></iframe>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="document.getElementById('devViewerIframe').src=''; cerrarModal('devocionalViewerModal');"><i class="fas fa-times"></i> Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="reelModal">
     <div class="modal-box">
       <h3><i class="fas fa-video"></i> Subir Reel</h3>
@@ -2026,6 +2175,7 @@ const EVENTOS = db.collection('eventos');
 const NOTICIAS = db.collection('noticias');
 const REELS = db.collection('reels');
 const SOLICITUDES_PASSWORD = db.collection('solicitudes_password');
+const DEVOCIONALES = db.collection('devocionales');
 
 // ================================================================
 // 2. ESTADO GLOBAL
@@ -2042,6 +2192,8 @@ let listeners = {};
 let mapboxMap = null;
 let mapboxMarkers = [];
 let mapboxToken = '';
+let miUbicacionMarker = null;
+let miUbicacionWatchId = null;
 const STORAGE_KEYS = {
   historialBiblia: 'iglesia_historial_biblia',
   theme: 'iglesia_theme',
@@ -2213,8 +2365,14 @@ window.logoutUser = async function() {
     renderNecesidades(); renderConsejos(); renderReportes(); renderChatAdmin();
     renderChatEquipo(); renderMisionerosMapa(); renderIglesiasMapa();
     renderServiciosMapa(); renderEventos(); renderNoticias(); renderReels();
+    renderDevocionales();
     actualizarBotonesPorRol(); actualizarTabs();
     if (mapboxMap) { mapboxMarkers.forEach(m => m.remove()); mapboxMarkers = []; }
+    if (miUbicacionWatchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(miUbicacionWatchId);
+      miUbicacionWatchId = null;
+    }
+    miUbicacionMarker = null;
   } catch (error) { console.error('Error al cerrar sesión:', error); }
 };
 
@@ -2308,6 +2466,12 @@ function actualizarUIUsuario() {
   actualizarTabs();
   const muroPublicar = document.getElementById('muroPublicarCard');
   muroPublicar.style.display = currentUser ? 'block' : 'none';
+
+  // Devocionales: mostrar formulario según rol
+  const devSubirCard = document.getElementById('devocionalSubirCard');
+  if (devSubirCard) {
+    devSubirCard.style.display = puedeSubirDevocional() ? 'block' : 'none';
+  }
 }
 
 // ================================================================
@@ -2346,6 +2510,7 @@ function switchPanel(name) {
     case 'chatequipo': renderChatEquipo(); break;
     case 'mapa': if (currentUser) { renderGruposMapa(); renderMisionerosMapa(); renderIglesiasMapa(); renderServiciosMapa(); renderEventosMapa(); initMapboxMap(); } break;
     case 'biblia': cargarHistorial(); break;
+    case 'devocionales': renderDevocionales(); break;
     case 'inicio': renderCarrusel(); renderEventos(); renderNoticias(); break;
     case 'admin': if (isAdmin) renderAdminPanel(); break;
   }
@@ -2851,6 +3016,122 @@ function eliminarReel(id) {
 }
 
 // ================================================================
+// 7.2 DEVOCIONALES
+// ================================================================
+function puedeSubirDevocional() {
+  return isAdmin || tieneRol('facilitador') || tieneRol('consejero');
+}
+
+function renderDevocionales() {
+  if (listeners.devocionales) listeners.devocionales();
+  const container = document.getElementById('devocionalesContainer');
+  container.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">Cargando devocionales...</p>';
+  listeners.devocionales = DEVOCIONALES.orderBy('fecha', 'desc').onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      container.innerHTML = '<div class="card" style="text-align:center; padding:30px;"><i class="fas fa-book-bible" style="font-size:48px; color:var(--teal); margin-bottom:12px; display:block;"></i><h3 style="justify-content:center;">No hay devocionales aún</h3><p style="color:var(--text-secondary); font-size:13px;">Los facilitadores, consejeros y administradores pueden subir devocionales en PDF.</p></div>';
+      return;
+    }
+    let html = '';
+    snapshot.forEach(doc => {
+      const d = { id: doc.id, ...doc.data() };
+      const puedeEliminar = currentUser && (currentUser.uid === d.uid || isAdmin);
+      const fecha = d.fecha ? new Date(d.fecha.seconds * 1000).toLocaleString() : '';
+      html += `<div class="devocional-card">
+        <div class="dev-header">
+          <div class="dev-icon"><i class="fas fa-book-bible"></i></div>
+          <div style="flex:1;">
+            <h5>${d.titulo}</h5>
+            <div class="dev-meta">Por <span style="color:var(--teal); cursor:pointer;" onclick="verPerfil('${d.uid}')">${d.autorNombre}</span> · ${fecha}</div>
+          </div>
+        </div>
+        ${d.desc ? `<div class="dev-desc">${d.desc}</div>` : ''}
+        <div class="dev-actions">
+          <button class="btn-primary" onclick="verDevocional('${d.id}')"><i class="fas fa-book-open"></i> Leer PDF</button>
+          <a class="btn-outline" href="${d.pdfUrl}" download target="_blank" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-download"></i> Descargar</a>
+          ${puedeEliminar ? `<button class="btn-danger" onclick="eliminarDevocional('${d.id}')"><i class="fas fa-trash"></i> Eliminar</button>` : ''}
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  });
+}
+
+function subirDevocional() {
+  if (!puedeSubirDevocional()) { alert('Solo facilitadores, consejeros y administradores pueden subir devocionales.'); return; }
+  if (!currentUser) { alert('Debes iniciar sesión.'); return; }
+  const titulo = document.getElementById('devocionalTitulo').value.trim();
+  const desc = document.getElementById('devocionalDesc').value.trim();
+  const file = document.getElementById('devocionalPdf').files[0];
+  if (!titulo) { alert('Escribe un título.'); return; }
+  if (!file) { alert('Selecciona un archivo PDF.'); return; }
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { alert('Solo se permiten archivos PDF.'); return; }
+
+  const path = `devocionales/${currentUser.uid}/${Date.now()}_${file.name}`;
+  subirArchivoStorage(file, path).then(url => {
+    return DEVOCIONALES.add({
+      uid: currentUser.uid,
+      autorNombre: currentUser.displayName,
+      autorFoto: currentUser.fotoPerfil || '',
+      titulo, desc,
+      pdfUrl: url,
+      fileName: file.name,
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(() => {
+    document.getElementById('devocionalTitulo').value = '';
+    document.getElementById('devocionalDesc').value = '';
+    document.getElementById('devocionalPdf').value = '';
+    document.getElementById('devocionalPreview').innerHTML = '';
+    alert('✅ Devocional publicado correctamente.');
+  }).catch(err => { console.error(err); alert('Error: ' + err.message); });
+}
+
+function verDevocional(id) {
+  DEVOCIONALES.doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    document.getElementById('devViewerTitulo').textContent = d.titulo;
+    document.getElementById('devViewerMeta').textContent = `Por ${d.autorNombre} · ${d.fecha ? new Date(d.fecha.seconds * 1000).toLocaleString() : ''}`;
+    document.getElementById('devViewerDesc').textContent = d.desc || '';
+    const iframe = document.getElementById('devViewerIframe');
+    // Usar visor de Google Docs para compatibilidad móvil
+    iframe.src = 'https://docs.google.com/gview?url=' + encodeURIComponent(d.pdfUrl) + '&embedded=true';
+    abrirModal('devocionalViewerModal');
+  }).catch(console.error);
+}
+
+function eliminarDevocional(id) {
+  if (!currentUser) return;
+  DEVOCIONALES.doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    if (d.uid !== currentUser.uid && !isAdmin) { alert('No tienes permiso.'); return; }
+    if (!confirm('¿Eliminar este devocional?')) return;
+    DEVOCIONALES.doc(id).delete().then(() => alert('Devocional eliminado.')).catch(console.error);
+  });
+}
+
+function renderAdminDevocionales() {
+  const list = document.getElementById('adminDevocionalesList');
+  if (!list) return;
+  DEVOCIONALES.orderBy('fecha', 'desc').limit(30).get().then(snapshot => {
+    if (snapshot.empty) { list.innerHTML = '<p style="color:var(--text-secondary);">No hay devocionales.</p>'; return; }
+    let html = '';
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      html += `<div class="admin-list-item">
+        <span class="info"><strong>${d.titulo}</strong> — ${d.autorNombre} <small style="color:var(--text-secondary);">${d.fecha ? new Date(d.fecha.seconds*1000).toLocaleString() : ''}</small></span>
+        <div class="actions">
+          <button class="btn-primary" onclick="verDevocional('${doc.id}')" style="font-size:10px;">Ver</button>
+          <button class="btn-danger" onclick="eliminarDevocional('${doc.id}')" style="font-size:10px;">Eliminar</button>
+        </div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  });
+}
+
+// ================================================================
 // 8. GRUPOS
 // ================================================================
 function puedeCrearGrupo() { return isAdmin || tieneRol('facilitador'); }
@@ -3164,6 +3445,14 @@ function initMapboxMap() {
   if (!mapboxToken || typeof mapboxgl === 'undefined') return;
   const container = document.getElementById('mapboxMap');
   if (!container) return;
+
+  // Limpiar watch previo
+  if (miUbicacionWatchId !== null && navigator.geolocation) {
+    navigator.geolocation.clearWatch(miUbicacionWatchId);
+    miUbicacionWatchId = null;
+  }
+  miUbicacionMarker = null;
+
   if (mapboxMap) { mapboxMap.remove(); mapboxMap = null; mapboxMarkers.forEach(m => m.remove()); mapboxMarkers = []; }
   mapboxMap = new mapboxgl.Map({
     container: 'mapboxMap',
@@ -3173,16 +3462,31 @@ function initMapboxMap() {
   });
   mapboxMap.addControl(new mapboxgl.NavigationControl());
 
+  // Mi ubicación en tiempo real (watchPosition) con marcador personalizado (bombilla)
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
+    miUbicacionWatchId = navigator.geolocation.watchPosition(pos => {
       const { latitude, longitude } = pos.coords;
-      const marker = new mapboxgl.Marker({ color: '#1abc9c' })
-        .setLngLat([longitude, latitude])
-        .setPopup(new mapboxgl.Popup().setHTML('<strong>Mi ubicación</strong>'))
-        .addTo(mapboxMap);
-      mapboxMarkers.push(marker);
-      mapboxMap.flyTo({ center: [longitude, latitude], zoom: 12 });
-    }, () => {});
+
+      if (miUbicacionMarker) {
+        miUbicacionMarker.setLngLat([longitude, latitude]);
+      } else {
+        const el = document.createElement('div');
+        el.innerHTML = '<i class="fas fa-lightbulb" style="color:#FFD700; font-size:34px; text-shadow: 0 0 10px #FFA500, 0 0 22px #FFD700, 0 0 34px #FFA500;"></i>';
+        el.style.width = '40px';
+        el.style.height = '40px';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.cursor = 'pointer';
+        el.style.filter = 'drop-shadow(0 0 6px rgba(255,215,0,0.9))';
+
+        miUbicacionMarker = new mapboxgl.Marker({ element: el })
+          .setLngLat([longitude, latitude])
+          .setPopup(new mapboxgl.Popup().setHTML('<strong>💡 Mi ubicación</strong><br><small>Actualización en tiempo real</small>'))
+          .addTo(mapboxMap);
+        mapboxMap.flyTo({ center: [longitude, latitude], zoom: 14 });
+      }
+    }, () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
   }
 
   cargarMarcadoresMapbox();
@@ -4112,6 +4416,7 @@ setupFilePreview('chatEquipoFile', 'chatEquipoPreview');
 setupFilePreview('postImage', 'postPreviewContainer');
 setupFilePreview('postVideo', 'postPreviewContainer');
 setupFilePreview('reelFile', 'reelPreviewContainer');
+setupFilePreview('devocionalPdf', 'devocionalPreview');
 
 // ================================================================
 // 17. ADMIN PANEL
@@ -4241,6 +4546,7 @@ function renderAdminPanel() {
 
   renderAdminEventos();
   renderAdminNoticias();
+  renderAdminDevocionales();
 }
 
 function renderSolicitudesPassword() {
@@ -4680,6 +4986,7 @@ function mostrarPerfilProfesional(user, esSeguidor, uid) {
         ${!esPropio && currentUser ? `<button class="btn-primary" onclick="seguirUsuario('${uid}')">${esSeguidor ? 'Dejar de seguir' : 'Seguir'}</button>` : ''}
         ${telefonoVisible ? `<a href="https://wa.me/${user.telefono.replace(/[^0-9]/g, '')}" target="_blank" class="btn-whatsapp-profile"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
         <button class="btn-outline" onclick="compartirPerfil('${uid}')"><i class="fas fa-share-alt"></i> Compartir</button>
+        <button class="btn-outline" onclick="compartirPerfilQR('${uid}')"><i class="fas fa-qrcode"></i> QR</button>
       </div>
     </div>
     <div style="padding:20px 20px 20px 20px; margin-top:0;">
@@ -4922,7 +5229,35 @@ function cargarSeguidores(uid) {
 }
 
 // ================================================================
-// 20. ELIMINAR CUENTA
+// 20. QR DE PERFIL
+// ================================================================
+function compartirPerfilQR(uid) {
+  const url = window.location.origin + window.location.pathname + '?perfil=' + uid;
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+  USERS.doc(uid).get().then(doc => {
+    if (!doc.exists) return;
+    const u = doc.data();
+    document.getElementById('qrImagen').src = qrUrl;
+    document.getElementById('qrImagen').dataset.profileUrl = url;
+    document.getElementById('qrFotoPerfil').src = u.fotoPerfil || 'https://via.placeholder.com/120?text=%20';
+    document.getElementById('qrNombre').textContent = u.displayName || '';
+    abrirModal('qrModal');
+  }).catch(console.error);
+}
+
+function descargarQR() {
+  const img = document.getElementById('qrImagen');
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = 'qr-perfil.png';
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// ================================================================
+// 21. ELIMINAR CUENTA
 // ================================================================
 function eliminarCuenta() {
   if (!currentUser) return;
@@ -4939,6 +5274,7 @@ function eliminarCuenta() {
     DISCIPULADOS.where('uidCreador', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     MISIONEROS.where('uidCreador', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     REELS.where('uid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
+    DEVOCIONALES.where('uid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     SEGUIDORES.where('seguidorUid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     SEGUIDORES.where('seguidoUid', '==', uid).get().then(snap => snap.forEach(d => d.ref.delete())),
     USERS.doc(uid).delete(),
@@ -4948,7 +5284,7 @@ function eliminarCuenta() {
 }
 
 // ================================================================
-// 21. COMPARTIR PERFIL
+// 22. COMPARTIR PERFIL
 // ================================================================
 function compartirPerfil(uid) {
   const url = window.location.origin + window.location.pathname + '?perfil=' + uid;
@@ -4960,7 +5296,7 @@ function compartirPerfil(uid) {
 }
 
 // ================================================================
-// 22. FUNCIONES DE PERFIL EXTENDIDO
+// 23. FUNCIONES DE PERFIL EXTENDIDO
 // ================================================================
 function cargarPerfilExtendido() {
   if (!currentUser) return;
@@ -5088,7 +5424,7 @@ function abrirEditarPerfil() {
 window.guardarEdicionPerfil = guardarPerfilExtendido;
 
 // ================================================================
-// 23. SOLICITUD DE CAMBIO DE CONTRASEÑA
+// 24. SOLICITUD DE CAMBIO DE CONTRASEÑA
 // ================================================================
 document.getElementById('btnSolicitarCambioPassword').addEventListener('click', function() {
   if (!currentUser) { alert('Inicia sesión.'); return; }
@@ -5113,7 +5449,7 @@ document.getElementById('btnSolicitarCambioPassword').addEventListener('click', 
 });
 
 // ================================================================
-// 24. NOTIFICACIONES
+// 25. NOTIFICACIONES
 // ================================================================
 function cargarContadorNotificaciones() {
   if (!currentUser) return;
@@ -5147,7 +5483,7 @@ function mostrarNotificaciones() {
 }
 
 // ================================================================
-// 25. BIBLIA
+// 26. BIBLIA
 // ================================================================
 const libroSelect = document.getElementById('libro');
 const capituloSelect = document.getElementById('capitulo');
@@ -5462,7 +5798,7 @@ function cargarHistorial() {
 }
 
 // ================================================================
-// 26. IA
+// 27. IA
 // ================================================================
 function preguntarIA() {
   const pregunta = document.getElementById('iaPregunta').value.trim();
@@ -5577,7 +5913,7 @@ document.getElementById('openrouterModelSelect').addEventListener('change', func
 });
 
 // ================================================================
-// 27. MAPA (Leaflet)
+// 28. MAPA (Leaflet)
 // ================================================================
 function initMap(mapId, searchId, latId, lngId) {
   if (mapInstances[mapId]) { mapInstances[mapId].remove(); delete mapInstances[mapId]; }
@@ -5639,7 +5975,7 @@ function buscarEnMapa(mapId) {
 }
 
 // ================================================================
-// 28. LOGO
+// 29. LOGO
 // ================================================================
 function cargarLogoConfig() {
   APP_CONFIG.get().then(doc => {
@@ -5683,7 +6019,7 @@ function eliminarLogo() {
 }
 
 // ================================================================
-// 28B. CONFIGURACIÓN DE MENÚ HAMBURGUESA
+// 29B. CONFIGURACIÓN DE MENÚ HAMBURGUESA
 // ================================================================
 function cargarConfigMenu() {
   APP_CONFIG.get().then(doc => {
@@ -5711,7 +6047,7 @@ function guardarConfigMenu() {
 }
 
 // ================================================================
-// 29. MODO NOCTURNO
+// 30. MODO NOCTURNO
 // ================================================================
 document.getElementById('themeToggle').addEventListener('click', function() {
   document.body.classList.toggle('dark');
@@ -5726,7 +6062,7 @@ if (localStorage.getItem(STORAGE_KEYS.theme) === 'dark') {
 }
 
 // ================================================================
-// 30. VERSÍCULO DEL DÍA
+// 31. VERSÍCULO DEL DÍA
 // ================================================================
 const versiculosDia = [
   { texto: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, sino que tenga vida eterna.", ref: "Juan 3:16" },
@@ -5750,7 +6086,7 @@ function actualizarVersiculoDia() {
 }
 
 // ================================================================
-// 31. VISOR MULTIMEDIA
+// 32. VISOR MULTIMEDIA
 // ================================================================
 function abrirMediaViewer(items, index, type, dates) {
   if (!items || items.length === 0) return;
@@ -5828,7 +6164,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ================================================================
-// 32. FUNCIONES AUXILIARES FINALES
+// 33. FUNCIONES AUXILIARES FINALES
 // ================================================================
 function actualizarBotonesPorRol() {
   const btnGrupo = document.getElementById('btnCrearGrupo');
@@ -5838,6 +6174,7 @@ function actualizarBotonesPorRol() {
   const btnMisionero = document.getElementById('btnRegistrarMisionero');
   const btnIglesia = document.getElementById('btnRegistrarIglesia');
   const misServicios = document.getElementById('misServiciosContainer');
+  const devSubirCard = document.getElementById('devocionalSubirCard');
 
   if (puedeCrearGrupo()) btnGrupo.style.display = 'inline-block';
   else btnGrupo.style.display = 'none';
@@ -5864,6 +6201,10 @@ function actualizarBotonesPorRol() {
 
   if (isAdmin) btnIglesia.style.display = 'inline-block';
   else btnIglesia.style.display = 'none';
+
+  if (devSubirCard) {
+    devSubirCard.style.display = puedeSubirDevocional() ? 'block' : 'none';
+  }
 }
 
 function actualizarTabs() {
@@ -5928,7 +6269,7 @@ function guardarEditarUsuario() {
 }
 
 // ================================================================
-// 33. EVENTOS DE CARGA INICIAL
+// 34. EVENTOS DE CARGA INICIAL
 // ================================================================
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('loginBtn').addEventListener('click', function() {
@@ -6011,6 +6352,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('reelModalCancel').addEventListener('click', function() { cerrarModal('reelModal'); });
   document.getElementById('reelModalPublicar').addEventListener('click', publicarReel);
+
+  // Devocionales
+  document.getElementById('btnSubirDevocional').addEventListener('click', subirDevocional);
 
   document.getElementById('btnCrearGrupo').addEventListener('click', abrirModalGrupo);
   document.getElementById('grupoCancel').addEventListener('click', function() { cerrarModal('grupoModal'); });
@@ -6147,6 +6491,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderEventos();
   renderNoticias();
   renderReels();
+  renderDevocionales();
   actualizarBotonesPorRol();
   actualizarTabs();
   cargarHistorial();
@@ -6158,7 +6503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => { initMap('servicioMap', 'servicioMapSearch', 'servicioLat', 'servicioLng'); }, 500);
   }
 
-  console.log('✅ SAL Y LUZ v3: galería con etiquetas, editar descripción, WhatsApp en perfil, info en 2 columnas, sin badge admin, X para cerrar perfil.');
+  console.log('✅ SAL Y LUZ v4: tabs alineados a la izquierda en hamburguesa, mi ubicación en tiempo real con bombilla, QR de perfil, colección Devocionales.');
 });
 
 // ================================================================
@@ -6188,6 +6533,12 @@ window.toggleComentariosReel = toggleComentariosReel;
 window.comentarReel = comentarReel;
 window.compartirReel = compartirReel;
 window.eliminarReel = eliminarReel;
+window.renderDevocionales = renderDevocionales;
+window.subirDevocional = subirDevocional;
+window.verDevocional = verDevocional;
+window.eliminarDevocional = eliminarDevocional;
+window.puedeSubirDevocional = puedeSubirDevocional;
+window.renderAdminDevocionales = renderAdminDevocionales;
 window.renderGrupos = renderGrupos;
 window.unirseGrupo = unirseGrupo;
 window.abrirModalGrupo = abrirModalGrupo;
@@ -6277,6 +6628,8 @@ window.eliminarEvento = eliminarEvento;
 window.renderEventos = renderEventos;
 window.eliminarCuenta = eliminarCuenta;
 window.compartirPerfil = compartirPerfil;
+window.compartirPerfilQR = compartirPerfilQR;
+window.descargarQR = descargarQR;
 window.cargarPublicacionesUsuario = cargarPublicacionesUsuario;
 window.cargarSeguidores = cargarSeguidores;
 window.eliminarFoto = eliminarFoto;
